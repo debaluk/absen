@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class Holidays extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Hari Libur';
     protected static ?string $navigationLabel = 'Hari Libur';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
