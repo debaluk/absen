@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class ConnectionMonitoring extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Monitoring Koneksi';
     protected static ?string $navigationLabel = 'Monitoring Koneksi';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
