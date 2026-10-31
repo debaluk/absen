@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class EmployeeDeviceRegistration extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Registrasi Karyawan';
     protected static ?string $navigationLabel = 'Registrasi Karyawan';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
