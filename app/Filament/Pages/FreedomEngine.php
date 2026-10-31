@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class FreedomEngine extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Freedom Engine';
     protected static ?string $navigationLabel = 'Freedom Engine';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
