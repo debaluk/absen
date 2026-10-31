@@ -8,7 +8,7 @@ use UnitEnum;
 
 class AttendanceHistory extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Riwayat Absensi';
     protected static ?string $navigationLabel = 'Riwayat';
     protected static string | UnitEnum | null $navigationGroup = 'Absensi';
