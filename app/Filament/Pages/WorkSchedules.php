@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class WorkSchedules extends Page
 {
-    protected static string $view = 'filament.pages.work-schedules';
+    protected string $view = 'filament.pages.work-schedules';
     protected static ?string $title = 'Jam Kerja';
     protected static ?string $navigationLabel = 'Jam Kerja';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
