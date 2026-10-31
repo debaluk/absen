@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class AttendanceSummary extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Rekap Absensi';
     protected static ?string $navigationLabel = 'Rekap';
     protected static string | UnitEnum | null $navigationGroup = 'Absensi';
