@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class Employees extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Karyawan';
     protected static ?string $navigationLabel = 'Karyawan';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
