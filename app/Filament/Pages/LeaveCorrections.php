@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class LeaveCorrections extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Izin & Koreksi';
     protected static ?string $navigationLabel = 'Izin & Koreksi';
     protected static string | UnitEnum | null $navigationGroup = 'Absensi';
