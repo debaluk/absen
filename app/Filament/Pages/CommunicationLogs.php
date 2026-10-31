@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class CommunicationLogs extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Log Komunikasi';
     protected static ?string $navigationLabel = 'Log Komunikasi';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
