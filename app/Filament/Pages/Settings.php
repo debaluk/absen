@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class Settings extends Page
 {
-    protected static string $view = 'filament.pages.settings';
+    protected string $view = 'filament.pages.settings';
     protected static ?string $title = 'Pengaturan';
     protected static ?string $navigationLabel = 'Pengaturan';
     protected static string | UnitEnum | null $navigationGroup = 'Sistem';
