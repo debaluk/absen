@@ -5,7 +5,7 @@ use Filament\Pages\Page;
 use UnitEnum;
 class DeviceRegistry extends Page
 {
-    protected static string $view = 'filament.pages.module-placeholder';
+    protected string $view = 'filament.pages.module-placeholder';
     protected static ?string $title = 'Perangkat';
     protected static ?string $navigationLabel = 'Perangkat';
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
