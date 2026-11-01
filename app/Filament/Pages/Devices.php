@@ -29,18 +29,18 @@ class Devices extends Page
         $sync = app(FreedomFingerDeviceSynchronizer::class)->sync();
         $engine = $sync['engine'];
 
-        $devices = DB::table('freedom_finger_devices')
-            ->orderBy('device_name')
+        $devices = DB::table('devices')
+            ->orderBy('name')
             ->get()
             ->map(function ($device) {
                 return (object) [
-                    'id' => $device->id,
+                    'id' => $device->cloud_id,
                     'device_code' => $device->cloud_id,
-                    'device_name' => $device->device_name,
+                    'device_name' => $device->name,
                     'freedom_device_id' => $device->cloud_id,
-                    'ip_address' => $device->ip_address,
+                    'ip_address' => data_get(json_decode($device->info, true), 'ip'),
                     'last_seen_at' => $device->last_activity,
-                    'connection_state' => $device->is_connected ? 'online' : 'offline',
+                    'connection_state' => data_get(json_decode($device->info, true), 'connected') ? 'online' : 'offline',
                 ];
             });
 
