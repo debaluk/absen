@@ -11,8 +11,8 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = env('ADMIN_EMAIL', 'admin@example.com');
-        $password = env('ADMIN_PASSWORD');
+        $email = config('app.admin.email');
+        $password = config('app.admin.password');
 
         if (! is_string($password) || $password === '') {
             throw new RuntimeException('ADMIN_PASSWORD wajib diisi sebelum menjalankan seeder admin.');
@@ -21,7 +21,7 @@ class AdminUserSeeder extends Seeder
         User::firstOrCreate(
             ['email' => $email],
             [
-                'name' => env('ADMIN_NAME', 'Administrator'),
+                'name' => config('app.admin.name'),
                 'password' => Hash::make($password),
                 'email_verified_at' => now(),
             ]
