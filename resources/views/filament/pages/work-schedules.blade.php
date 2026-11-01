@@ -16,19 +16,17 @@
             </div>
 
             <div class="fs-schedule-grid fs-schedule-head">
-                <span class="col-span-2"></span>
-                <span class="col-span-1 text-center">Kerja</span>
-                <span class="col-span-5">Jam kerja</span>
-                <span class="col-span-2">Lembur</span>
-                <span class="col-span-2">Maks. jam</span>
+                <span>Kerja</span>
+                <span>Jam</span>
+                <span class="text-center">Lembur</span>
+                <span>Maks. jam</span>
             </div>
 
             <div class="fs-schedule-body">
                 @foreach ([1=>'Senin',2=>'Selasa',3=>'Rabu',4=>'Kamis',5=>'Jumat',6=>'Sabtu',0=>'Minggu'] as $day => $label)
                     <div class="fs-schedule-grid fs-schedule-row">
-                        <span class="fs-schedule-day">{{ $label }}</span>
-
                         <div class="fs-schedule-work">
+                            <span class="fs-schedule-day">{{ $label }}</span>
                             <label class="fs-switch">
                                 <input type="checkbox" wire:model.live="days.{{ $day }}.is_working" class="fs-switch-input">
                                 <span class="fs-switch-track"></span>
@@ -43,7 +41,7 @@
                                 <span class="fs-time-separator">–</span>
                                 <input type="time" wire:model="days.{{ $day }}.end_time"
                                     @disabled($days[$day]['is_free'] ?? false)
-                                    class="w-24 rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
+                                    class="fs-time-input">
                                 <label class="fs-free-label">
                                     <input type="checkbox" wire:model="days.{{ $day }}.is_free"> Bebas
                                 </label>
@@ -53,9 +51,9 @@
                         </div>
 
                         <div class="fs-schedule-overtime">
-                            <label class="relative inline-flex cursor-pointer items-center">
-                                <input type="checkbox" wire:model="days.{{ $day }}.overtime_enabled" class="peer sr-only">
-                                <span class="h-5 w-9 rounded-full bg-gray-300 transition peer-checked:bg-success-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4"></span>
+                            <label class="fs-switch">
+                                <input type="checkbox" wire:model="days.{{ $day }}.overtime_enabled" class="fs-switch-input">
+                                <span class="fs-switch-track"></span>
                             </label>
                         </div>
 
