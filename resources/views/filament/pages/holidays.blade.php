@@ -7,13 +7,13 @@
             </div>
             <form wire:submit="saveHoliday" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label class="block text-sm">
-                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Tanggal Libur</span>
-                    <input type="date" wire:model="date" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                    <span class="mb-1.5 block font-medium text-gray-700 dark:text-gray-300">Tanggal Libur</span>
+                    <input type="date" wire:model="date" class="block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                     @error('date') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block text-sm">
-                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Keterangan Libur</span>
-                    <input type="text" wire:model="note" maxlength="255" placeholder="Contoh: Hari Raya Idul Fitri" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                    <span class="mb-1.5 block font-medium text-gray-700 dark:text-gray-300">Keterangan Libur</span>
+                    <input type="text" wire:model="note" maxlength="255" placeholder="Contoh: Hari Raya Idul Fitri" class="block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500">
                     @error('note') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <div class="block text-sm md:col-span-2">
