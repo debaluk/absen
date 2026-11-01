@@ -84,7 +84,7 @@
                     <span class="font-medium">Toleransi terlambat</span>
                     <div class="mt-1 flex items-center gap-2">
                         <input type="number" min="0" max="240" wire:model="lateToleranceMinutes"
-                            class="w-20 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
+                            class="fs-rule-input">
                         <span class="text-gray-500">menit</span>
                     </div>
                     <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Keterlambatan tetap dihitung dari jam masuk.</span>
@@ -94,7 +94,7 @@
                     <span class="font-medium">Scan kedua dihitung pulang bila minimal</span>
                     <div class="mt-1 flex items-center gap-2">
                         <input type="number" min="1" max="240" wire:model="checkoutScanGapMinutes"
-                            class="w-20 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
+                            class="fs-rule-input">
                         <span class="text-gray-500">menit setelah masuk</span>
                     </div>
                     <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Scan yang terlalu dekat dianggap scan ganda.</span>
@@ -104,7 +104,7 @@
                     <span class="font-medium">Lembur dihitung mulai</span>
                     <div class="mt-1 flex items-center gap-2">
                         <input type="number" min="0" max="600" wire:model="overtimeThresholdMinutes"
-                            class="w-20 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
+                            class="fs-rule-input">
                         <span class="text-gray-500">menit setelah jam pulang</span>
                     </div>
                     <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Lembur di bawah batas ini dihitung 0.</span>
