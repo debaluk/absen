@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Services\FreedomFingerDeviceSynchronizer;
 use BackedEnum;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use UnitEnum;
@@ -24,14 +25,70 @@ class Devices extends Page
 
     protected ?string $subheading = 'Status koneksi dan informasi seluruh mesin absensi.';
 
+    public function assignWorkLocation(string $cloudId, ?string $workLocationId): void
+    {
+        $deviceExists = DB::table('devices')->where('cloud_id', $cloudId)->exists();
+
+        abort_unless($deviceExists, 404);
+
+        if (blank($workLocationId)) {
+            DB::table('devices_location')->where('cloud_id', $cloudId)->delete();
+
+            Notification::make()
+                ->title('Lokasi kerja perangkat dihapus.')
+                ->success()
+                ->send();
+
+            return;
+        }
+
+        $locationExists = DB::table('work_locations')
+            ->where('id', $workLocationId)
+            ->where('is_active', true)
+            ->exists();
+
+        if (! $locationExists) {
+            Notification::make()
+                ->title('Lokasi kerja tidak valid atau tidak aktif.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        DB::table('devices_location')->updateOrInsert(
+            ['cloud_id' => $cloudId],
+            ['work_location_id' => $workLocationId],
+        );
+
+        Notification::make()
+            ->title('Lokasi kerja perangkat berhasil disimpan.')
+            ->success()
+            ->send();
+    }
+
     protected function getViewData(): array
     {
         $sync = app(FreedomFingerDeviceSynchronizer::class)->sync();
         $engine = $sync['engine'];
 
-        $devices = DB::table('devices')
+        $workLocations = DB::table('work_locations')
+            ->where('is_active', true)
             ->orderBy('name')
-            ->get()
+            ->get(['id', 'name']);
+
+        $devices = DB::table('devices')
+            ->leftJoin('devices_location', 'devices_location.cloud_id', '=', 'devices.cloud_id')
+            ->leftJoin('work_locations', 'work_locations.id', '=', 'devices_location.work_location_id')
+            ->orderBy('devices.name')
+            ->get([
+                'devices.cloud_id',
+                'devices.name',
+                'devices.info',
+                'devices.last_activity',
+                'devices_location.work_location_id',
+                'work_locations.name as work_location_name',
+            ])
             ->map(function ($device) {
                 return (object) [
                     'id' => $device->cloud_id,
@@ -41,11 +98,14 @@ class Devices extends Page
                     'ip_address' => data_get(json_decode($device->info, true), 'ip'),
                     'last_seen_at' => $device->last_activity,
                     'connection_state' => data_get(json_decode($device->info, true), 'connected') ? 'online' : 'offline',
+                    'work_location_id' => $device->work_location_id,
+                    'work_location_name' => $device->work_location_name,
                 ];
             });
 
         return [
             'devices' => $devices,
+            'workLocations' => $workLocations,
             'totalDevices' => $devices->count(),
             'onlineDevices' => $devices->where('connection_state', 'online')->count(),
             'offlineDevices' => $devices->where('connection_state', 'offline')->count(),
