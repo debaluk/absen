@@ -2,3 +2,197 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+
+/* =========================================================
+   Fingerspot Admin Theme
+   Fondasi visual Filament: bersih, tegas, dan responsif.
+   ========================================================= */
+
+:root {
+    --fs-sidebar: #172235;
+    --fs-sidebar-muted: #9aa8bb;
+    --fs-sidebar-hover: #24344c;
+    --fs-sidebar-active: #334761;
+    --fs-border: #e7ebf1;
+    --fs-surface: #ffffff;
+    --fs-page: #f5f7fa;
+    --fs-text: #253247;
+}
+
+/* Latar dan tipografi */
+.fi-body {
+    background: var(--fs-page);
+    color: var(--fs-text);
+}
+
+.fi-main {
+    background: var(--fs-page);
+}
+
+.fi-header-heading {
+    letter-spacing: -0.025em;
+}
+
+/* Sidebar gelap dengan kontras yang nyaman */
+.fi-sidebar {
+    background: var(--fs-sidebar) !important;
+    border-inline-end: 1px solid rgb(255 255 255 / 6%);
+}
+
+.fi-sidebar-header {
+    background: var(--fs-sidebar);
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.fi-sidebar-nav {
+    padding: 1rem 0.75rem;
+}
+
+.fi-sidebar-group-label {
+    color: var(--fs-sidebar-muted) !important;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.fi-sidebar-item-button {
+    min-height: 2.65rem;
+    border-radius: 0.6rem;
+    color: #d7dfeb !important;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.fi-sidebar-item-button:hover {
+    background: var(--fs-sidebar-hover) !important;
+    color: #fff !important;
+}
+
+.fi-sidebar-item-active > .fi-sidebar-item-button,
+.fi-sidebar-item-button[aria-current="page"] {
+    background: var(--fs-sidebar-active) !important;
+    color: #fff !important;
+}
+
+.fi-sidebar-item-icon {
+    color: #aab8ca !important;
+}
+
+.fi-sidebar-item-active .fi-sidebar-item-icon {
+    color: #fbbf24 !important;
+}
+
+/* Header dibuat ringan dan terpisah dari area kerja */
+.fi-topbar {
+    background: rgb(255 255 255 / 94%);
+    border-bottom: 1px solid var(--fs-border);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 3%);
+    backdrop-filter: blur(12px);
+}
+
+/* Area konten dan judul halaman */
+.fi-main-ctn {
+    background: var(--fs-page);
+}
+
+.fi-header {
+    margin-bottom: 1.25rem;
+}
+
+.fi-header-heading {
+    color: #172235;
+    font-weight: 700;
+}
+
+/* Widget dan panel */
+.fi-section,
+.fi-wi,
+.fi-ta-ctn,
+.fi-fo-component-ctn {
+    border-color: var(--fs-border) !important;
+    border-radius: 0.85rem !important;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 3%);
+}
+
+.fi-section-header {
+    border-bottom-color: var(--fs-border);
+}
+
+/* Tabel: lebih lega dan mudah dipindai */
+.fi-ta-header-cell {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.fi-ta-cell {
+    color: #334155;
+}
+
+.fi-ta-row {
+    transition: background-color 120ms ease;
+}
+
+.fi-ta-row:hover {
+    background: #f8fafc;
+}
+
+/* Form */
+.fi-input-wrp {
+    border-color: #dce3ec;
+    border-radius: 0.55rem;
+    box-shadow: none;
+}
+
+.fi-input-wrp:focus-within {
+    border-color: #d69e24;
+    box-shadow: 0 0 0 3px rgb(217 160 39 / 13%);
+}
+
+.fi-fo-field-wrp-label {
+    color: #475569;
+    font-weight: 600;
+}
+
+/* Tombol */
+.fi-btn {
+    border-radius: 0.55rem;
+    font-weight: 600;
+}
+
+/* Badge dan status */
+.fi-badge {
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+/* Tampilan layar kecil */
+@media (max-width: 767px) {
+    .fi-main {
+        padding-inline: 1rem;
+    }
+
+    .fi-header {
+        gap: 0.75rem;
+    }
+
+    .fi-section,
+    .fi-wi,
+    .fi-ta-ctn {
+        border-radius: 0.7rem !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
