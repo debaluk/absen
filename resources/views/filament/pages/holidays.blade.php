@@ -3,7 +3,6 @@
         <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
             <div class="mb-4">
                 <h2 class="text-sm font-semibold text-gray-950 dark:text-white">{{ $holidayId ? 'Ubah Hari Libur' : 'Tambah Hari Libur' }}</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pilih satu atau beberapa cabang. Jika tidak memilih cabang, hari libur berlaku untuk semua cabang.</p>
             </div>
             <form wire:submit="saveHoliday" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label class="block text-sm">
