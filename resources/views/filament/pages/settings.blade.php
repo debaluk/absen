@@ -1,9 +1,26 @@
- <x-filament-panels::page>
-    <x-filament::tabs label="Pengaturan organisasi">
-        <x-filament::tabs.item :active="$activeTab === 'umum'" wire:click="setTab('umum')">Umum</x-filament::tabs.item>
-        <x-filament::tabs.item :active="$activeTab === 'jabatan'" wire:click="setTab('jabatan')">Jabatan</x-filament::tabs.item>
-        <x-filament::tabs.item :active="$activeTab === 'lokasi-kerja'" wire:click="setTab('lokasi-kerja')">Lokasi Kerja</x-filament::tabs.item>
-    </x-filament::tabs>
+<x-filament-panels::page>
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+    <div class="flex flex-wrap gap-1 border-b border-gray-200 bg-gray-50 px-4 pt-3 dark:border-gray-700 dark:bg-gray-800">
+        @php
+            $tabs = [
+                'umum' => 'Umum',
+                'jabatan' => 'Jabatan',
+                'lokasi-kerja' => 'Lokasi Kerja',
+            ];
+        @endphp
+        @foreach ($tabs as $key => $label)
+            <button
+                type="button"
+                wire:click="setTab('{{ $key }}')"
+                @class([
+                    'relative -mb-px rounded-t-lg border border-b-0 px-5 py-3 text-sm font-medium transition',
+                    'border-gray-200 bg-white text-primary-600 dark:border-gray-700 dark:bg-gray-900 dark:text-primary-400' => $activeTab === $key,
+                    'border-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' => $activeTab !== $key,
+                ])
+            >{{ $label }}</button>
+        @endforeach
+    </div>
+    <div class="bg-white p-5 dark:bg-gray-900 sm:p-6">
 
     @if ($activeTab === 'umum')
         <form wire:submit="saveCompany" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
@@ -173,4 +190,5 @@
             </div>
         </div>
     @endif
+    </div>
 </x-filament-panels::page>
