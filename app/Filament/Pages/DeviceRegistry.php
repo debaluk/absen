@@ -1,10 +1,10 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
 class DeviceRegistry extends Page
@@ -51,11 +51,9 @@ class DeviceRegistry extends Page
                 'devices.model',
                 'devices.ip_address',
                 'devices.last_seen_at',
-                'devices.device_status',
                 'engines.engine_name',
                 'engines.connection_status as engine_status',
                 'status_logs.status as latest_status',
-                'status_logs.checked_at as status_checked_at',
             ])
             ->selectSub(
                 DB::table('employee_devices')
