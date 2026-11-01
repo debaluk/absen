@@ -1,10 +1,10 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\Http;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\Http;
 use Throwable;
 use UnitEnum;
 
