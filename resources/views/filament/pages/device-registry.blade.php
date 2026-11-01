@@ -1,18 +1,21 @@
 <x-filament-panels::page>
     <div class="space-y-6">
         <x-filament::section>
-            <div class="flex items-center justify-between gap-4">
-                <div class="flex items-center gap-2 whitespace-nowrap">
-                    <x-filament::badge color="gray">Total mesin</x-filament::badge>
-                    <span class="text-2xl font-semibold">{{ $totalDevices }}</span>
+            <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
+                <div class="flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-o-server-stack" class="h-5 w-5 text-gray-500" />
+                    <span class="font-semibold">Total mesin</span>
+                    <span class="text-lg font-semibold">{{ $totalDevices }}</span>
                 </div>
-                <div class="flex items-center gap-2 whitespace-nowrap">
-                    <x-filament::badge color="success">Terhubung</x-filament::badge>
-                    <span class="text-2xl font-semibold">{{ $onlineDevices }}</span>
+                <div class="flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-o-signal" class="h-5 w-5 text-success-600" />
+                    <span class="font-semibold">Terhubung</span>
+                    <span class="text-lg font-semibold">{{ $onlineDevices }}</span>
                 </div>
-                <div class="flex items-center gap-2 whitespace-nowrap">
-                    <x-filament::badge color="danger">Terputus</x-filament::badge>
-                    <span class="text-2xl font-semibold">{{ $offlineDevices }}</span>
+                <div class="flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-o-signal-slash" class="h-5 w-5 text-danger-600" />
+                    <span class="font-semibold">Terputus</span>
+                    <span class="text-lg font-semibold">{{ $offlineDevices }}</span>
                 </div>
             </div>
         </x-filament::section>
