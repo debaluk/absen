@@ -19,7 +19,7 @@
                     <div class="flex gap-2"><x-filament::button size="sm" color="gray" wire:click="exportExcel">Export Excel</x-filament::button><x-filament::button size="sm" wire:click="openCreateLeave">Tambah Izin</x-filament::button></div>
                 </div>
                 <div class="overflow-x-auto"><table class="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-                    <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-600 dark:bg-gray-800"><tr><th class="px-4 py-3">Karyawan</th><th class="px-4 py-3">Jenis</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Keterangan / Alasan</th><th class="px-4 py-3">Aging</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
+                    <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-600 dark:bg-gray-800"><tr><th class="px-4 py-3">Karyawan</th><th class="px-4 py-3">Jenis</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Keterangan / Alasan</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($leaves as $leave)
                         <tr class="text-gray-700 dark:text-gray-200">
@@ -27,12 +27,12 @@
                             <td class="px-4 py-3">{{ $leaveKinds[$leave->kind] ?? ucfirst($leave->kind) }}</td>
                             <td class="whitespace-nowrap px-4 py-3">{{ $leave->display_date }}</td>
                             <td class="px-4 py-3">{{ $leave->note ?: '—' }}</td>
-                            <td class="whitespace-nowrap px-4 py-3">{{ $leave->aging_days }} hari</td>
+                            
                             <td class="px-4 py-3"><div class="flex justify-center gap-3"><button type="button" wire:click="editLeave('{{ $leave->id }}')" title="Ubah"><x-heroicon-m-pencil-square class="h-5 w-5 text-primary-600" /></button>
                             @if ($leave->can_delete)<button type="button" wire:click="deleteLeave('{{ $leave->id }}')" wire:confirm="Hapus data izin ini?" title="Hapus"><x-heroicon-m-trash class="h-5 w-5 text-danger-600" /></button>@else<span title="Batas penghapusan sudah lewat"><x-heroicon-m-lock-closed class="h-5 w-5 text-gray-400" /></span>@endif</div></td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Belum ada data izin pada filter yang dipilih.</td></tr>
+                        <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">Belum ada data izin pada filter yang dipilih.</td></tr>
                     @endforelse
                     </tbody>
                 </table></div>
