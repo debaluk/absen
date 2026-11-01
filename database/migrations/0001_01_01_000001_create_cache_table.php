@@ -27,7 +27,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('cache_locks');
-        Schema::dropIfExists('cache');
+        // Tidak menghapus tabel karena bisa jadi sudah ada sebelum migration.
     }
 };
