@@ -163,11 +163,22 @@ class WorkSchedules extends Page
             'assignStartDate' => ['required', 'date'],
         ]);
 
-        DB::transaction(function (): void {
-            DB::table('employee_work_schedule_assignments')
-                ->where('employee_id', $this->assignEmployeeId)
-                ->whereNull('end_date')
-                ->update(['end_date' => date('Y-m-d', strtotime($this->assignStartDate . ' -1 day')), 'updated_at' => now()]);
+        $currentAssignment = DB::table('employee_work_schedule_assignments')
+            ->where('employee_id', $this->assignEmployeeId)
+            ->whereNull('end_date')
+            ->first();
+
+        if ($currentAssignment && $this->assignStartDate <= $currentAssignment->start_date) {
+            $this->addError('assignStartDate', 'Tanggal mulai harus setelah tanggal mulai jadwal yang sedang berlaku.');
+            return;
+        }
+
+        DB::transaction(function () use ($currentAssignment): void {
+            if ($currentAssignment) {
+                DB::table('employee_work_schedule_assignments')
+                    ->where('id', $currentAssignment->id)
+                    ->update(['end_date' => date('Y-m-d', strtotime($this->assignStartDate . ' -1 day')), 'updated_at' => now()]);
+            }
 
             DB::table('employee_work_schedule_assignments')->insert([
                 'employee_id' => $this->assignEmployeeId,
