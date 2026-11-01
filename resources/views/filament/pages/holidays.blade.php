@@ -3,7 +3,7 @@
         <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
             <div class="mb-4">
                 <h2 class="text-sm font-semibold text-gray-950 dark:text-white">{{ $holidayId ? 'Ubah Hari Libur' : 'Tambah Hari Libur' }}</h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pilih semua cabang untuk hari libur bersama, atau tentukan satu cabang.</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pilih satu atau beberapa cabang. Jika tidak memilih cabang, hari libur berlaku untuk semua cabang.</p>
             </div>
             <form wire:submit="saveHoliday" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <label class="block text-sm">
@@ -11,16 +11,20 @@
                     <input type="date" wire:model="date" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                     @error('date') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
                 </label>
-                <label class="block text-sm">
+                <div class="block text-sm">
                     <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Berlaku untuk</span>
-                    <select wire:model="workLocationId" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-                        <option value="">Semua Cabang</option>
+                    <div class="max-h-36 space-y-2 overflow-y-auto rounded-lg border border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-800">
                         @foreach ($workLocations as $location)
-                            <option value="{{ $location->id }}">{{ $location->name }}{{ $location->is_active ? '' : ' (Nonaktif)' }}</option>
+                            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                                <input type="checkbox" wire:model="workLocationIds" value="{{ $location->id }}" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <span>{{ $location->name }}{{ $location->is_active ? '' : ' (Nonaktif)' }}</span>
+                            </label>
                         @endforeach
-                    </select>
-                    @error('workLocationId') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
-                </label>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Kosongkan pilihan untuk Semua Cabang.</p>
+                    @error('workLocationIds') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
+                    @error('workLocationIds.*') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
+                </div>
                 <label class="block text-sm md:col-span-2">
                     <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Keterangan</span>
                     <input type="text" wire:model="note" maxlength="255" placeholder="Contoh: Hari Raya Idul Fitri" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
@@ -85,10 +89,10 @@
                                 <tr class="text-gray-700 dark:text-gray-200">
                                     <td class="whitespace-nowrap px-4 py-3 font-medium">{{ \Illuminate\Support\Carbon::parse($holiday->date)->translatedFormat('d M Y') }}</td>
                                     <td class="whitespace-nowrap px-4 py-3">
-                                        @if ($holiday->work_location_id === null)
+                                        @if (blank($holiday->work_location_names))
                                             <span class="inline-flex rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">Semua Cabang</span>
                                         @else
-                                            {{ $holiday->work_location_name ?: 'Lokasi tidak ditemukan' }}
+                                            {{ $holiday->work_location_names }}
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">{{ $holiday->note ?: '—' }}</td>
@@ -118,9 +122,9 @@
                             </div>
                             <div class="space-y-1">
                                 @foreach ($calendarDay['holidays'] as $calendarHoliday)
-                                    <div class="rounded px-1.5 py-1 text-[10px] leading-tight sm:text-xs {{ $calendarHoliday->work_location_id === null ? 'bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200' }}" title="{{ $calendarHoliday->note }}{{ $calendarHoliday->work_location_name ? ' - '.$calendarHoliday->work_location_name : ' - Semua Cabang' }}">
+                                    <div class="rounded px-1.5 py-1 text-[10px] leading-tight sm:text-xs {{ blank($calendarHoliday->work_location_names) ? 'bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200' }}" title="{{ $calendarHoliday->note }}{{ $calendarHoliday->work_location_names ? ' - '.$calendarHoliday->work_location_names : ' - Semua Cabang' }}">
                                         <div class="truncate font-semibold">{{ $calendarHoliday->note ?: 'Hari Libur' }}</div>
-                                        <div class="truncate opacity-80">{{ $calendarHoliday->work_location_name ?: 'Semua Cabang' }}</div>
+                                        <div class="truncate opacity-80">{{ $calendarHoliday->work_location_names ?: 'Semua Cabang' }}</div>
                                     </div>
                                 @endforeach
                             </div>
