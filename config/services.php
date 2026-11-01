@@ -2,6 +2,10 @@
 
 return [
 
+    'freedom_finger' => [
+        'url' => env('FREEDOM_FINGER_URL', 'http://103.119.237.50:8013'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
