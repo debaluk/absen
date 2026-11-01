@@ -1,51 +1,20 @@
 <x-filament-panels::page>
     <div class="space-y-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-            <div class="max-w-4xl space-y-1">
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Jadwal</h2>
-                <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                    Jadwal utama menjadi jadwal default untuk karyawan.
-                    Lembur diatur per hari. Hari kerja dihitung lembur setelah jam pulang, sedangkan hari libur seluruh jam kerja dihitung lembur.
-                    Batas maksimal 0 berarti tanpa batas. Jam bebas berarti karyawan dapat datang dan pulang kapan saja selama melakukan scan.
-                    Bulatan warna menunjukkan warna jadwal.
-                </p>
-            </div>
-            <x-filament::button size="sm" wire:click="newSchedule" icon="heroicon-m-plus">
-                Tambah jadwal lain
-            </x-filament::button>
+        <div class="max-w-4xl space-y-1">
+            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Jadwal Kerja Reguler</h2>
+            <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                Jadwal ini berlaku sebagai jadwal reguler karyawan.
+                Lembur diatur per hari. Pada hari kerja, lembur dihitung setelah jam pulang.
+                Pada hari libur, seluruh jam kerja dihitung lembur.
+                Maksimal jam lembur 0 berarti tanpa batas. Jam bebas berarti karyawan dapat datang dan pulang kapan saja selama melakukan scan.
+            </p>
         </div>
 
-        @if ($scheduleId === 'new' || $schedules->isNotEmpty())
-            <div class="flex flex-wrap items-center gap-2">
-                <button type="button" wire:click="selectSchedule('main')"
-                    class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm {{ $scheduleId === 'main' ? 'border-primary-500 bg-primary-50 dark:bg-primary-950' : 'border-gray-200 dark:border-gray-700' }}">
-                    <span class="h-3 w-3 rounded-full bg-slate-500"></span> Utama
-                </button>
-                @foreach ($schedules as $schedule)
-                    <button type="button" wire:click="selectSchedule(@js($schedule->id))"
-                        class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm {{ $scheduleId === $schedule->id ? 'border-primary-500 bg-primary-50 dark:bg-primary-950' : 'border-gray-200 dark:border-gray-700' }}">
-                        <span class="h-3 w-3 rounded-full" style="background: {{ $schedule->color ?: '#64748b' }}"></span>
-                        {{ $schedule->name }}
-                    </button>
-                @endforeach
-            </div>
-        @endif
-
         <section class="max-w-2xl rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <span class="h-4 w-4 rounded-full" style="background: {{ $scheduleColor }}"></span>
-                    <h3 class="text-sm font-semibold">{{ $scheduleId === 'main' ? 'Utama' : ($scheduleName ?: 'Jadwal baru') }}</h3>
-                </div>
-                @if ($scheduleId !== 'main')
-                    <div class="flex items-center gap-2">
-                        <input type="text" wire:model="scheduleName" placeholder="Nama jadwal"
-                            class="w-40 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
-                        <input type="color" wire:model="scheduleColor" title="Warna jadwal" class="h-9 w-10 rounded border-gray-300">
-                    </div>
-                @endif
+            <div class="mb-3 flex items-center gap-2">
+                <span class="h-4 w-4 rounded-full bg-slate-500"></span>
+                <h3 class="text-sm font-semibold">Jadwal Utama</h3>
             </div>
-            @error('scheduleName')<p class="mb-2 text-xs text-danger-600">{{ $message }}</p>@enderror
 
             <div class="mb-1 grid grid-cols-12 gap-2 px-1 text-[11px] text-gray-500">
                 <span class="col-span-2"></span>
@@ -96,20 +65,15 @@
             </div>
 
             <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-                <span class="text-[11px] text-gray-500">Maks. jam lembur: 0 = bebas / tanpa batas.</span>
-                <div class="flex items-center gap-2">
-                    @if ($scheduleId !== 'main' && $scheduleId !== 'new')
-                        <x-filament::button color="danger" size="sm" outlined wire:click="deleteSchedule(@js($scheduleId))" wire:confirm="Hapus jadwal ini?">Hapus</x-filament::button>
-                    @endif
-                    <x-filament::button size="sm" wire:click="saveSchedule">Simpan jadwal</x-filament::button>
-                </div>
+                <span class="text-[11px] text-gray-500">Maks. jam lembur: 0 = tanpa batas.</span>
+                <x-filament::button size="sm" wire:click="saveSchedule">Simpan jadwal</x-filament::button>
             </div>
         </section>
 
         <section class="space-y-2">
             <div>
                 <h3 class="text-sm font-semibold">Aturan rekap</h3>
-                <p class="text-xs text-gray-500">Berlaku untuk semua jadwal.</p>
+                <p class="text-xs text-gray-500">Berlaku untuk jadwal reguler.</p>
             </div>
             <form wire:submit="saveRules" class="grid gap-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 md:grid-cols-3">
                 <label class="block text-xs">
@@ -129,7 +93,7 @@
                             class="w-20 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
                         <span class="text-gray-500">menit setelah masuk</span>
                     </div>
-                    <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Scan yang terlalu dekat dianggap scan ganda. Hari jam bebas: scan terakhir adalah pulang; scan tanpa pasangan menjadi scan berikutnya dalam 24 jam.</span>
+                    <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Scan yang terlalu dekat dianggap scan ganda.</span>
                     @error('checkoutScanGapMinutes')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
                 </label>
                 <label class="block text-xs">
@@ -139,7 +103,7 @@
                             class="w-20 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
                         <span class="text-gray-500">menit setelah jam pulang</span>
                     </div>
-                    <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Lembur di bawah batas ini dihitung 0. Hari yang dihitung lembur diatur per hari pada jadwal.</span>
+                    <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Lembur di bawah batas ini dihitung 0.</span>
                     @error('overtimeThresholdMinutes')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
                 </label>
                 <div class="md:col-span-3 flex justify-end">
