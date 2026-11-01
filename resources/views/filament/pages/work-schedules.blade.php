@@ -16,10 +16,10 @@
             </div>
 
             <div class="fs-schedule-grid fs-schedule-head">
-                <span>Kerja</span>
-                <span>Jam</span>
+                <span>Hari</span>
+                <span>Jam Kerja</span>
                 <span class="text-center">Lembur</span>
-                <span>Maks. jam</span>
+                <span>Max. Jam Lembur</span>
             </div>
 
             <div class="fs-schedule-body">
