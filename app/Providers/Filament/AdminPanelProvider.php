@@ -41,7 +41,6 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()->label('Absensi'),
                 NavigationGroup::make()->label('Kelola'),
-                NavigationGroup::make()->label('Sistem'),
                 NavigationGroup::make()->label('Pengaturan'),
             ])
             ->middleware([
