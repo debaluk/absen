@@ -72,6 +72,19 @@ return new class extends Migration
             );
         }
 
+        $duplicateScopes = DB::table('holidays')
+            ->leftJoin('holiday_work_locations', 'holiday_work_locations.holiday_id', '=', 'holidays.id')
+            ->select('holidays.date', DB::raw('IFNULL(holiday_work_locations.work_location_id, 0) as scope_key'))
+            ->groupBy('holidays.date', DB::raw('IFNULL(holiday_work_locations.work_location_id, 0)'))
+            ->havingRaw('COUNT(*) > 1')
+            ->exists();
+
+        if ($duplicateScopes) {
+            throw new RuntimeException(
+                'Rollback tidak dapat dilakukan: terdapat tanggal dan cakupan cabang yang duplikat.'
+            );
+        }
+
         Schema::table('holidays', function (Blueprint $table) {
             $table->unsignedBigInteger('work_location_id')->nullable()->after('date');
         });
@@ -87,18 +100,6 @@ return new class extends Migration
                 ]);
             }
         });
-
-        $duplicateScopes = DB::table('holidays')
-            ->select('date', DB::raw('IFNULL(work_location_id, 0) as scope_key'))
-            ->groupBy('date', DB::raw('IFNULL(work_location_id, 0)'))
-            ->havingRaw('COUNT(*) > 1')
-            ->exists();
-
-        if ($duplicateScopes) {
-            throw new RuntimeException(
-                'Rollback tidak dapat dilakukan: terdapat tanggal dan cakupan cabang yang duplikat.'
-            );
-        }
 
         Schema::table('holidays', function (Blueprint $table) {
             $table->foreign('work_location_id')
