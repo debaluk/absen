@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName(new HtmlString('<span class="font-bold tracking-wide">HADIRRA</span><span class="mt-0.5 block text-xs font-normal italic opacity-75">Smart Attendance</span>'))
+            ->brandName(new HtmlString('<span class="hadirra-brand"><strong>HADIRRA</strong><em>Smart Attendance</em></span>'))
             ->colors([
                 'primary' => Color::Amber,
             ])
