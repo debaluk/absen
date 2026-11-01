@@ -72,9 +72,18 @@ class Settings extends Page
             'companyWebsite' => ['nullable', 'url', 'max:255'],
         ]);
 
-        DB::table('company_profiles')->updateOrInsert(
-            ['id' => 1],
-            [
+        if (DB::table('company_profiles')->where('id', 1)->exists()) {
+            DB::table('company_profiles')->where('id', 1)->update([
+                'company_name' => $data['companyName'],
+                'address' => $data['companyAddress'] ?: null,
+                'phone' => $data['companyPhone'] ?: null,
+                'email' => $data['companyEmail'] ?: null,
+                'website' => $data['companyWebsite'] ?: null,
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('company_profiles')->insert([
+                'id' => 1,
                 'company_name' => $data['companyName'],
                 'address' => $data['companyAddress'] ?: null,
                 'phone' => $data['companyPhone'] ?: null,
@@ -82,10 +91,10 @@ class Settings extends Page
                 'website' => $data['companyWebsite'] ?: null,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
-        );
+            ]);
+        }
 
-        $this->dispatch('notify', type: 'success', message: 'Informasi perusahaan berhasil disimpan.');
+        Notification::make()->title('Informasi perusahaan berhasil disimpan.')->success()->send();
     }
 
     public function editPosition(int $id): void
@@ -143,7 +152,7 @@ class Settings extends Page
         }
 
         $this->resetPositionForm();
-        $this->dispatch('notify', type: 'success', message: 'Jabatan berhasil disimpan.');
+        Notification::make()->title('Jabatan berhasil disimpan.')->success()->send();
     }
 
     private function isPositionDescendant(int $candidateId, int $ancestorId): bool
@@ -183,12 +192,12 @@ class Settings extends Page
     public function deletePosition(int $id): void
     {
         if (DB::table('job_positions')->where('parent_id', $id)->exists()) {
-            $this->dispatch('notify', type: 'danger', message: 'Jabatan masih memiliki bawahan dan tidak dapat dihapus.');
+            Notification::make()->title('Jabatan masih memiliki bawahan dan tidak dapat dihapus.')->danger()->send();
             return;
         }
 
         DB::table('job_positions')->where('id', $id)->delete();
-        $this->dispatch('notify', type: 'success', message: 'Jabatan berhasil dihapus.');
+        Notification::make()->title('Jabatan berhasil dihapus.')->success()->send();
     }
 
     public function resetPositionForm(): void
@@ -238,13 +247,13 @@ class Settings extends Page
         }
 
         $this->resetLocationForm();
-        $this->dispatch('notify', type: 'success', message: 'Lokasi kerja berhasil disimpan.');
+        Notification::make()->title('Lokasi kerja berhasil disimpan.')->success()->send();
     }
 
     public function deleteLocation(int $id): void
     {
         DB::table('work_locations')->where('id', $id)->delete();
-        $this->dispatch('notify', type: 'success', message: 'Lokasi kerja berhasil dihapus.');
+        Notification::make()->title('Lokasi kerja berhasil dihapus.')->success()->send();
     }
 
     public function resetLocationForm(): void
