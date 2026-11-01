@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\\Filament\\Pages;
 
 use BackedEnum;
-use Filament\Notifications\Notification;
-use Filament\Pages\Page;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Filament\\Notifications\\Notification;
+use Filament\\Pages\\Page;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Str;
 use UnitEnum;
 
 class WorkSchedules extends Page
@@ -21,56 +21,32 @@ class WorkSchedules extends Page
     protected static ?int $navigationSort = 2;
 
     public string $activeTab = 'jadwal';
-    public ?int $scheduleId = null;
-    public string $scheduleName = '';
+    public string $scheduleId = 'main';
+    public string $scheduleName = 'Jadwal Utama';
     public string $scheduleColor = '#64748b';
     public array $days = [];
-    public ?int $assignEmployeeId = null;
-    public ?int $assignScheduleId = null;
-    public string $assignStartDate = '';
-    public ?int $lateToleranceMinutes = 0;
-    public ?int $checkoutScanGapMinutes = 5;
-    public ?int $overtimeThresholdMinutes = 30;
+    public int $lateToleranceMinutes = 15;
+    public int $checkoutScanGapMinutes = 60;
+    public int $overtimeThresholdMinutes = 60;
 
     private const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
-    private const DAY_NAMES = [0 => 'Minggu', 1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu'];
 
     public function mount(): void
     {
         $this->loadSettings();
-        $default = DB::table('work_schedules')->where('is_default', true)->first();
-
-        if (! $default) {
-            $id = DB::table('work_schedules')->insertGetId([
-                'name' => 'Jadwal Utama',
-                'color' => '#64748b',
-                'is_default' => true,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $this->scheduleId = $id;
-            $this->saveDefaultDays($id);
-        } else {
-            $this->scheduleId = $default->id;
-            if (! DB::table('work_schedule_days')->where('work_schedule_id', $default->id)->exists()) {
-                $this->saveDefaultDays((int) $default->id);
-            }
-        }
-
         $this->loadSchedule();
     }
 
     public function setTab(string $tab): void
     {
-        if (in_array($tab, ['jadwal', 'penugasan', 'aturan'], true)) {
+        if (in_array($tab, ['jadwal', 'aturan'], true)) {
             $this->activeTab = $tab;
         }
     }
 
-    public function selectSchedule(int $id): void
+    public function selectSchedule(string $id): void
     {
-        if (DB::table('work_schedules')->where('id', $id)->where('is_active', true)->exists()) {
+        if ($id === 'main' || DB::table('schedules')->where('id', $id)->exists()) {
             $this->scheduleId = $id;
             $this->loadSchedule();
         }
@@ -78,7 +54,7 @@ class WorkSchedules extends Page
 
     public function newSchedule(): void
     {
-        $this->scheduleId = null;
+        $this->scheduleId = 'new';
         $this->scheduleName = '';
         $this->scheduleColor = '#64748b';
         $this->days = $this->defaultDays();
@@ -101,96 +77,72 @@ class WorkSchedules extends Page
             }
         }
 
-        DB::transaction(function (): void {
-            $data = [
-                'name' => trim($this->scheduleName),
-                'color' => $this->scheduleColor,
-                'updated_at' => now(),
-            ];
+        $days = [];
+        $overtime = [];
+        $overtimeMax = [];
 
-            if ($this->scheduleId) {
-                DB::table('work_schedules')->where('id', $this->scheduleId)->update($data);
+        for ($day = 0; $day < 7; $day++) {
+            $value = $this->days[$day] ?? [];
+            $working = (bool) ($value['is_working'] ?? false);
+            $free = (bool) ($value['is_free'] ?? false);
+
+            $days[] = ! $working ? null : ($free
+                ? ['free' => true]
+                : ['start' => $value['start_time'], 'end' => $value['end_time']]);
+            $overtime[] = (bool) ($value['overtime_enabled'] ?? false);
+            $overtimeMax[] = (float) ($value['max_overtime_hours'] ?? 0);
+        }
+
+        $payload = [
+            'name' => trim($this->scheduleName),
+            'color' => $this->scheduleColor,
+            'days' => json_encode($days, JSON_THROW_ON_ERROR),
+            'overtime' => json_encode($overtime, JSON_THROW_ON_ERROR),
+            'overtime_max' => json_encode($overtimeMax, JSON_THROW_ON_ERROR),
+            'updated_at' => now(),
+        ];
+
+        if ($this->scheduleId === 'main') {
+            DB::table('work_schedule_settings')->updateOrInsert(
+                ['id' => 1],
+                [
+                    'days' => $payload['days'],
+                    'tolerance' => $this->lateToleranceMinutes,
+                    'overtime' => $payload['overtime'],
+                    'overtime_min' => $this->overtimeThresholdMinutes,
+                    'overtime_max' => $payload['overtime_max'],
+                    'min_gap' => $this->checkoutScanGapMinutes,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ],
+            );
+        } else {
+            if ($this->scheduleId === 'new') {
+                $this->scheduleId = (string) Str::uuid();
+                $payload['id'] = $this->scheduleId;
+                $payload['created_at'] = now();
+                DB::table('schedules')->insert($payload);
             } else {
-                $data += ['is_default' => false, 'is_active' => true, 'created_at' => now()];
-                $this->scheduleId = DB::table('work_schedules')->insertGetId($data);
+                unset($payload['name'], $payload['color']);
+                DB::table('schedules')->where('id', $this->scheduleId)->update($payload);
             }
-
-            foreach ($this->days as $day => $values) {
-                DB::table('work_schedule_days')->updateOrInsert(
-                    ['work_schedule_id' => $this->scheduleId, 'day_of_week' => (int) $day],
-                    [
-                        'is_working' => (bool) ($values['is_working'] ?? false),
-                        'start_time' => ! empty($values['is_free']) || empty($values['is_working']) ? null : ($values['start_time'] ?: null),
-                        'end_time' => ! empty($values['is_free']) || empty($values['is_working']) ? null : ($values['end_time'] ?: null),
-                        'is_free' => (bool) ($values['is_free'] ?? false),
-                        'overtime_enabled' => (bool) ($values['overtime_enabled'] ?? false),
-                        'max_overtime_hours' => (float) ($values['max_overtime_hours'] ?? 0),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ],
-                );
-            }
-        });
+        }
 
         Notification::make()->title('Jadwal kerja berhasil disimpan.')->success()->send();
         $this->loadSchedule();
     }
 
-    public function deleteSchedule(int $id): void
+    public function deleteSchedule(string $id): void
     {
-        $schedule = DB::table('work_schedules')->find($id);
-        if (! $schedule || $schedule->is_default) {
+        if ($id === 'main') {
             Notification::make()->title('Jadwal utama tidak dapat dihapus.')->danger()->send();
             return;
         }
 
-        if (DB::table('employee_work_schedule_assignments')->where('work_schedule_id', $id)->whereNull('end_date')->exists()) {
-            Notification::make()->title('Jadwal masih digunakan karyawan. Akhiri penugasannya terlebih dahulu.')->danger()->send();
-            return;
-        }
-
-        DB::table('work_schedules')->where('id', $id)->update(['is_active' => false, 'updated_at' => now()]);
-        $this->scheduleId = (int) DB::table('work_schedules')->where('is_default', true)->value('id');
+        DB::table('schedules')->where('id', $id)->delete();
+        $this->scheduleId = 'main';
         $this->loadSchedule();
-        Notification::make()->title('Jadwal berhasil dinonaktifkan.')->success()->send();
-    }
-
-    public function saveAssignment(): void
-    {
-        $this->validate([
-            'assignEmployeeId' => ['required', 'integer', Rule::exists('employees', 'id')],
-            'assignScheduleId' => ['required', 'integer', Rule::exists('work_schedules', 'id')->where('is_active', true)],
-            'assignStartDate' => ['required', 'date'],
-        ]);
-
-        $currentAssignment = DB::table('employee_work_schedule_assignments')
-            ->where('employee_id', $this->assignEmployeeId)
-            ->whereNull('end_date')
-            ->first();
-
-        if ($currentAssignment && $this->assignStartDate <= $currentAssignment->start_date) {
-            $this->addError('assignStartDate', 'Tanggal mulai harus setelah tanggal mulai jadwal yang sedang berlaku.');
-            return;
-        }
-
-        DB::transaction(function () use ($currentAssignment): void {
-            if ($currentAssignment) {
-                DB::table('employee_work_schedule_assignments')
-                    ->where('id', $currentAssignment->id)
-                    ->update(['end_date' => date('Y-m-d', strtotime($this->assignStartDate . ' -1 day')), 'updated_at' => now()]);
-            }
-
-            DB::table('employee_work_schedule_assignments')->insert([
-                'employee_id' => $this->assignEmployeeId,
-                'work_schedule_id' => $this->assignScheduleId,
-                'start_date' => $this->assignStartDate,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        });
-
-        Notification::make()->title('Penugasan jadwal berhasil disimpan.')->success()->send();
-        $this->reset(['assignEmployeeId', 'assignScheduleId', 'assignStartDate']);
+        Notification::make()->title('Jadwal berhasil dihapus.')->success()->send();
     }
 
     public function saveRules(): void
@@ -201,69 +153,77 @@ class WorkSchedules extends Page
             'overtimeThresholdMinutes' => ['required', 'integer', 'min:0', 'max:600'],
         ]);
 
-        $row = [
-            'late_tolerance_minutes' => $this->lateToleranceMinutes,
-            'checkout_scan_gap_minutes' => $this->checkoutScanGapMinutes,
-            'overtime_threshold_minutes' => $this->overtimeThresholdMinutes,
-            'updated_at' => now(),
-        ];
-
-        if (DB::table('attendance_settings')->exists()) {
-            DB::table('attendance_settings')->limit(1)->update($row);
-        } else {
-            $row['created_at'] = now();
-            DB::table('attendance_settings')->insert($row);
-        }
+        $settings = DB::table('work_schedule_settings')->where('id', 1)->first();
+        DB::table('work_schedule_settings')->updateOrInsert(
+            ['id' => 1],
+            [
+                'days' => $settings?->days ?? json_encode($this->defaultDaysJson(), JSON_THROW_ON_ERROR),
+                'tolerance' => $this->lateToleranceMinutes,
+                'overtime' => $settings?->overtime ?? json_encode(array_fill(0, 7, false), JSON_THROW_ON_ERROR),
+                'overtime_min' => $this->overtimeThresholdMinutes,
+                'overtime_max' => $settings?->overtime_max ?? json_encode(array_fill(0, 7, 0), JSON_THROW_ON_ERROR),
+                'min_gap' => $this->checkoutScanGapMinutes,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
 
         Notification::make()->title('Aturan absensi berhasil disimpan.')->success()->send();
     }
 
     protected function getViewData(): array
     {
-        $schedules = DB::table('work_schedules')->where('is_active', true)->orderByDesc('is_default')->orderBy('name')->get();
-        $employees = DB::table('employees')->orderBy('name')->get();
-        $assignments = DB::table('employee_work_schedule_assignments as a')
-            ->join('employees as e', 'e.id', '=', 'a.employee_id')
-            ->join('work_schedules as s', 's.id', '=', 'a.work_schedule_id')
-            ->select('a.*', 'e.employee_no', 'e.name as employee_name', 's.name as schedule_name')
-            ->whereNull('a.end_date')
-            ->orderBy('e.name')
-            ->get();
-
-        return compact('schedules', 'employees', 'assignments');
+        $schedules = DB::table('schedules')->orderBy('name')->get();
+        return compact('schedules');
     }
 
     private function loadSettings(): void
     {
-        $settings = DB::table('attendance_settings')->first();
-        if ($settings) {
-            $this->lateToleranceMinutes = $settings->late_tolerance_minutes;
-            $this->checkoutScanGapMinutes = $settings->checkout_scan_gap_minutes;
-            $this->overtimeThresholdMinutes = $settings->overtime_threshold_minutes;
-        }
-    }
+        $settings = DB::table('work_schedule_settings')->where('id', 1)->first();
 
-    private function loadSchedule(): void
-    {
-        $schedule = $this->scheduleId ? DB::table('work_schedules')->find($this->scheduleId) : null;
-        if (! $schedule) {
+        if (! $settings) {
             $this->days = $this->defaultDays();
             return;
         }
 
-        $this->scheduleName = $schedule->name;
-        $this->scheduleColor = $schedule->color;
-        $stored = DB::table('work_schedule_days')->where('work_schedule_id', $schedule->id)->get()->keyBy('day_of_week');
-        $this->days = $this->defaultDays();
+        $this->lateToleranceMinutes = (int) $settings->tolerance;
+        $this->checkoutScanGapMinutes = (int) $settings->min_gap;
+        $this->overtimeThresholdMinutes = (int) $settings->overtime_min;
+    }
 
-        foreach ($stored as $day => $row) {
+    private function loadSchedule(): void
+    {
+        if ($this->scheduleId === 'main') {
+            $this->scheduleName = 'Jadwal Utama';
+            $this->scheduleColor = '#64748b';
+            $settings = DB::table('work_schedule_settings')->where('id', 1)->first();
+            $days = $settings ? json_decode($settings->days, true) : null;
+            $overtime = $settings ? json_decode($settings->overtime, true) : null;
+            $overtimeMax = $settings ? json_decode($settings->overtime_max, true) : null;
+        } else {
+            $schedule = $this->scheduleId === 'new' ? null : DB::table('schedules')->where('id', $this->scheduleId)->first();
+            if ($this->scheduleId !== 'new' && ! $schedule) {
+                $this->scheduleId = 'main';
+                $this->loadSchedule();
+                return;
+            }
+            $this->scheduleName = $schedule?->name ?? $this->scheduleName;
+            $this->scheduleColor = $schedule?->color ?? $this->scheduleColor;
+            $days = $schedule ? json_decode($schedule->days, true) : null;
+            $overtime = $schedule ? json_decode($schedule->overtime, true) : null;
+            $overtimeMax = $schedule ? json_decode($schedule->overtime_max, true) : null;
+        }
+
+        $this->days = $this->defaultDays();
+        for ($day = 0; $day < 7; $day++) {
+            $value = $days[$day] ?? null;
             $this->days[$day] = [
-                'is_working' => (bool) $row->is_working,
-                'start_time' => $row->start_time ? substr($row->start_time, 0, 5) : '08:00',
-                'end_time' => $row->end_time ? substr($row->end_time, 0, 5) : '17:00',
-                'is_free' => (bool) $row->is_free,
-                'overtime_enabled' => (bool) $row->overtime_enabled,
-                'max_overtime_hours' => (float) $row->max_overtime_hours,
+                'is_working' => $value !== null,
+                'start_time' => $value['start'] ?? '08:00',
+                'end_time' => $value['end'] ?? '17:00',
+                'is_free' => (bool) ($value['free'] ?? false),
+                'overtime_enabled' => (bool) ($overtime[$day] ?? false),
+                'max_overtime_hours' => (float) ($overtimeMax[$day] ?? 0),
             ];
         }
     }
@@ -271,9 +231,9 @@ class WorkSchedules extends Page
     private function defaultDays(): array
     {
         $days = [];
-        foreach (self::DAY_ORDER as $day) {
+        for ($day = 0; $day < 7; $day++) {
             $days[$day] = [
-                'is_working' => $day !== 0,
+                'is_working' => $day >= 1 && $day <= 5,
                 'start_time' => '08:00',
                 'end_time' => '17:00',
                 'is_free' => false,
@@ -284,16 +244,12 @@ class WorkSchedules extends Page
         return $days;
     }
 
-    private function saveDefaultDays(int $id): void
+    private function defaultDaysJson(): array
     {
-        foreach ($this->defaultDays() as $day => $values) {
-            DB::table('work_schedule_days')->insert([
-                'work_schedule_id' => $id,
-                'day_of_week' => $day,
-                ...$values,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $days = [];
+        for ($day = 0; $day < 7; $day++) {
+            $days[] = $day >= 1 && $day <= 5 ? ['start' => '08:00', 'end' => '17:00'] : null;
         }
+        return $days;
     }
 }
