@@ -9,10 +9,10 @@
    ========================================================= */
 
 :root {
-    --fs-sidebar: rgb(63, 135, 185);
-    --fs-sidebar-muted: #e4f0f8;
-    --fs-sidebar-hover: #3479a8;
-    --fs-sidebar-active: #28658f;
+    --fs-sidebar: #E9EEF5;
+    --fs-sidebar-muted: #64748b;
+    --fs-sidebar-hover: #dce5ef;
+    --fs-sidebar-active: #FDECC8;
     --fs-border: #e7ebf1;
     --fs-surface: #ffffff;
     --fs-page: #f5f7fa;
@@ -84,13 +84,13 @@
 .fi-sidebar-item-button {
     min-height: 2.65rem;
     border-radius: 0.6rem;
-    color: #d7dfeb !important;
+    color: #334155 !important;
     transition: background-color 150ms ease, color 150ms ease;
 }
 
 .fi-sidebar-item-button:hover {
     background: var(--fs-sidebar-hover) !important;
-    color: #fff !important;
+    color: #334155 !important;
 }
 
 .fi-sidebar-item-active > .fi-sidebar-item-button,
@@ -100,11 +100,11 @@
 }
 
 .fi-sidebar-item-icon {
-    color: #aab8ca !important;
+    color: #64748b !important;
 }
 
 .fi-sidebar-item-active .fi-sidebar-item-icon {
-    color: #fbbf24 !important;
+    color: #b7791f !important;
 }
 
 /* Header dibuat ringan dan terpisah dari area kerja */
