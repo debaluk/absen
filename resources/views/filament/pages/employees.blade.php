@@ -41,7 +41,7 @@
                             <td class="px-4 py-3">{{ $employee->name ?: '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-mono text-xs">{{ $employee->cloud_id }}</td>
                             <td class="whitespace-nowrap px-4 py-3 text-gray-500 dark:text-gray-400">
-                                {{ $employee->last_synced_at ? \\Illuminate\\Support\\Carbon::parse($employee->last_synced_at)->format('d-m-Y H:i:s') : '—' }}
+                                {{ $employee->last_synced_at ? \Illuminate\Support\Carbon::parse($employee->last_synced_at)->format('d-m-Y H:i:s') : '—' }}
                             </td>
                         </tr>
                     @empty
