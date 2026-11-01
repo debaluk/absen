@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\\Filament\\Pages;
 
 use BackedEnum;
-use Filament\Pages\Page;
-use Illuminate\Support\Facades\DB;
+use Filament\\Pages\\Page;
+use Illuminate\\Support\\Facades\\Http;
+use Throwable;
 use UnitEnum;
 
 class Devices extends Page
@@ -25,56 +26,58 @@ class Devices extends Page
 
     protected function getViewData(): array
     {
-        $devices = DB::table('attendance_devices as devices')
-            ->leftJoin('freedom_engines as engines', 'engines.id', '=', 'devices.engine_id')
-            ->leftJoinSub(
-                DB::table('device_status_logs')
-                    ->select('device_id', DB::raw('MAX(checked_at) as latest_checked_at'))
-                    ->groupBy('device_id'),
-                'latest_status',
-                'latest_status.device_id',
-                '=',
-                'devices.id'
-            )
-            ->leftJoin('device_status_logs as status_logs', function ($join) {
-                $join->on('status_logs.device_id', '=', 'devices.id')
-                    ->on('status_logs.checked_at', '=', 'latest_status.latest_checked_at');
-            })
-            ->select([
-                'devices.id',
-                'devices.device_code',
-                'devices.device_name',
-                'devices.freedom_device_id',
-                'devices.serial_number',
-                'devices.model',
-                'devices.ip_address',
-                'devices.last_seen_at',
-                'engines.engine_name',
-                'engines.connection_status as engine_status',
-                'status_logs.status as latest_status',
-            ])
-            ->selectSub(
-                DB::table('employee_devices')
-                    ->selectRaw('COUNT(*)')
-                    ->whereColumn('employee_devices.device_id', 'devices.id')
-                    ->where('employee_devices.is_active', true),
-                'employee_count'
-            )
-            ->orderBy('devices.device_name')
-            ->get()
-            ->map(function ($device) {
-                $device->connection_state = $device->latest_status
-                    ?? $device->engine_status
-                    ?? 'unknown';
+        $baseUrl = rtrim((string) config('services.freedom_finger.url', 'http://103.119.237.50:8013'), '/');
+        $engine = null;
+        $connectionError = null;
+        $devices = collect();
 
-                return $device;
-            });
+        try {
+            $response = Http::acceptJson()
+                ->connectTimeout(3)
+                ->timeout(8)
+                ->get($baseUrl . '/status.json');
+
+            if ($response->successful()) {
+                $engine = $response->json();
+
+                $devices = collect(data_get($engine, 'devices', []))
+                    ->map(function (array $device, int $index) {
+                        $connected = (bool) ($device['connected'] ?? false);
+
+                        return (object) [
+                            'id' => $device['cloud_id'] ?? ('device-' . ($index + 1)),
+                            'device_code' => $device['cloud_id'] ?? null,
+                            'device_name' => $device['device_name'] ?? null,
+                            'freedom_device_id' => $device['cloud_id'] ?? null,
+                            'serial_number' => null,
+                            'model' => null,
+                            'ip_address' => $device['ip'] ?? null,
+                            'last_seen_at' => $device['last_activity'] ?? null,
+                            'engine_name' => 'Freedom Finger',
+                            'employee_count' => '—',
+                            'connection_state' => $connected ? 'online' : 'offline',
+                        ];
+                    });
+            } else {
+                $connectionError = 'Freedom Finger merespons HTTP ' . $response->status() . '.';
+            }
+        } catch (Throwable $exception) {
+            report($exception);
+            $connectionError = 'Tidak dapat menghubungi Freedom Finger.';
+        }
 
         return [
             'devices' => $devices,
             'totalDevices' => $devices->count(),
             'onlineDevices' => $devices->where('connection_state', 'online')->count(),
             'offlineDevices' => $devices->where('connection_state', 'offline')->count(),
+            'engineConnected' => $engine !== null,
+            'engineVersion' => data_get($engine, 'version'),
+            'engineServerIp' => data_get($engine, 'server_ip'),
+            'enginePort' => data_get($engine, 'port'),
+            'logsToday' => data_get($engine, 'logs_today'),
+            'logsTotal' => data_get($engine, 'logs_total'),
+            'connectionError' => $connectionError,
         ];
     }
 }
