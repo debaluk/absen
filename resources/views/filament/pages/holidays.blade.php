@@ -70,11 +70,16 @@
                         <x-heroicon-m-calendar-days class="mr-1 inline h-4 w-4" /> Kalender
                     </button>
                 </div>
-                @if ($viewMode === 'calendar')
-                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $calendarMonthLabel }}</div>
-                @else
-                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ number_format($holidays->total(), 0, ',', '.') }} data</div>
-                @endif
+                <div class="flex items-center gap-3">
+                    @if ($viewMode === 'calendar')
+                        <div class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $calendarMonthLabel }}</div>
+                    @else
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ number_format($holidays->total(), 0, ',', '.') }} data</div>
+                    @endif
+                    <x-filament::button size="sm" color="gray" icon="heroicon-o-arrow-down-tray" wire:click="exportExcel">
+                        Export Excel
+                    </x-filament::button>
+                </div>
             </div>
 
             @if ($viewMode === 'list')
