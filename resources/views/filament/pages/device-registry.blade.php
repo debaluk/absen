@@ -98,7 +98,7 @@
                         <div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">Terakhir aktif</div>
                             <div class="mt-1 text-sm font-medium">
-                                {{ $device->last_seen_at ? \\Illuminate\\Support\\Carbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : '—' }}
+                                {{ $device->last_seen_at ? \Illuminate\Support\Carbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : '—' }}
                             </div>
                         </div>
                     </div>
