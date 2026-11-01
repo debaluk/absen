@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\\Database\\Migrations\\Migration;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -39,6 +38,6 @@ return new class extends Migration
     public function down(): void
     {
         // Perubahan nama dan struktur tabel ini tidak dibatalkan otomatis.
-        throw new \\RuntimeException('Migration penyatuan master karyawan tidak dapat di-rollback otomatis.');
+        throw new \RuntimeException('Migration penyatuan master karyawan tidak dapat di-rollback otomatis.');
     }
 };
