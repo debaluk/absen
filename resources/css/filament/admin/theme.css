@@ -19,6 +19,31 @@
     --fs-text: #253247;
 }
 
+/* Brand HADIRRA: dua baris, bukan satu baris */
+.hadirra-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    line-height: 1.1;
+    white-space: normal;
+}
+
+.hadirra-brand strong {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+.hadirra-brand em {
+    display: block;
+    font-size: 0.7rem;
+    font-style: italic;
+    font-weight: 400;
+    opacity: 0.78;
+}
+
 /* Latar dan tipografi */
 .fi-body {
     background: var(--fs-page);
