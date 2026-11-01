@@ -9,7 +9,7 @@
                 <div class="flex flex-col gap-3 border-b border-gray-200 p-4 dark:border-gray-700 lg:flex-row lg:items-end lg:justify-between">
                     <div><h2 class="text-sm font-semibold text-gray-950 dark:text-white">Daftar Data Izin</h2><p class="mt-1 text-xs text-gray-500">Hari kerja dengan catatan ini tidak dihitung alpa, walau ada scan.</p></div>
                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        <label class="text-xs">Dari tanggal<input type="date" wire:model.live="filterFrom" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"></label>
+                        <label class="text-xs">Dari tanggal<input type="date" wire:model.live="filterFrom" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></label>
                         <label class="text-xs">Sampai tanggal<input type="date" wire:model.live="filterTo" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"></label>
                         <label class="col-span-2 text-xs sm:col-span-1">Jenis<select wire:model.live="filterKind" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"><option value="">Semua Jenis</option>@foreach ($leaveKinds as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select></label>
                     </div>
@@ -47,9 +47,9 @@
                     <div class="mb-5 flex items-center justify-between"><h2 class="text-base font-semibold">{{ $leaveId ? 'Ubah Data Izin' : 'Tambah Data Izin' }}</h2><button type="button" wire:click="closeLeaveModal">✕</button></div>
                     <form wire:submit="saveLeave" class="space-y-4">
                         <div class="relative">
-                            <label class="mb-1 block text-sm font-semibold text-gray-800 dark:text-gray-100">1. Pilih Karyawan</label>
-                            <p class="mb-2 text-xs text-gray-500">Ketik nama karyawan, lalu pilih dari hasil pencarian.</p>
-                            <input type="text" wire:model.live.debounce.300ms="employeeSearch" autocomplete="off" placeholder="Contoh: Budi Santoso" class="h-10 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800">
+                            <label class="mb-1 block text-sm font-semibold text-gray-800 dark:text-gray-100">Karyawan</label>
+                            <p class="mb-2 text-xs text-gray-500">Cari berdasarkan nama, lalu pilih karyawan dari daftar.</p>
+                            <input type="text" wire:model.live.debounce.300ms="employeeSearch" autocomplete="off" placeholder="Contoh: Budi Santoso" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                             @error('employeeId')<span class="mt-1 block text-xs text-danger-600">Karyawan wajib dipilih dari daftar.</span>@enderror
                             @if (count($employees) && $employeeSearch !== $employeeName)
                                 <div class="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border bg-white shadow-lg dark:bg-gray-800">
@@ -61,8 +61,8 @@
                             @if ($employeeId && $employeeName)<p class="mt-2 text-xs font-medium text-success-600">Karyawan dipilih: {{ $employeeName }}</p>@endif
                         </div>
                         <fieldset>
-                            <legend class="mb-1 text-sm font-semibold text-gray-800 dark:text-gray-100">2. Jenis Izin</legend>
-                            <p class="mb-2 text-xs text-gray-500">Centang satu jenis yang sesuai.</p>
+                            <legend class="mb-1 text-sm font-semibold text-gray-800 dark:text-gray-100">Jenis Izin</legend>
+                            <p class="mb-2 text-xs text-gray-500">Pilih satu jenis izin.</p>
                             <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                                 @foreach (['izin' => 'Izin', 'sakit' => 'Sakit', 'cuti' => 'Cuti', 'dinas' => 'Dinas Luar'] as $value => $label)
                                     <label class="flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-3 text-sm {{ $kind === $value ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-200' : 'border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200' }}">
@@ -74,10 +74,10 @@
                             @error('kind')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
                         </fieldset>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <label class="block text-sm font-semibold">3. Tanggal Mulai <span class="font-normal text-gray-500">(wajib)</span><input type="date" wire:model="dateFrom" class="mt-1 h-10 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800">@error('dateFrom')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror</label>
-                            <label class="block text-sm font-semibold">Tanggal Selesai <span class="font-normal text-gray-500">(kosongkan jika satu hari)</span><input type="date" wire:model="dateTo" class="mt-1 h-10 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800">@error('dateTo')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Mulai <span class="text-danger-600">*</span><input type="date" wire:model="dateFrom" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">@error('dateFrom')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Selesai<input type="date" wire:model="dateTo" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"><span class="mt-1 block text-xs font-normal text-gray-500">Kosongkan jika izin hanya satu hari.</span>@error('dateTo')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror</label>
                         </div>
-                        <label class="block text-sm font-semibold">4. Keterangan / Alasan <span class="font-normal text-gray-500">(opsional)</span><textarea rows="3" wire:model="note" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"></textarea></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Keterangan / Alasan <span class="font-normal text-gray-500">(opsional)</span><textarea rows="3" wire:model="note" class="mt-1 min-h-24 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></textarea></label>
                         <p class="rounded-lg bg-primary-50 px-3 py-2 text-xs text-primary-800 dark:bg-primary-950 dark:text-primary-200">Catatan: pada tanggal izin ini, karyawan tidak dihitung ALPA meskipun terdapat data scan absensi.</p>
                         <div class="flex justify-end gap-2"><x-filament::button type="button" color="gray" wire:click="closeLeaveModal">Batal</x-filament::button><x-filament::button type="submit">{{ $leaveId ? 'Simpan Perubahan' : 'Simpan Izin' }}</x-filament::button></div>
                     </form>
