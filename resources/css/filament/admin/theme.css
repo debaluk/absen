@@ -214,3 +214,124 @@
         animation-iteration-count: 1 !important;
     }
 }
+
+
+/* Jadwal kerja reguler */
+.fs-work-schedules .fs-schedule-panel {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #d8e0e9;
+    border-radius: 0.75rem;
+    background: #fff;
+    color: #243247;
+}
+.fs-work-schedules .fs-schedule-title {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin-bottom: 1rem;
+    font-size: .95rem;
+    font-weight: 650;
+}
+.fs-work-schedules .fs-schedule-dot {
+    width: 1.2rem;
+    height: 1.2rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #64748b;
+}
+.fs-work-schedules .fs-schedule-grid {
+    display: grid;
+    grid-template-columns: 4.5rem 3rem minmax(18rem, 1fr) 4rem 5rem;
+    align-items: center;
+    column-gap: .65rem;
+}
+.fs-work-schedules .fs-schedule-head {
+    padding: 0 .25rem .55rem;
+    border-bottom: 1px solid #dce3ec;
+    color: #718096;
+    font-size: .72rem;
+}
+.fs-work-schedules .fs-schedule-row {
+    min-height: 2.65rem;
+    padding: .35rem .25rem;
+    border-bottom: 1px solid #e5eaf0;
+}
+.fs-work-schedules .fs-schedule-row:last-child { border-bottom: 0; }
+.fs-work-schedules .fs-schedule-day { font-size: .84rem; }
+.fs-work-schedules .fs-schedule-work,
+.fs-work-schedules .fs-schedule-overtime { display: flex; justify-content: center; }
+.fs-work-schedules .fs-switch {
+    position: relative;
+    display: inline-flex;
+    width: 2.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    align-items: center;
+}
+.fs-work-schedules .fs-switch-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+.fs-work-schedules .fs-switch-track {
+    position: relative;
+    display: block;
+    width: 2.2rem;
+    height: 1.2rem;
+    border-radius: 999px;
+    background: #d5dbe3;
+    transition: background-color 150ms ease;
+}
+.fs-work-schedules .fs-switch-track::after {
+    position: absolute;
+    top: .15rem;
+    left: .15rem;
+    width: .9rem;
+    height: .9rem;
+    border-radius: 50%;
+    background: white;
+    content: "";
+    transition: transform 150ms ease;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 18%);
+}
+.fs-work-schedules .fs-switch-input:checked + .fs-switch-track { background: #168342; }
+.fs-work-schedules .fs-switch-input:checked + .fs-switch-track::after { transform: translateX(1rem); }
+.fs-work-schedules .fs-switch-input:focus-visible + .fs-switch-track { outline: 2px solid #6b91b8; outline-offset: 2px; }
+.fs-work-schedules .fs-schedule-hours { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; }
+.fs-work-schedules .fs-time-input,
+.fs-work-schedules .fs-max-input {
+    height: 2rem;
+    border: 1px solid #d6dee8;
+    border-radius: .5rem;
+    background: #fff;
+    padding: .25rem .5rem;
+    color: #243247;
+    font-size: .82rem;
+    box-shadow: none;
+}
+.fs-work-schedules .fs-time-input { width: 6.8rem; }
+.fs-work-schedules .fs-max-input { width: 5rem; }
+.fs-work-schedules .fs-time-input:focus,
+.fs-work-schedules .fs-max-input:focus {
+    border-color: #7893ad;
+    outline: 2px solid rgb(100 130 160 / 14%);
+}
+.fs-work-schedules .fs-time-separator { color: #8491a3; font-size: .8rem; }
+.fs-work-schedules .fs-free-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    margin-left: .25rem;
+    color: #64748b;
+    font-size: .78rem;
+}
+.fs-work-schedules .fs-free-label input { accent-color: #168342; }
+.fs-work-schedules .fs-holiday-label { color: #94a3b8; font-size: .8rem; }
+.fs-work-schedules .fs-schedule-actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.fs-work-schedules input:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 640px) {
+    .fs-work-schedules .fs-schedule-panel { padding: .75rem; overflow-x: auto; }
+    .fs-work-schedules .fs-schedule-grid { min-width: 34rem; }
+}
