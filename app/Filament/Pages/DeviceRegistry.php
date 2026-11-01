@@ -9,6 +9,7 @@ use UnitEnum;
 
 class DeviceRegistry extends Page
 {
+    protected static bool $shouldRegisterNavigation = false;
     protected string $view = 'filament.pages.device-registry';
 
     protected static ?string $title = 'Perangkat';
