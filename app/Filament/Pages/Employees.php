@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
-use App\\Services\\FreedomFingerEmployeeSynchronizer;
+use App\Services\FreedomFingerEmployeeSynchronizer;
 use BackedEnum;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
 class Employees extends Page
