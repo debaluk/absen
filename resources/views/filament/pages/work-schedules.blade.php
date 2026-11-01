@@ -3,20 +3,19 @@
         <div class="max-w-4xl space-y-1">
             <h2 class="text-base font-semibold text-gray-950 dark:text-white">Jadwal Kerja Reguler</h2>
             <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                Jadwal ini berlaku sebagai jadwal reguler karyawan.
-                Lembur diatur per hari. Pada hari kerja, lembur dihitung setelah jam pulang.
-                Pada hari libur, seluruh jam kerja dihitung lembur.
-                Maksimal jam lembur 0 berarti tanpa batas. Jam bebas berarti karyawan dapat datang dan pulang kapan saja selama melakukan scan.
+                Jadwal ini berlaku sebagai jadwal reguler karyawan. Lembur diatur per hari.
+                Pada hari kerja, lembur dihitung setelah jam pulang. Pada hari libur, seluruh jam kerja dihitung lembur.
+                Maks. jam lembur dapat diisi angka atau "bebas" untuk tanpa batas.
             </p>
         </div>
 
-        <section class="max-w-2xl rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <div class="mb-3 flex items-center gap-2">
-                <span class="h-4 w-4 rounded-full bg-slate-500"></span>
-                <h3 class="text-sm font-semibold">Jadwal Utama</h3>
+        <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
+            <div class="mb-4 flex items-center gap-2">
+                <span class="h-5 w-5 rounded-full bg-slate-500"></span>
+                <h3 class="text-sm font-semibold">Utama</h3>
             </div>
 
-            <div class="mb-1 grid grid-cols-12 gap-2 px-1 text-[11px] text-gray-500">
+            <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 px-1 pb-2 text-xs text-gray-500 dark:border-gray-700">
                 <span class="col-span-2"></span>
                 <span class="col-span-1 text-center">Kerja</span>
                 <span class="col-span-5">Jam kerja</span>
@@ -27,45 +26,52 @@
             <div class="divide-y divide-gray-100 dark:divide-gray-800">
                 @foreach ([1=>'Senin',2=>'Selasa',3=>'Rabu',4=>'Kamis',5=>'Jumat',6=>'Sabtu',0=>'Minggu'] as $day => $label)
                     <div class="grid grid-cols-12 items-center gap-2 py-1.5">
-                        <span class="col-span-2 text-xs">{{ $label }}</span>
+                        <span class="col-span-2 text-sm">{{ $label }}</span>
+
                         <div class="col-span-1 flex justify-center">
-                            <input type="checkbox" wire:model.live="days.{{ $day }}.is_working"
-                                class="rounded-full border-gray-300 text-success-600 focus:ring-success-500">
+                            <label class="relative inline-flex cursor-pointer items-center">
+                                <input type="checkbox" wire:model.live="days.{{ $day }}.is_working" class="peer sr-only">
+                                <span class="h-5 w-9 rounded-full bg-gray-300 transition peer-checked:bg-success-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4"></span>
+                            </label>
                         </div>
-                        <div class="col-span-5 flex flex-wrap items-center gap-1">
+
+                        <div class="col-span-5 flex flex-wrap items-center gap-1.5">
                             @if ($days[$day]['is_working'] ?? false)
                                 <input type="time" wire:model="days.{{ $day }}.start_time"
                                     @disabled($days[$day]['is_free'] ?? false)
-                                    class="w-[6.5rem] rounded-lg border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-950">
-                                <span class="text-xs text-gray-400">-</span>
+                                    class="w-24 rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
+                                <span class="text-xs text-gray-500">-</span>
                                 <input type="time" wire:model="days.{{ $day }}.end_time"
                                     @disabled($days[$day]['is_free'] ?? false)
-                                    class="w-[6.5rem] rounded-lg border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-950">
-                                <label class="flex items-center gap-1 text-[11px]">
+                                    class="w-24 rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
+                                <label class="ml-1 flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
                                     <input type="checkbox" wire:model="days.{{ $day }}.is_free"> Bebas
                                 </label>
                             @else
                                 <span class="text-xs text-gray-400">Libur</span>
                             @endif
                         </div>
+
                         <div class="col-span-2">
-                            <input type="checkbox" wire:model="days.{{ $day }}.overtime_enabled"
-                                @disabled(!($days[$day]['is_working'] ?? false))
-                                class="rounded-full border-gray-300 text-success-600 focus:ring-success-500">
+                            <label class="relative inline-flex cursor-pointer items-center">
+                                <input type="checkbox" wire:model="days.{{ $day }}.overtime_enabled" class="peer sr-only">
+                                <span class="h-5 w-9 rounded-full bg-gray-300 transition peer-checked:bg-success-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4"></span>
+                            </label>
                         </div>
+
                         <div class="col-span-2">
-                            <input type="number" min="0" max="24" step="0.5"
-                                wire:model="days.{{ $day }}.max_overtime_hours"
-                                @disabled(!($days[$day]['overtime_enabled'] ?? false))
-                                class="w-full rounded-lg border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-950">
+                            <input type="text" wire:model="days.{{ $day }}.max_overtime_hours" placeholder="bebas"
+                                class="w-full rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
                         </div>
-                        @error("days.$day.end_time")<p class="col-span-12 text-xs text-danger-600">{{ $message }}</p>@enderror
+
+                        @error("days.$day.end_time")
+                            <p class="col-span-12 text-xs text-danger-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 @endforeach
             </div>
 
-            <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-                <span class="text-[11px] text-gray-500">Maks. jam lembur: 0 = tanpa batas.</span>
+            <div class="mt-4 flex justify-end">
                 <x-filament::button size="sm" wire:click="saveSchedule">Simpan jadwal</x-filament::button>
             </div>
         </section>
@@ -83,7 +89,7 @@
                             class="w-20 rounded-lg border-gray-300 text-sm dark:border-gray-600 dark:bg-gray-950">
                         <span class="text-gray-500">menit</span>
                     </div>
-                    <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Keterlambatan tetap dihitung dari jam masuk. Contoh: masuk 08:00, toleransi 15 menit, scan 08:20 = terlambat 20 menit.</span>
+                    <span class="mt-1 block text-[11px] leading-relaxed text-gray-500">Keterlambatan tetap dihitung dari jam masuk.</span>
                     @error('lateToleranceMinutes')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
                 </label>
                 <label class="block text-xs">
