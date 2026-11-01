@@ -20,10 +20,27 @@
             </div>
         </x-filament::section>
 
+        <x-filament::section>
+            <x-slot name="heading">Koneksi Freedom Finger</x-slot>
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+                <x-filament::badge :color="$engineConnected ? 'success' : 'danger'">
+                    {{ $engineConnected ? 'Engine terhubung' : 'Engine tidak terhubung' }}
+                </x-filament::badge>
+                <span>Versi: <strong>{{ $engineVersion ?: '—' }}</strong></span>
+                <span>Server: <strong>{{ $engineServerIp ?: '—' }}</strong></span>
+                <span>Port: <strong>{{ $enginePort ?: '—' }}</strong></span>
+                <span>Log hari ini: <strong>{{ $logsToday ?? '—' }}</strong></span>
+                <span>Total log: <strong>{{ $logsTotal ?? '—' }}</strong></span>
+            </div>
+            @if ($connectionError)
+                <p class="mt-3 text-sm text-danger-600">{{ $connectionError }}</p>
+            @endif
+        </x-filament::section>
+
         <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
                 <h2 class="text-base font-semibold">Daftar mesin</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Informasi dan status koneksi perangkat absensi.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Data aktual perangkat dari Freedom Finger.</p>
             </div>
             <x-filament::badge color="gray">{{ $totalDevices }} perangkat</x-filament::badge>
         </div>
@@ -50,13 +67,7 @@
                     </x-slot>
 
                     <x-slot name="description">
-                        {{ $device->device_code ?: 'Kode perangkat belum tersedia' }}
-                        @if ($device->model)
-                            · {{ $device->model }}
-                        @endif
-                        @if ($device->engine_name)
-                            · Engine: {{ $device->engine_name }}
-                        @endif
+                        Cloud ID: {{ $device->device_code ?: '—' }}
                     </x-slot>
 
                     <x-slot name="headerEnd">
@@ -71,27 +82,19 @@
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Karyawan terdaftar</dt>
-                            <dd class="mt-1 text-sm font-medium">{{ $device->employee_count }}</dd>
+                            <dt class="text-sm text-gray-500 dark:text-gray-400">IP Address mesin</dt>
+                            <dd class="mt-1 text-sm font-medium">{{ $device->ip_address ?: '—' }}</dd>
                         </div>
                         <div>
                             <dt class="text-sm text-gray-500 dark:text-gray-400">Cloud ID</dt>
                             <dd class="mt-1 break-all font-mono text-sm">{{ $device->freedom_device_id ?: '—' }}</dd>
                         </div>
-                        <div>
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">IP Address</dt>
-                            <dd class="mt-1 text-sm font-medium">{{ $device->ip_address ?: '—' }}</dd>
-                        </div>
-                        <div class="sm:col-span-2">
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Serial Number</dt>
-                            <dd class="mt-1 break-all text-sm font-medium">{{ $device->serial_number ?: '—' }}</dd>
-                        </div>
                     </dl>
 
                     <x-slot name="footer">
                         <div class="flex flex-wrap justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span>ID perangkat: {{ $device->id }}</span>
-                            <span>Data perangkat dari Freedom Engine</span>
+                            <span>Freedom Finger</span>
+                            <span>Data live dari engine</span>
                         </div>
                     </x-slot>
                 </x-filament::section>
@@ -100,8 +103,14 @@
                     <x-filament::section>
                         <div class="py-8 text-center">
                             <x-filament::icon icon="heroicon-o-device-tablet" class="mx-auto h-8 w-8 text-gray-400" />
-                            <h2 class="mt-3 text-base font-semibold">Belum ada mesin terdaftar</h2>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mesin akan tampil di sini setelah datanya terdaftar di sistem.</p>
+                            <h2 class="mt-3 text-base font-semibold">Belum ada mesin terdeteksi</h2>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                @if ($connectionError)
+                                    Periksa koneksi ke Freedom Finger.
+                                @else
+                                    Freedom Finger belum melaporkan perangkat yang terhubung.
+                                @endif
+                            </p>
                         </div>
                     </x-filament::section>
                 </div>
