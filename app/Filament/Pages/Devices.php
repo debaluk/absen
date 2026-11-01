@@ -16,7 +16,7 @@ class Devices extends Page
 
     protected static ?string $navigationLabel = 'Mesin';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Kelola';
+    protected static string | UnitEnum | null $navigationGroup = 'Pengaturan';
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-cpu-chip';
 
