@@ -14,27 +14,27 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <label class="block md:col-span-2">
                     <span class="text-sm font-medium">Nama Perusahaan *</span>
-                    <input wire:model="companyName" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="companyName" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('companyName') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block md:col-span-2">
                     <span class="text-sm font-medium">Alamat</span>
-                    <textarea wire:model="companyAddress" rows="3" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800"></textarea>
+                    <textarea wire:model="companyAddress" rows="3" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;resize:vertical;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;"></textarea>
                     @error('companyAddress') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block">
                     <span class="text-sm font-medium">Telepon</span>
-                    <input wire:model="companyPhone" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="companyPhone" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('companyPhone') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block">
                     <span class="text-sm font-medium">Email</span>
-                    <input wire:model="companyEmail" type="email" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="companyEmail" type="email" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('companyEmail') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block md:col-span-2">
                     <span class="text-sm font-medium">Website</span>
-                    <input wire:model="companyWebsite" type="url" placeholder="https://" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="companyWebsite" type="url" placeholder="https://" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('companyWebsite') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
             </div>
@@ -51,12 +51,12 @@
                 </div>
                 <label class="block">
                     <span class="text-sm font-medium">Nama Jabatan *</span>
-                    <input wire:model="positionName" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="positionName" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('positionName') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block">
                     <span class="text-sm font-medium">Atasan Langsung</span>
-                    <select wire:model="positionParentId" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <select wire:model="positionParentId" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                         <option value="">— Jabatan tertinggi —</option>
                         @foreach ($positions as $position)
                             @if ($position->id !== $positionId)
@@ -117,17 +117,17 @@
                 </div>
                 <label class="block">
                     <span class="text-sm font-medium">Kode Lokasi *</span>
-                    <input wire:model="locationCode" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="locationCode" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('locationCode') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block">
                     <span class="text-sm font-medium">Nama Lokasi *</span>
-                    <input wire:model="locationName" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800">
+                    <input wire:model="locationName" type="text" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;">
                     @error('locationName') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="block">
                     <span class="text-sm font-medium">Alamat</span>
-                    <textarea wire:model="locationAddress" rows="3" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800"></textarea>
+                    <textarea wire:model="locationAddress" rows="3" class="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800" style="display:block;resize:vertical;width:100%;min-height:42px;padding:9px 12px;color:#111827;background-color:#ffffff;border:1px solid #9ca3af;border-radius:8px;font-size:14px;line-height:1.5;box-sizing:border-box;"></textarea>
                     @error('locationAddress') <span class="text-sm text-danger-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="flex items-center gap-2 text-sm">
