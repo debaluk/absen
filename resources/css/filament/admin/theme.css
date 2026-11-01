@@ -5,21 +5,22 @@
 
 /* =========================================================
    Fingerspot Admin Theme
-   Fondasi visual Filament: bersih, tegas, dan responsif.
+   Palet netral abu kebiruan yang konsisten.
    ========================================================= */
 
 :root {
-    --fs-sidebar: #E9EEF5;
+    --fs-chrome: #edf1f5;
+    --fs-sidebar: #edf1f5;
     --fs-sidebar-muted: #64748b;
-    --fs-sidebar-hover: #dce5ef;
-    --fs-sidebar-active: #FDECC8;
-    --fs-border: #e7ebf1;
+    --fs-sidebar-hover: #e2e8f0;
+    --fs-sidebar-active: #dbe5ef;
+    --fs-border: #e2e8f0;
     --fs-surface: #ffffff;
     --fs-page: #f5f7fa;
     --fs-text: #253247;
 }
 
-/* Brand HADIRRA: dua baris, bukan satu baris */
+/* Brand HADIRRA: dua baris */
 .hadirra-brand {
     display: flex;
     flex-direction: column;
@@ -44,29 +45,29 @@
     opacity: 0.78;
 }
 
-/* Latar dan tipografi */
-.fi-body {
+/* Latar utama */
+.fi-body,
+.fi-main,
+.fi-main-ctn {
     background: var(--fs-page);
     color: var(--fs-text);
 }
 
-.fi-main {
-    background: var(--fs-page);
-}
-
 .fi-header-heading {
     letter-spacing: -0.025em;
+    color: #172235;
+    font-weight: 700;
 }
 
-/* Sidebar biru dengan kontras yang nyaman */
+/* Sidebar */
 .fi-sidebar {
     background: var(--fs-sidebar) !important;
-    border-inline-end: 1px solid rgb(255 255 255 / 18%);
+    border-inline-end: 1px solid var(--fs-border);
 }
 
 .fi-sidebar-header {
-    background: var(--fs-sidebar);
-    border-bottom: 1px solid rgb(255 255 255 / 18%);
+    background: var(--fs-sidebar) !important;
+    border-bottom: 1px solid var(--fs-border);
 }
 
 .fi-sidebar-nav {
@@ -90,13 +91,14 @@
 
 .fi-sidebar-item-button:hover {
     background: var(--fs-sidebar-hover) !important;
-    color: #334155 !important;
+    color: #1e293b !important;
 }
 
 .fi-sidebar-item-active > .fi-sidebar-item-button,
 .fi-sidebar-item-button[aria-current="page"] {
     background: var(--fs-sidebar-active) !important;
-    color: #fff !important;
+    color: #1e3a5f !important;
+    font-weight: 700;
 }
 
 .fi-sidebar-item-icon {
@@ -104,29 +106,19 @@
 }
 
 .fi-sidebar-item-active .fi-sidebar-item-icon {
-    color: #b7791f !important;
+    color: #365a7d !important;
 }
 
-/* Header dibuat ringan dan terpisah dari area kerja */
+/* Topbar senada dengan sidebar */
 .fi-topbar {
-    background: rgb(255 255 255 / 94%);
+    background: var(--fs-chrome) !important;
     border-bottom: 1px solid var(--fs-border);
-    box-shadow: 0 1px 2px rgb(15 23 42 / 3%);
-    backdrop-filter: blur(12px);
+    box-shadow: none;
 }
 
-/* Area konten dan judul halaman */
-.fi-main-ctn {
-    background: var(--fs-page);
-}
-
+/* Area konten */
 .fi-header {
     margin-bottom: 1.25rem;
-}
-
-.fi-header-heading {
-    color: #172235;
-    font-weight: 700;
 }
 
 /* Widget dan panel */
@@ -134,6 +126,7 @@
 .fi-wi,
 .fi-ta-ctn,
 .fi-fo-component-ctn {
+    background: var(--fs-surface);
     border-color: var(--fs-border) !important;
     border-radius: 0.85rem !important;
     box-shadow: 0 2px 8px rgb(15 23 42 / 3%);
@@ -143,7 +136,7 @@
     border-bottom-color: var(--fs-border);
 }
 
-/* Tabel: lebih lega dan mudah dipindai */
+/* Tabel */
 .fi-ta-header-cell {
     background: #f8fafc;
     color: #64748b;
@@ -173,8 +166,8 @@
 }
 
 .fi-input-wrp:focus-within {
-    border-color: #d69e24;
-    box-shadow: 0 0 0 3px rgb(217 160 39 / 13%);
+    border-color: #7893ad;
+    box-shadow: 0 0 0 3px rgb(100 130 160 / 13%);
 }
 
 .fi-fo-field-wrp-label {
