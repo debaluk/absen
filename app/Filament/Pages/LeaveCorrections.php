@@ -1,15 +1,15 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Carbon\\Carbon;
-use Filament\\Notifications\\Notification;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Str;
-use Illuminate\\Validation\\Rule;
-use Livewire\\WithPagination;
+use Carbon\Carbon;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Livewire\WithPagination;
 use UnitEnum;
 
 class LeaveCorrections extends Page
@@ -48,6 +48,14 @@ class LeaveCorrections extends Page
             'dateTo' => ['nullable', 'date', 'after_or_equal:dateFrom'],
             'note' => ['nullable', 'string'],
         ];
+    }
+
+    public function updatedEmployeeSearch(): void
+    {
+        if ($this->employeeSearch !== $this->employeeName) {
+            $this->employeeId = null;
+            $this->employeeName = null;
+        }
     }
 
     public function updatedFilterFrom(): void { $this->resetPage('leavePage'); }
