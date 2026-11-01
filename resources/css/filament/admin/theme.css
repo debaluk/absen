@@ -9,10 +9,10 @@
    ========================================================= */
 
 :root {
-    --fs-sidebar: #172235;
-    --fs-sidebar-muted: #9aa8bb;
-    --fs-sidebar-hover: #24344c;
-    --fs-sidebar-active: #334761;
+    --fs-sidebar: rgb(63, 135, 185);
+    --fs-sidebar-muted: #e4f0f8;
+    --fs-sidebar-hover: #3479a8;
+    --fs-sidebar-active: #28658f;
     --fs-border: #e7ebf1;
     --fs-surface: #ffffff;
     --fs-page: #f5f7fa;
@@ -58,15 +58,15 @@
     letter-spacing: -0.025em;
 }
 
-/* Sidebar gelap dengan kontras yang nyaman */
+/* Sidebar biru dengan kontras yang nyaman */
 .fi-sidebar {
     background: var(--fs-sidebar) !important;
-    border-inline-end: 1px solid rgb(255 255 255 / 6%);
+    border-inline-end: 1px solid rgb(255 255 255 / 18%);
 }
 
 .fi-sidebar-header {
     background: var(--fs-sidebar);
-    border-bottom: 1px solid rgb(255 255 255 / 8%);
+    border-bottom: 1px solid rgb(255 255 255 / 18%);
 }
 
 .fi-sidebar-nav {
