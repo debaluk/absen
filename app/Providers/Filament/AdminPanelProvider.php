@@ -31,17 +31,17 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\\\Filament\\\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\\\Filament\\\\Pages')
             ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\\\Filament\\\\Widgets')
             ->widgets([
                 AccountWidget::class,
             ])
             ->navigationGroups([
-                NavigationGroup::make()->label('Absensi'),
+                NavigationGroup::make()->label('Absen'),
                 NavigationGroup::make()->label('Kelola'),
-                NavigationGroup::make()->label('Sistem'),
+                NavigationGroup::make()->label('Pengaturan'),
             ])
             ->middleware([
                 EncryptCookies::class,
