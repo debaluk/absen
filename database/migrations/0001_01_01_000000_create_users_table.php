@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Jangan menimpa tabel autentikasi yang sudah tersedia.
+        // Buat hanya tabel yang belum tersedia pada database.
         if (! Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
@@ -43,8 +43,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('users');
+        // Tidak menghapus tabel karena bisa jadi sudah ada sebelum migration.
     }
 };
