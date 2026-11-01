@@ -1,31 +1,14 @@
-<x-filament-panels::page>
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-    <div class="border-b border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-900">
-        @php
-            $tabs = [
-                'umum' => 'Umum',
-                'jabatan' => 'Jabatan',
-                'lokasi-kerja' => 'Lokasi Kerja',
-            ];
-        @endphp
-        @foreach ($tabs as $key => $label)
-            <button
-                type="button"
-                wire:click="setTab('{{ $key }}')"
-                @class([
-                    'relative border-b-2 px-4 py-4 text-sm font-medium transition-colors',
-                    'border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400' => $activeTab === $key,
-                    'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white' => $activeTab !== $key,
-                ])
-            >{{ $label }}</button>
-        @endforeach
-    </div>
-    <div class="bg-white px-6 py-6 dark:bg-gray-900">
+ <x-filament-panels::page>
+    <x-filament::tabs label="Pengaturan organisasi">
+        <x-filament::tabs.item :active="$activeTab === 'umum'" wire:click="setTab('umum')">Umum</x-filament::tabs.item>
+        <x-filament::tabs.item :active="$activeTab === 'jabatan'" wire:click="setTab('jabatan')">Jabatan</x-filament::tabs.item>
+        <x-filament::tabs.item :active="$activeTab === 'lokasi-kerja'" wire:click="setTab('lokasi-kerja')">Lokasi Kerja</x-filament::tabs.item>
+    </x-filament::tabs>
 
     @if ($activeTab === 'umum')
-        <form wire:submit="saveCompany" class="space-y-6">
+        <form wire:submit="saveCompany" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
             <div>
-                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Informasi Perusahaan</h2>
+                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Informasi Perusahaan</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Identitas umum perusahaan.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
@@ -190,5 +173,4 @@
             </div>
         </div>
     @endif
-    </div>
 </x-filament-panels::page>
