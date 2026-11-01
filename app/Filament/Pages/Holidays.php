@@ -8,22 +8,20 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Livewire\WithPagination;
 use UnitEnum;
 
 class Holidays extends Page
 {
+    use WithPagination;
+
     protected string $view = 'filament.pages.holidays';
 
     protected static ?string $title = 'Hari Libur';
-
     protected static ?string $navigationLabel = 'Hari Libur';
-
     protected static string | UnitEnum | null $navigationGroup = 'Kelola';
-
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-sun';
-
     protected static ?int $navigationSort = 3;
-
     protected ?string $subheading = 'Pengaturan hari libur nasional, perusahaan, dan cabang.';
 
     public ?int $holidayId = null;
@@ -34,7 +32,6 @@ class Holidays extends Page
     public string $filterMonth = '';
     public string $filterWorkLocationId = '';
     public string $viewMode = 'list';
-    public int $holidayPage = 1;
 
     public function mount(): void
     {
@@ -52,17 +49,17 @@ class Holidays extends Page
 
     public function updatedFilterMonth(): void
     {
-        $this->holidayPage = 1;
+        $this->resetPage('holidayPage');
     }
 
     public function updatedFilterWorkLocationId(): void
     {
-        $this->holidayPage = 1;
+        $this->resetPage('holidayPage');
     }
 
     public function updatedViewMode(): void
     {
-        $this->holidayPage = 1;
+        $this->resetPage('holidayPage');
     }
 
     public function saveHoliday(): void
@@ -102,7 +99,7 @@ class Holidays extends Page
         }
 
         $this->resetForm();
-        $this->holidayPage = 1;
+        $this->resetPage('holidayPage');
 
         Notification::make()->title($message)->success()->send();
     }
@@ -146,7 +143,7 @@ class Holidays extends Page
         $startDate = $month->copy()->startOfWeek(Carbon::MONDAY);
         $endDate = $startDate->copy()->addDays(41);
 
-        $baseQuery = DB::table('holidays')
+        $holidays = DB::table('holidays')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'holidays.work_location_id')
             ->whereBetween('holidays.date', [$month->copy()->startOfMonth()->toDateString(), $month->copy()->endOfMonth()->toDateString()])
             ->when(
@@ -155,9 +152,7 @@ class Holidays extends Page
                     $query->whereNull('holidays.work_location_id')
                         ->orWhere('holidays.work_location_id', $this->filterWorkLocationId);
                 }),
-            );
-
-        $holidays = (clone $baseQuery)
+            )
             ->orderByDesc('holidays.date')
             ->orderBy('work_locations.name')
             ->paginate(15, [
@@ -166,7 +161,7 @@ class Holidays extends Page
                 'holidays.work_location_id',
                 'holidays.note',
                 'work_locations.name as work_location_name',
-            ], 'holidayPage', $this->holidayPage);
+            ], 'holidayPage');
 
         $calendarHolidays = DB::table('holidays')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'holidays.work_location_id')
