@@ -8,10 +8,10 @@
             <section class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
                 <div class="flex flex-col gap-3 border-b border-gray-200 p-4 dark:border-gray-700 lg:flex-row lg:items-end lg:justify-between">
                     <div><h2 class="text-sm font-semibold text-gray-950 dark:text-white">Daftar Data Izin</h2><p class="mt-1 text-xs text-gray-500">Hari kerja dengan catatan ini tidak dihitung alpa, walau ada scan.</p></div>
-                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        <label class="text-xs">Dari tanggal<input type="date" wire:model.live="filterFrom" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></label>
-                        <label class="text-xs">Sampai tanggal<input type="date" wire:model.live="filterTo" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"></label>
-                        <label class="col-span-2 text-xs sm:col-span-1">Jenis<select wire:model.live="filterKind" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"><option value="">Semua Jenis</option>@foreach ($leaveKinds as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select></label>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Dari Tanggal<input type="date" wire:model.live="filterFrom" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm font-normal text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Sampai Tanggal<input type="date" wire:model.live="filterTo" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm font-normal text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jenis Izin<select wire:model.live="filterKind" class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:bg-gray-800"><option value="">Semua Jenis</option>@foreach ($leaveKinds as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select></label>
                     </div>
                 </div>
                 <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
