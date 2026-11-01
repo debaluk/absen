@@ -1,51 +1,64 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
-        <x-filament::section>
-            <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
-                <div class="flex items-center gap-2">
-                    <x-filament::icon icon="heroicon-o-server-stack" class="h-5 w-5 text-gray-500" />
-                    <span class="font-semibold">Total mesin</span>
-                    <span class="text-lg font-semibold">{{ $totalDevices }}</span>
+    <div class="space-y-5">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <x-filament::section compact>
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total mesin</span>
+                    <x-filament::icon icon="heroicon-o-cpu-chip" class="h-5 w-5 text-gray-400" />
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="mt-2 text-2xl font-semibold tracking-tight">{{ $totalDevices }}</div>
+            </x-filament::section>
+
+            <x-filament::section compact>
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Terhubung</span>
                     <x-filament::icon icon="heroicon-o-signal" class="h-5 w-5 text-success-600" />
-                    <span class="font-semibold">Terhubung</span>
-                    <span class="text-lg font-semibold">{{ $onlineDevices }}</span>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="mt-2 text-2xl font-semibold tracking-tight text-success-600">{{ $onlineDevices }}</div>
+            </x-filament::section>
+
+            <x-filament::section compact>
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Terputus</span>
                     <x-filament::icon icon="heroicon-o-signal-slash" class="h-5 w-5 text-danger-600" />
-                    <span class="font-semibold">Terputus</span>
-                    <span class="text-lg font-semibold">{{ $offlineDevices }}</span>
                 </div>
-            </div>
-        </x-filament::section>
+                <div class="mt-2 text-2xl font-semibold tracking-tight text-danger-600">{{ $offlineDevices }}</div>
+            </x-filament::section>
+        </div>
 
         <x-filament::section>
-            <x-slot name="heading">Koneksi Freedom Finger</x-slot>
-            <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-                <x-filament::badge :color="$engineConnected ? 'success' : 'danger'">
-                    {{ $engineConnected ? 'Engine terhubung' : 'Engine tidak terhubung' }}
-                </x-filament::badge>
-                <span>Versi: <strong>{{ $engineVersion ?: '—' }}</strong></span>
-                <span>Server: <strong>{{ $engineServerIp ?: '—' }}</strong></span>
-                <span>Port: <strong>{{ $enginePort ?: '—' }}</strong></span>
-                <span>Log hari ini: <strong>{{ $logsToday ?? '—' }}</strong></span>
-                <span>Total log: <strong>{{ $logsTotal ?? '—' }}</strong></span>
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span @class([
+                        'h-2.5 w-2.5 rounded-full',
+                        'bg-success-500' => $engineConnected,
+                        'bg-danger-500' => ! $engineConnected,
+                    ])></span>
+                    <div>
+                        <div class="font-semibold">Freedom Finger</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ $engineConnected ? 'Engine terhubung' : 'Engine tidak terhubung' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400">Log hari ini</span>
+                        <span class="ml-1 font-semibold">{{ $logsToday ?? '—' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400">Total log</span>
+                        <span class="ml-1 font-semibold">{{ $logsTotal ?? '—' }}</span>
+                    </div>
+                </div>
             </div>
             @if ($connectionError)
                 <p class="mt-3 text-sm text-danger-600">{{ $connectionError }}</p>
             @endif
         </x-filament::section>
 
-        <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-                <h2 class="text-base font-semibold">Daftar mesin</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Data aktual perangkat dari Freedom Finger.</p>
-            </div>
-            <x-filament::badge color="gray">{{ $totalDevices }} perangkat</x-filament::badge>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
             @forelse ($devices as $device)
                 @php
                     $status = $device->connection_state;
@@ -62,54 +75,41 @@
                 @endphp
 
                 <x-filament::section :key="'device-' . $device->id">
-                    <x-slot name="heading">
-                        {{ $device->device_name ?: $device->device_code }}
-                    </x-slot>
-
-                    <x-slot name="description">
-                        Cloud ID: {{ $device->device_code ?: '—' }}
-                    </x-slot>
-
-                    <x-slot name="headerEnd">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="rounded-lg bg-gray-100 p-2.5 dark:bg-gray-800">
+                                <x-filament::icon icon="heroicon-o-device-tablet" class="h-6 w-6 text-gray-500" />
+                            </div>
+                            <div>
+                                <h2 class="font-semibold">{{ $device->device_name ?: 'Mesin tanpa nama' }}</h2>
+                                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                                    {{ $device->device_code ?: 'Cloud ID tidak tersedia' }}
+                                </p>
+                            </div>
+                        </div>
                         <x-filament::badge :color="$statusColor">{{ $statusLabel }}</x-filament::badge>
-                    </x-slot>
+                    </div>
 
-                    <dl class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                    <div class="mt-5 grid grid-cols-1 gap-4 border-t border-gray-200 pt-4 dark:border-gray-700 sm:grid-cols-2">
                         <div>
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Terakhir aktif</dt>
-                            <dd class="mt-1 text-sm font-medium">
-                                {{ $device->last_seen_at ? \Illuminate\Support\Carbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : 'Belum ada data' }}
-                            </dd>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">IP Address</div>
+                            <div class="mt-1 text-sm font-medium">{{ $device->ip_address ?: '—' }}</div>
                         </div>
                         <div>
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">IP Address mesin</dt>
-                            <dd class="mt-1 text-sm font-medium">{{ $device->ip_address ?: '—' }}</dd>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Terakhir aktif</div>
+                            <div class="mt-1 text-sm font-medium">
+                                {{ $device->last_seen_at ? \\Illuminate\\Support\\Carbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : '—' }}
+                            </div>
                         </div>
-                        <div>
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Cloud ID</dt>
-                            <dd class="mt-1 break-all font-mono text-sm">{{ $device->freedom_device_id ?: '—' }}</dd>
-                        </div>
-                    </dl>
-
-                    <x-slot name="footer">
-                        <div class="flex flex-wrap justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span>Freedom Finger</span>
-                            <span>Data live dari engine</span>
-                        </div>
-                    </x-slot>
+                    </div>
                 </x-filament::section>
             @empty
                 <div class="col-span-full">
                     <x-filament::section>
                         <div class="py-8 text-center">
                             <x-filament::icon icon="heroicon-o-device-tablet" class="mx-auto h-8 w-8 text-gray-400" />
-                            <h2 class="mt-3 text-base font-semibold">Belum ada mesin terdeteksi</h2>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                @if ($connectionError)
-                                    Periksa koneksi ke Freedom Finger.
-                                @else
-                                    Freedom Finger belum melaporkan perangkat yang terhubung.
-                                @endif
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                {{ $connectionError ?: 'Belum ada mesin yang terdeteksi.' }}
                             </p>
                         </div>
                     </x-filament::section>
