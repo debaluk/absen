@@ -232,6 +232,16 @@ class Settings extends Page
 
     public function saveLocation(): void
     {
+        $companyId = DB::table('companies')->value('id');
+
+        if (! $companyId) {
+            Notification::make()
+                ->title('Simpan informasi perusahaan terlebih dahulu.')
+                ->warning()
+                ->send();
+            return;
+        }
+
         $this->validate([
             'locationCode' => ['required', 'string', 'max:30', Rule::unique('work_locations', 'code')->ignore($this->locationId)],
             'locationName' => ['required', 'string', 'max:255'],
@@ -240,6 +250,7 @@ class Settings extends Page
         ]);
 
         $data = [
+            'company_id' => $companyId,
             'code' => strtoupper(trim($this->locationCode)),
             'name' => trim($this->locationName),
             'address' => $this->locationAddress ?: null,
