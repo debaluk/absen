@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\\Database\\Migrations\\Migration;
+use Illuminate\\Database\\Schema\\Blueprint;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Facades\\Schema;
 
 return new class extends Migration
 {
@@ -22,12 +23,15 @@ return new class extends Migration
             $table->string('pin', 32);
             $table->string('name', 100)->nullable();
             $table->string('privilege', 20)->nullable();
-            $table->mediumBlob('data')->nullable()->comment('Payload biner mesin: header, JSON, template biometrik');
+            $table->binary('data')->nullable()->comment('Payload biner mesin: header, JSON, template biometrik');
             $table->dateTime('updated')->nullable();
             $table->primary(['cloud_id', 'pin']);
             $table->index('name');
             $table->index('pin');
         });
+
+        // Gunakan MEDIUMBLOB MySQL agar payload biometrik dapat melebihi kapasitas BLOB biasa.
+        DB::statement("ALTER TABLE machine_users MODIFY data MEDIUMBLOB NULL COMMENT 'Payload biner mesin: header, JSON, template biometrik'");
 
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
