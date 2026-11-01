@@ -19,24 +19,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('branches', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('company_id');
-            $table->string('code', 30);
-            $table->string('name', 150);
-            $table->text('address')->nullable();
-            $table->string('phone', 30)->nullable();
-            $table->string('timezone', 64)->default('Asia/Makassar');
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->unique(['company_id', 'code']);
-            $table->index('company_id');
-        });
-
         Schema::create('work_locations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('branch_id');
+            $table->unsignedBigInteger('company_id');
             $table->string('code', 30);
             $table->string('name', 150);
             $table->text('address')->nullable();
@@ -46,8 +31,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->unique(['branch_id', 'code']);
-            $table->index('branch_id');
+            $table->unique(['company_id', 'code']);
+            $table->index('company_id');
         });
 
         Schema::create('positions', function (Blueprint $table) {
@@ -70,7 +55,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('positions');
         Schema::dropIfExists('work_locations');
-        Schema::dropIfExists('branches');
         Schema::dropIfExists('companies');
     }
 };
