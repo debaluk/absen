@@ -86,12 +86,11 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                            <tr><th class="px-4 py-3">Level</th><th class="px-4 py-3">Jabatan</th><th class="px-4 py-3">Atasan</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Aksi</th></tr>
+                            <tr><th class="px-4 py-3">Jabatan</th><th class="px-4 py-3">Atasan</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Aksi</th></tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse ($positions as $position)
                                 <tr>
-                                    <td class="px-4 py-3">L{{ $position->level }}</td>
                                     <td class="px-4 py-3 font-medium">{{ str_repeat('— ', max(0, $position->level - 1)) }}{{ $position->name }}</td>
                                     <td class="px-4 py-3">{{ $positions->firstWhere('id', $position->parent_id)?->name ?? '—' }}</td>
                                     <td class="px-4 py-3">{{ $position->is_active ? 'Aktif' : 'Nonaktif' }}</td>
