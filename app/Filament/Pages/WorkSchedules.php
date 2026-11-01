@@ -1,12 +1,12 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\\Notifications\\Notification;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Str;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class WorkSchedules extends Page
