@@ -13,4 +13,6 @@ class EmployeeDeviceRegistration extends Page
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-identification';
     protected static ?int $navigationSort = 3;
     protected ?string $subheading = 'Registrasi identitas dan sidik jari karyawan ke perangkat.';
+
+    protected static bool $shouldRegisterNavigation = false;
 }
