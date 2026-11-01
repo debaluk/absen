@@ -4,7 +4,7 @@
             <div class="max-w-4xl space-y-1">
                 <h2 class="text-base font-semibold text-gray-950 dark:text-white">Jadwal</h2>
                 <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                    Jadwal utama berlaku untuk semua karyawan, kecuali karyawan yang dipilihkan jadwal lain di menu Karyawan.
+                    Jadwal utama menjadi jadwal default untuk karyawan.
                     Lembur diatur per hari. Hari kerja dihitung lembur setelah jam pulang, sedangkan hari libur seluruh jam kerja dihitung lembur.
                     Batas maksimal 0 berarti tanpa batas. Jam bebas berarti karyawan dapat datang dan pulang kapan saja selama melakukan scan.
                     Bulatan warna menunjukkan warna jadwal.
