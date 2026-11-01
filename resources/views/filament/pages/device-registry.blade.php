@@ -1,18 +1,18 @@
 <x-filament-panels::page>
     <div class="space-y-6">
         <x-filament::section>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div>
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2 whitespace-nowrap">
                     <x-filament::badge color="gray">Total mesin</x-filament::badge>
-                    <p class="mt-2 text-2xl font-semibold">{{ $totalDevices }}</p>
+                    <span class="text-2xl font-semibold">{{ $totalDevices }}</span>
                 </div>
-                <div>
+                <div class="flex items-center gap-2 whitespace-nowrap">
                     <x-filament::badge color="success">Terhubung</x-filament::badge>
-                    <p class="mt-2 text-2xl font-semibold">{{ $onlineDevices }}</p>
+                    <span class="text-2xl font-semibold">{{ $onlineDevices }}</span>
                 </div>
-                <div>
+                <div class="flex items-center gap-2 whitespace-nowrap">
                     <x-filament::badge color="danger">Terputus</x-filament::badge>
-                    <p class="mt-2 text-2xl font-semibold">{{ $offlineDevices }}</p>
+                    <span class="text-2xl font-semibold">{{ $offlineDevices }}</span>
                 </div>
             </div>
         </x-filament::section>
