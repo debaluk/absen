@@ -5,32 +5,32 @@
                 <h2 class="text-sm font-semibold text-gray-950 dark:text-white">{{ $holidayId ? 'Ubah Hari Libur' : 'Tambah Hari Libur' }}</h2>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pilih satu atau beberapa cabang. Jika tidak memilih cabang, hari libur berlaku untuk semua cabang.</p>
             </div>
-            <form wire:submit="saveHoliday" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <form wire:submit="saveHoliday" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label class="block text-sm">
-                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Tanggal</span>
+                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Tanggal Libur</span>
                     <input type="date" wire:model="date" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                     @error('date') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
                 </label>
-                <div class="block text-sm">
-                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Berlaku untuk</span>
-                    <div class="max-h-36 space-y-2 overflow-y-auto rounded-lg border border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-800">
+                <label class="block text-sm">
+                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Keterangan Libur</span>
+                    <input type="text" wire:model="note" maxlength="255" placeholder="Contoh: Hari Raya Idul Fitri" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                    @error('note') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
+                </label>
+                <div class="block text-sm md:col-span-2">
+                    <span class="mb-2 block font-medium text-gray-700 dark:text-gray-300">Berlaku untuk</span>
+                    <div class="flex max-h-40 flex-wrap gap-x-6 gap-y-3 overflow-y-auto rounded-lg border border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-800">
                         @foreach ($workLocations as $location)
-                            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                            <label class="inline-flex min-w-36 items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                                 <input type="checkbox" wire:model="workLocationIds" value="{{ $location->id }}" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
                                 <span>{{ $location->name }}{{ $location->is_active ? '' : ' (Nonaktif)' }}</span>
                             </label>
                         @endforeach
                     </div>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Kosongkan pilihan untuk Semua Cabang.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Centang lokasi yang berlaku. Kosongkan semua pilihan untuk Semua Cabang.</p>
                     @error('workLocationIds') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
                     @error('workLocationIds.*') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
                 </div>
-                <label class="block text-sm md:col-span-2">
-                    <span class="mb-1 block font-medium text-gray-700 dark:text-gray-300">Keterangan</span>
-                    <input type="text" wire:model="note" maxlength="255" placeholder="Contoh: Hari Raya Idul Fitri" class="w-full rounded-lg border border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-                    @error('note') <span class="mt-1 block text-xs text-danger-600">{{ $message }}</span> @enderror
-                </label>
-                <div class="flex items-end gap-2 md:col-span-2 xl:col-span-4">
+                <div class="flex items-end gap-2 md:col-span-2">
                     <x-filament::button type="submit" size="sm">{{ $holidayId ? 'Simpan Perubahan' : 'Tambah Hari Libur' }}</x-filament::button>
                     @if ($holidayId)
                         <x-filament::button type="button" color="gray" size="sm" wire:click="resetForm">Batal</x-filament::button>
