@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <div class="space-y-5">
+    <div class="fs-work-schedules space-y-5">
         <div class="max-w-4xl space-y-1">
             <h2 class="text-base font-semibold text-gray-950 dark:text-white">Jadwal Kerja Reguler</h2>
             <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
@@ -9,13 +9,13 @@
             </p>
         </div>
 
-        <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <div class="mb-4 flex items-center gap-2">
-                <span class="h-5 w-5 rounded-full bg-slate-500"></span>
+        <section class="fs-schedule-panel">
+            <div class="fs-schedule-title">
+                <span class="fs-schedule-dot"></span>
                 <h3 class="text-sm font-semibold">Utama</h3>
             </div>
 
-            <div class="grid grid-cols-12 items-center gap-2 border-b border-gray-200 px-1 pb-2 text-xs text-gray-500 dark:border-gray-700">
+            <div class="fs-schedule-grid fs-schedule-head">
                 <span class="col-span-2"></span>
                 <span class="col-span-1 text-center">Kerja</span>
                 <span class="col-span-5">Jam kerja</span>
@@ -23,45 +23,45 @@
                 <span class="col-span-2">Maks. jam</span>
             </div>
 
-            <div class="divide-y divide-gray-100 dark:divide-gray-800">
+            <div class="fs-schedule-body">
                 @foreach ([1=>'Senin',2=>'Selasa',3=>'Rabu',4=>'Kamis',5=>'Jumat',6=>'Sabtu',0=>'Minggu'] as $day => $label)
-                    <div class="grid grid-cols-12 items-center gap-2 py-1.5">
-                        <span class="col-span-2 text-sm">{{ $label }}</span>
+                    <div class="fs-schedule-grid fs-schedule-row">
+                        <span class="fs-schedule-day">{{ $label }}</span>
 
-                        <div class="col-span-1 flex justify-center">
-                            <label class="relative inline-flex cursor-pointer items-center">
-                                <input type="checkbox" wire:model.live="days.{{ $day }}.is_working" class="peer sr-only">
-                                <span class="h-5 w-9 rounded-full bg-gray-300 transition peer-checked:bg-success-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4"></span>
+                        <div class="fs-schedule-work">
+                            <label class="fs-switch">
+                                <input type="checkbox" wire:model.live="days.{{ $day }}.is_working" class="fs-switch-input">
+                                <span class="fs-switch-track"></span>
                             </label>
                         </div>
 
-                        <div class="col-span-5 flex flex-wrap items-center gap-1.5">
+                        <div class="fs-schedule-hours">
                             @if ($days[$day]['is_working'] ?? false)
                                 <input type="time" wire:model="days.{{ $day }}.start_time"
                                     @disabled($days[$day]['is_free'] ?? false)
-                                    class="w-24 rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
-                                <span class="text-xs text-gray-500">-</span>
+                                    class="fs-time-input">
+                                <span class="fs-time-separator">–</span>
                                 <input type="time" wire:model="days.{{ $day }}.end_time"
                                     @disabled($days[$day]['is_free'] ?? false)
                                     class="w-24 rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
-                                <label class="ml-1 flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
+                                <label class="fs-free-label">
                                     <input type="checkbox" wire:model="days.{{ $day }}.is_free"> Bebas
                                 </label>
                             @else
-                                <span class="text-xs text-gray-400">Libur</span>
+                                <span class="fs-holiday-label">Libur</span>
                             @endif
                         </div>
 
-                        <div class="col-span-2">
+                        <div class="fs-schedule-overtime">
                             <label class="relative inline-flex cursor-pointer items-center">
                                 <input type="checkbox" wire:model="days.{{ $day }}.overtime_enabled" class="peer sr-only">
                                 <span class="h-5 w-9 rounded-full bg-gray-300 transition peer-checked:bg-success-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4"></span>
                             </label>
                         </div>
 
-                        <div class="col-span-2">
+                        <div class="fs-schedule-max">
                             <input type="text" wire:model="days.{{ $day }}.max_overtime_hours" placeholder="bebas"
-                                class="w-full rounded-lg border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-950">
+                                class="fs-max-input">
                         </div>
 
                         @error("days.$day.end_time")
@@ -71,7 +71,7 @@
                 @endforeach
             </div>
 
-            <div class="mt-4 flex justify-end">
+            <div class="fs-schedule-actions">
                 <x-filament::button size="sm" wire:click="saveSchedule">Simpan jadwal</x-filament::button>
             </div>
         </section>
