@@ -101,6 +101,26 @@
                                 {{ $device->last_seen_at ? \Illuminate\Support\Carbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : '—' }}
                             </div>
                         </div>
+                        <div class="sm:col-span-2">
+                            <label for="work-location-{{ $device->id }}" class="text-xs text-gray-500 dark:text-gray-400">
+                                Lokasi
+                            </label>
+                            <select
+                                id="work-location-{{ $device->id }}"
+                                wire:change="assignWorkLocation('{{ $device->id }}', $event.target.value)"
+                                class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                            >
+                                <option value="">Pilih lokasi kerja</option>
+                                @foreach ($workLocations as $location)
+                                    <option
+                                        value="{{ $location->id }}"
+                                        @selected((string) $device->work_location_id === (string) $location->id)
+                                    >
+                                        {{ $location->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </x-filament::section>
             @empty
