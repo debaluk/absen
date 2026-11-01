@@ -27,7 +27,7 @@ class FreedomFingerEmployeeSynchronizer
                 ->asJson()
                 ->connectTimeout(3)
                 ->timeout(15)
-                ->post($baseUrl . '/api/get_users', []);
+                ->post($baseUrl . '/api/get_users', (object) []);
 
             if (! $response->successful()) {
                 return [
