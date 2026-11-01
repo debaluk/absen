@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-    <div class="flex flex-wrap gap-1 border-b border-gray-200 bg-gray-50 px-4 pt-3 dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-900">
         @php
             $tabs = [
                 'umum' => 'Umum',
@@ -13,19 +13,19 @@
                 type="button"
                 wire:click="setTab('{{ $key }}')"
                 @class([
-                    'relative -mb-px rounded-t-lg border border-b-0 px-5 py-3 text-sm font-medium transition',
-                    'border-gray-200 bg-white text-primary-600 dark:border-gray-700 dark:bg-gray-900 dark:text-primary-400' => $activeTab === $key,
-                    'border-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' => $activeTab !== $key,
+                    'relative border-b-2 px-4 py-4 text-sm font-medium transition-colors',
+                    'border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400' => $activeTab === $key,
+                    'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white' => $activeTab !== $key,
                 ])
             >{{ $label }}</button>
         @endforeach
     </div>
-    <div class="bg-white p-5 dark:bg-gray-900 sm:p-6">
+    <div class="bg-white px-6 py-6 dark:bg-gray-900">
 
     @if ($activeTab === 'umum')
-        <form wire:submit="saveCompany" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <form wire:submit="saveCompany" class="space-y-6">
             <div>
-                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Informasi Perusahaan</h2>
+                <h2 class="text-base font-semibold text-gray-950 dark:text-white">Informasi Perusahaan</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Identitas umum perusahaan.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
