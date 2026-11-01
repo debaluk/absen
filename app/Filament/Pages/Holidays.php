@@ -89,29 +89,33 @@ class Holidays extends Page
             'updated_at' => now(),
         ];
 
-        if ($this->holidayId) {
-            $holidayId = $this->holidayId;
-            DB::table('holidays')->where('id', $holidayId)->update($data);
-            $message = 'Hari libur berhasil diperbarui.';
-        } else {
-            $data['created_at'] = now();
-            $holidayId = DB::table('holidays')->insertGetId($data);
-            $message = 'Hari libur berhasil ditambahkan.';
-        }
+        [$holidayId, $message] = DB::transaction(function () use ($data, $locationIds) {
+            if ($this->holidayId) {
+                $holidayId = $this->holidayId;
+                DB::table('holidays')->where('id', $holidayId)->update($data);
+                $message = 'Hari libur berhasil diperbarui.';
+            } else {
+                $data['created_at'] = now();
+                $holidayId = DB::table('holidays')->insertGetId($data);
+                $message = 'Hari libur berhasil ditambahkan.';
+            }
 
-        DB::table('holiday_work_locations')->where('holiday_id', $holidayId)->delete();
+            DB::table('holiday_work_locations')->where('holiday_id', $holidayId)->delete();
 
-        if ($locationIds->isNotEmpty()) {
-            $now = now();
-            DB::table('holiday_work_locations')->insert(
-                $locationIds->map(fn ($locationId) => [
-                    'holiday_id' => $holidayId,
-                    'work_location_id' => $locationId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ])->all()
-            );
-        }
+            if ($locationIds->isNotEmpty()) {
+                $now = now();
+                DB::table('holiday_work_locations')->insert(
+                    $locationIds->map(fn ($locationId) => [
+                        'holiday_id' => $holidayId,
+                        'work_location_id' => $locationId,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ])->all()
+                );
+            }
+
+            return [$holidayId, $message];
+        });
 
         $this->resetForm();
         $this->resetPage('holidayPage');
