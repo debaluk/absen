@@ -90,7 +90,8 @@ class WorkSchedules extends Page
                 ? ['free' => true]
                 : ['start' => $value['start_time'], 'end' => $value['end_time']]);
             $overtime[] = (bool) ($value['overtime_enabled'] ?? false);
-            $overtimeMax[] = (float) ($value['max_overtime_hours'] ?? 0);
+            $maxOvertime = $value['max_overtime_hours'] ?? 'bebas';
+            $overtimeMax[] = is_numeric($maxOvertime) ? (float) $maxOvertime : 0;
         }
 
         $payload = [
@@ -223,7 +224,7 @@ class WorkSchedules extends Page
                 'end_time' => $value['end'] ?? '17:00',
                 'is_free' => (bool) ($value['free'] ?? false),
                 'overtime_enabled' => (bool) ($overtime[$day] ?? false),
-                'max_overtime_hours' => (float) ($overtimeMax[$day] ?? 0),
+                'max_overtime_hours' => (float) ($overtimeMax[$day] ?? 0) > 0 ? (string) $overtimeMax[$day] : 'bebas',
             ];
         }
     }
@@ -238,7 +239,7 @@ class WorkSchedules extends Page
                 'end_time' => '17:00',
                 'is_free' => false,
                 'overtime_enabled' => false,
-                'max_overtime_hours' => 0,
+                'max_overtime_hours' => 'bebas',
             ];
         }
         return $days;
