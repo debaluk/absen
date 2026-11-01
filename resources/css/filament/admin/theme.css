@@ -340,3 +340,21 @@
     .fs-work-schedules .fs-schedule-panel { padding: .75rem; overflow-x: auto; }
     .fs-work-schedules .fs-schedule-grid { min-width: 35rem; }
 }
+
+
+/* Input angka pada aturan rekap: samakan dengan input jadwal */
+.fs-work-schedules .fs-rule-input {
+    width: 5rem;
+    height: 2rem;
+    border: 1px solid #d6dee8;
+    border-radius: .5rem;
+    background: #fff;
+    padding: .25rem .5rem;
+    color: #243247;
+    font-size: .82rem;
+    box-shadow: none;
+}
+.fs-work-schedules .fs-rule-input:focus {
+    border-color: #7893ad;
+    outline: 2px solid rgb(100 130 160 / 14%);
+}
