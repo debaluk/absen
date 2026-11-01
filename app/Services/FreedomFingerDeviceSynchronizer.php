@@ -49,30 +49,26 @@ class FreedomFingerDeviceSynchronizer
 
                 $rows[] = [
                     'cloud_id' => (string) $device['cloud_id'],
-                    'device_name' => $device['device_name'] ?? null,
-                    'ip_address' => $device['ip'] ?? null,
-                    'is_connected' => (bool) ($device['connected'] ?? false),
+                    'name' => $device['device_name'] ?? $device['name'] ?? null,
+                    'info' => json_encode($device, JSON_THROW_ON_ERROR),
+                    'fk_time' => $device['fk_time'] ?? null,
                     'last_activity' => filled($device['last_activity'] ?? null)
                         ? Carbon::parse($device['last_activity'])
                         : null,
-                    'last_synced_at' => $now,
-                    'raw_data' => json_encode($device, JSON_THROW_ON_ERROR),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
             }
 
             foreach (array_chunk($rows, 200) as $chunk) {
-                DB::table('freedom_finger_devices')->upsert(
+                DB::table('devices')->upsert(
                     $chunk,
                     ['cloud_id'],
                     [
-                        'device_name',
-                        'ip_address',
-                        'is_connected',
+                        'name',
+                        'info',
+                        'fk_time',
                         'last_activity',
-                        'last_synced_at',
-                        'raw_data',
                         'updated_at',
                     ],
                 );
