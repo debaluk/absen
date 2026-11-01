@@ -44,10 +44,10 @@ class Settings extends Page
 
     public function mount(): void
     {
-        $company = DB::table('company_profiles')->first();
+        $company = DB::table('companies')->first();
 
         if ($company) {
-            $this->companyName = $company->company_name;
+            $this->companyName = $company->name;
             $this->companyAddress = $company->address ?? '';
             $this->companyPhone = $company->phone ?? '';
             $this->companyEmail = $company->email ?? '';
@@ -73,9 +73,9 @@ class Settings extends Page
             'companyWebsite' => ['nullable', 'url', 'max:255'],
         ]);
 
-        if (DB::table('company_profiles')->where('id', 1)->exists()) {
-            DB::table('company_profiles')->where('id', 1)->update([
-                'company_name' => $data['companyName'],
+        if (DB::table('companies')->where('id', 1)->exists()) {
+            DB::table('companies')->where('id', 1)->update([
+                'name' => $data['companyName'],
                 'address' => $data['companyAddress'] ?: null,
                 'phone' => $data['companyPhone'] ?: null,
                 'email' => $data['companyEmail'] ?: null,
@@ -83,9 +83,10 @@ class Settings extends Page
                 'updated_at' => now(),
             ]);
         } else {
-            DB::table('company_profiles')->insert([
+            DB::table('companies')->insert([
                 'id' => 1,
-                'company_name' => $data['companyName'],
+                'code' => 'MAIN',
+                'name' => $data['companyName'],
                 'address' => $data['companyAddress'] ?: null,
                 'phone' => $data['companyPhone'] ?: null,
                 'email' => $data['companyEmail'] ?: null,
@@ -100,7 +101,7 @@ class Settings extends Page
 
     public function editPosition(int $id): void
     {
-        $position = DB::table('job_positions')->find($id);
+        $position = DB::table('positions')->find($id);
 
         if (! $position) {
             return;
@@ -116,7 +117,7 @@ class Settings extends Page
     {
         $this->validate([
             'positionName' => ['required', 'string', 'max:255'],
-            'positionParentId' => ['nullable', 'integer', Rule::exists('job_positions', 'id')],
+            'positionParentId' => ['nullable', 'integer', Rule::exists('positions', 'id')],
             'positionActive' => ['boolean'],
         ]);
 
@@ -132,7 +133,7 @@ class Settings extends Page
 
         $level = 1;
         if ($this->positionParentId) {
-            $parent = DB::table('job_positions')->find($this->positionParentId);
+            $parent = DB::table('positions')->find($this->positionParentId);
             $level = $parent->level + 1;
         }
 
@@ -145,11 +146,11 @@ class Settings extends Page
         ];
 
         if ($this->positionId) {
-            DB::table('job_positions')->where('id', $this->positionId)->update($data);
+            DB::table('positions')->where('id', $this->positionId)->update($data);
             $this->refreshPositionLevels($this->positionId);
         } else {
             $data['created_at'] = now();
-            DB::table('job_positions')->insert($data);
+            DB::table('positions')->insert($data);
         }
 
         $this->resetPositionForm();
@@ -158,13 +159,13 @@ class Settings extends Page
 
     private function isPositionDescendant(int $candidateId, int $ancestorId): bool
     {
-        $current = DB::table('job_positions')->find($candidateId);
+        $current = DB::table('positions')->find($candidateId);
 
         while ($current) {
             if ((int) $current->id === $ancestorId) {
                 return true;
             }
-            $current = $current->parent_id ? DB::table('job_positions')->find($current->parent_id) : null;
+            $current = $current->parent_id ? DB::table('positions')->find($current->parent_id) : null;
         }
 
         return false;
@@ -172,32 +173,32 @@ class Settings extends Page
 
     private function refreshPositionLevels(int $id): void
     {
-        $position = DB::table('job_positions')->find($id);
+        $position = DB::table('positions')->find($id);
         if (! $position) {
             return;
         }
 
         $level = 1;
         if ($position->parent_id) {
-            $parent = DB::table('job_positions')->find($position->parent_id);
+            $parent = DB::table('positions')->find($position->parent_id);
             $level = $parent ? $parent->level + 1 : 1;
         }
 
-        DB::table('job_positions')->where('id', $id)->update(['level' => $level, 'updated_at' => now()]);
+        DB::table('positions')->where('id', $id)->update(['level' => $level, 'updated_at' => now()]);
 
-        foreach (DB::table('job_positions')->where('parent_id', $id)->pluck('id') as $childId) {
+        foreach (DB::table('positions')->where('parent_id', $id)->pluck('id') as $childId) {
             $this->refreshPositionLevels((int) $childId);
         }
     }
 
     public function deletePosition(int $id): void
     {
-        if (DB::table('job_positions')->where('parent_id', $id)->exists()) {
+        if (DB::table('positions')->where('parent_id', $id)->exists()) {
             Notification::make()->title('Jabatan masih memiliki bawahan dan tidak dapat dihapus.')->danger()->send();
             return;
         }
 
-        DB::table('job_positions')->where('id', $id)->delete();
+        DB::table('positions')->where('id', $id)->delete();
         Notification::make()->title('Jabatan berhasil dihapus.')->success()->send();
     }
 
@@ -267,7 +268,7 @@ class Settings extends Page
     protected function getViewData(): array
     {
         return [
-            'positions' => DB::table('job_positions')->orderBy('level')->orderBy('name')->get(),
+            'positions' => DB::table('positions')->orderBy('level')->orderBy('name')->get(),
             'locations' => DB::table('work_locations')->orderBy('name')->get(),
         ];
     }
