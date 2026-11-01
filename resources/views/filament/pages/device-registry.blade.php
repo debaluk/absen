@@ -78,7 +78,7 @@
                         <div>
                             <dt class="text-sm text-gray-500 dark:text-gray-400">Terakhir aktif</dt>
                             <dd class="mt-1 text-sm font-medium">
-                                {{ $device->last_seen_at ? IlluminateSupportCarbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : 'Belum ada data' }}
+                                {{ $device->last_seen_at ? \Illuminate\Support\Carbon::parse($device->last_seen_at)->format('d-m-Y H:i:s') : 'Belum ada data' }}
                             </dd>
                         </div>
                         <div>
