@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+ <x-filament-panels::page>
     <x-filament::tabs label="Pengaturan organisasi">
         <x-filament::tabs.item :active="$activeTab === 'umum'" wire:click="setTab('umum')">Umum</x-filament::tabs.item>
         <x-filament::tabs.item :active="$activeTab === 'jabatan'" wire:click="setTab('jabatan')">Jabatan</x-filament::tabs.item>
@@ -113,7 +113,7 @@
             <form wire:submit="saveLocation" class="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <div>
                     <h2 class="text-lg font-semibold">{{ $locationId ? 'Ubah Lokasi Kerja' : 'Tambah Lokasi Kerja' }}</h2>
-                    <p class="text-sm text-gray-500">Kelola cabang atau tempat kerja perusahaan.</p>
+                    <p class="text-sm text-gray-500">Lokasi kerja sekaligus menjadi cabang perusahaan.</p>
                 </div>
                 <label class="block">
                     <span class="text-sm font-medium">Kode Lokasi *</span>
@@ -145,7 +145,7 @@
             <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900 xl:col-span-2">
                 <div class="border-b border-gray-200 p-4 dark:border-gray-700">
                     <h2 class="font-semibold">Daftar Lokasi Kerja</h2>
-                    <p class="text-sm text-gray-500">Daftar cabang dan lokasi penempatan karyawan.</p>
+                    <p class="text-sm text-gray-500">Daftar cabang/lokasi kerja perusahaan.</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
