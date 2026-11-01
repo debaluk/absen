@@ -29,6 +29,10 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName(new HtmlString('<span class="hadirra-brand"><strong>HADIRRA</strong><em>Smart Attendance</em></span>'))
+            ->darkMode(false)
+            ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.company-name', [
+                'companyName' => \Illuminate\Support\Facades\DB::table('company_profiles')->value('company_name'),
+            ]))
             ->colors([
                 'primary' => Color::Amber,
             ])
