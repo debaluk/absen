@@ -242,7 +242,7 @@
 }
 .fs-work-schedules .fs-schedule-grid {
     display: grid;
-    grid-template-columns: 4.5rem 3rem minmax(18rem, 1fr) 4rem 5rem;
+    grid-template-columns: 10rem minmax(18rem, 1fr) 4rem 5rem;
     align-items: center;
     column-gap: .65rem;
 }
@@ -259,7 +259,12 @@
 }
 .fs-work-schedules .fs-schedule-row:last-child { border-bottom: 0; }
 .fs-work-schedules .fs-schedule-day { font-size: .84rem; }
-.fs-work-schedules .fs-schedule-work,
+.fs-work-schedules .fs-schedule-work {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+}
 .fs-work-schedules .fs-schedule-overtime { display: flex; justify-content: center; }
 .fs-work-schedules .fs-switch {
     position: relative;
@@ -333,5 +338,5 @@
 .fs-work-schedules input:disabled { opacity: .5; cursor: not-allowed; }
 @media (max-width: 640px) {
     .fs-work-schedules .fs-schedule-panel { padding: .75rem; overflow-x: auto; }
-    .fs-work-schedules .fs-schedule-grid { min-width: 34rem; }
+    .fs-work-schedules .fs-schedule-grid { min-width: 35rem; }
 }
