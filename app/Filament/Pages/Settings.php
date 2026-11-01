@@ -149,6 +149,11 @@ class Settings extends Page
             DB::table('positions')->where('id', $this->positionId)->update($data);
             $this->refreshPositionLevels($this->positionId);
         } else {
+            do {
+                $code = 'POS-' . strtoupper(Str::random(8));
+            } while (DB::table('positions')->where('code', $code)->exists());
+
+            $data['code'] = $code;
             $data['created_at'] = now();
             DB::table('positions')->insert($data);
         }
