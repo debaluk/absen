@@ -96,7 +96,7 @@
                         @forelse ($logs as $log)
                             <tr wire:key="machine-log-{{ $log->id }}" class="transition hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                 <td class="whitespace-nowrap px-4 py-3.5 font-medium text-gray-950 dark:text-white">
-                                    {{ IlluminateSupportCarbon::parse($log->scan_date)->format('d-m-Y H:i:s') }}
+                                    {{ \Illuminate\Support\Carbon::parse($log->scan_date)->format('d-m-Y H:i:s') }}
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="font-medium text-gray-950 dark:text-white">{{ $log->user_name ?: 'Pengguna belum dikenal' }}</div>
@@ -113,7 +113,7 @@
                                     {{ $log->verify === null ? '—' : 'Kode ' . $log->verify }}
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3.5 text-gray-500 dark:text-gray-400">
-                                    {{ $log->received_at ? IlluminateSupportCarbon::parse($log->received_at)->format('d-m-Y H:i:s') : '—' }}
+                                    {{ $log->received_at ? \Illuminate\Support\Carbon::parse($log->received_at)->format('d-m-Y H:i:s') : '—' }}
                                 </td>
                             </tr>
                         @empty
