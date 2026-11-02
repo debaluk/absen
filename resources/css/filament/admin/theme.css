@@ -533,3 +533,23 @@
         transform: none;
     }
 }
+
+/* Tombol logout tetap berada di bagian paling bawah sidebar */
+.fs-sidebar-logout {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-top: auto;
+    padding: 0.75rem;
+    border-top: 1px solid var(--fs-border);
+    background: var(--fs-sidebar);
+}
+
+.fs-sidebar-logout form {
+    width: 100%;
+}
+
+.fs-sidebar-logout .fi-btn {
+    width: 100%;
+    justify-content: flex-start;
+}
