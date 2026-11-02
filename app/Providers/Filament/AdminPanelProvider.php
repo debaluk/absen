@@ -30,6 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->brandName(new HtmlString('<span class="hadirra-brand"><strong>HADIRRA</strong><em>Smart Attendance</em></span>'))
             ->darkMode(false)
+            ->sidebarFullyCollapsibleOnDesktop()
+            ->breadcrumbs(hasNavigationHierarchy: true)
             ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.company-name', [
                 'companyName' => \Illuminate\Support\Facades\DB::table('companies')->where('id', 1)->value('name'),
             ]))
