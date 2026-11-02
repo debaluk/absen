@@ -35,6 +35,25 @@ class Employees extends Page
 
     public string $filterStatus = '';
 
+    public int $page = 1;
+
+    public int $perPage = 15;
+
+    public function updatedFilterWorkLocationId(): void
+    {
+        $this->page = 1;
+    }
+
+    public function updatedFilterStatus(): void
+    {
+        $this->page = 1;
+    }
+
+    public function goToEmployeePage(int $page): void
+    {
+        $this->page = max(1, min($page, $this->lastPage));
+    }
+
     public string $employee_no = '';
 
     public ?string $nik = null;
@@ -57,6 +76,7 @@ class Employees extends Page
     {
         $this->filterWorkLocationId = null;
         $this->filterStatus = '';
+        $this->page = 1;
     }
 
     public function createEmployee(): void
@@ -306,10 +326,15 @@ class Employees extends Page
 
         $allEmployees = $employees;
 
-        $employees = $employees
+        $filteredEmployees = $employees
             ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
             ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
             ->values();
+
+        $totalFilteredEmployees = $filteredEmployees->count();
+        $lastPage = max(1, (int) ceil($totalFilteredEmployees / $this->perPage));
+        $this->page = min(max(1, $this->page), $lastPage);
+        $employees = $filteredEmployees->forPage($this->page, $this->perPage)->values();
 
         $positions = DB::table('positions')
             ->where('is_active', true)
@@ -327,8 +352,10 @@ class Employees extends Page
             'machineUsers' => $machineUsers,
             'positions' => $positions,
             'workLocations' => $workLocations,
-            'totalEmployees' => $allEmployees->count(),
-            'totalActiveEmployees' => $allEmployees->where('employment_status', 'active')->count(),
+            'totalFilteredEmployees' => $totalFilteredEmployees,
+            'currentPage' => $this->page,
+            'lastPage' => $lastPage,
+            'perPage' => $this->perPage,
         ];
     }
 }
