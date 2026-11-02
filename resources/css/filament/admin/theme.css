@@ -570,3 +570,10 @@
 .fs-sidebar-logout .fs-logout-button svg {
     color: #52799e !important;
 }
+
+
+/* Hilangkan breadcrumb bawaan di area body; breadcrumb hanya di topbar */
+.fi-breadcrumbs,
+.fi-page-header .fi-breadcrumbs {
+    display: none !important;
+}
