@@ -35,7 +35,7 @@
                     <option value="inactive">Tidak Aktif</option>
                 </select>
             </div>
-            <button type="button" wire:click="$set('filterWorkLocationId', null); $set('filterStatus', '')" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+            <button type="button" wire:click="clearEmployeeFilters" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
                 Reset Filter
             </button>
         </div>
