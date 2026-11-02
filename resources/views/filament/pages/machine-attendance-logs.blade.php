@@ -82,7 +82,7 @@
                         @forelse ($logs as $log)
                             <tr wire:key="machine-log-{{ $log->id }}" class="transition hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                 <td class="whitespace-nowrap px-4 py-3.5 font-medium text-gray-950 dark:text-white">
-                                    {{ \Illuminate\Support\Carbon::parse($log->scan_date)->format('d-m-Y H:i:s') }}
+                                    {{ IlluminateSupportCarbon::parse($log->scan_date)->format('d-m-Y H:i:s') }}
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="font-medium text-gray-950 dark:text-white">{{ $log->user_name ?: 'Pengguna belum dikenal' }}</div>
@@ -99,7 +99,7 @@
                                     {{ $log->verify === null ? '—' : 'Kode ' . $log->verify }}
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3.5 text-gray-500 dark:text-gray-400">
-                                    {{ $log->received_at ? \Illuminate\Support\Carbon::parse($log->received_at)->format('d-m-Y H:i:s') : '—' }}
+                                    {{ $log->received_at ? IlluminateSupportCarbon::parse($log->received_at)->format('d-m-Y H:i:s') : '—' }}
                                 </td>
                             </tr>
                         @empty
@@ -116,6 +116,11 @@
             </div>
 
             <div class="border-t border-gray-200 px-4 py-3 dark:border-gray-700 sm:px-6">
+                <div class="mb-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold text-gray-700 dark:text-gray-300">Keterangan status scan:</span>
+                    <span><span class="font-medium text-gray-700 dark:text-gray-200">Kode 0</span> = Masuk</span>
+                    <span><span class="font-medium text-gray-700 dark:text-gray-200">Kode 1</span> = Pulang</span>
+                </div>
                 {{ $logs->onEachSide(1)->links() }}
             </div>
         </x-filament::section>
