@@ -22,12 +22,12 @@
 
 /* Brand HADIRRA: dua baris */
 .hadirra-brand {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.15rem;
-    line-height: 1.1;
-    white-space: normal;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .hadirra-brand strong {
@@ -38,11 +38,7 @@
 }
 
 .hadirra-brand em {
-    display: block;
-    font-size: 0.7rem;
-    font-style: italic;
-    font-weight: 400;
-    opacity: 0.78;
+    display: none;
 }
 
 /* Latar utama */
@@ -475,10 +471,11 @@
 }
 
 
-/* Susunan topbar: brand, tombol menu, breadcrumb, lalu identitas perusahaan */
+/* Urutan topbar: HADIRRA | tombol menu + breadcrumb | perusahaan + avatar */
 .fi-topbar {
     display: flex;
     align-items: center;
+    gap: 0;
 }
 
 .fi-topbar-start {
@@ -488,7 +485,19 @@
 .fi-topbar-start > a,
 .fi-topbar-start > .fi-logo {
     order: 0;
+    display: inline-flex;
     flex: 0 0 auto;
+    align-items: center;
+}
+
+/* Garis pemisah tepat setelah brand */
+.fi-topbar-start > a::after,
+.fi-topbar-start > .fi-logo::after {
+    content: "|";
+    display: inline-block;
+    margin-inline: 1rem;
+    color: #94a3b8;
+    font-weight: 400;
 }
 
 .fi-topbar-open-sidebar-btn,
@@ -496,7 +505,7 @@
 .fi-topbar-collapse-sidebar-btn-ctn {
     order: 1;
     flex: 0 0 auto;
-    margin-inline: 0.75rem 0.35rem;
+    margin-inline: 0 0.5rem;
 }
 
 .fi-topbar-end {
@@ -510,7 +519,7 @@
 .fi-topbar-end > .fs-topbar-breadcrumb {
     order: 0;
     flex: 0 1 auto;
-    margin-inline: 0 1rem;
+    margin: 0 1rem 0 0;
 }
 
 .fs-topbar-breadcrumb {
@@ -518,10 +527,19 @@
 }
 
 @media (max-width: 767px) {
+    .fi-topbar-start > a::after,
+    .fi-topbar-start > .fi-logo::after {
+        margin-inline: 0.5rem;
+    }
+
     .fi-topbar-open-sidebar-btn,
     .fi-topbar-close-sidebar-btn,
     .fi-topbar-collapse-sidebar-btn-ctn {
-        margin-inline: 0.35rem;
+        margin-inline: 0 0.35rem;
+    }
+
+    .fi-topbar-end {
+        gap: 0.5rem;
     }
 
     .fi-topbar-end > .fs-topbar-breadcrumb {
