@@ -441,3 +441,35 @@
 .fi-header {
     margin-bottom: 1rem;
 }
+
+
+/* Breadcrumb pada topbar, setelah tombol menu dan identitas aplikasi */
+.fs-topbar-breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    margin-left: 0.75rem;
+    color: #64748b;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+.fs-topbar-breadcrumb-separator {
+    width: 0.85rem;
+    height: 0.85rem;
+    color: #94a3b8;
+}
+
+.fs-topbar-breadcrumb-current {
+    color: #253247;
+    font-weight: 650;
+}
+
+@media (max-width: 640px) {
+    .fs-topbar-breadcrumb {
+        gap: 0.35rem;
+        margin-left: 0.35rem;
+        font-size: 0.75rem;
+    }
+}
