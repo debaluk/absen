@@ -69,16 +69,20 @@
             </section>
 
             <section class="fs-dashboard-panel">
-                <div class="fs-panel-heading"><div><h3>Komposisi Karyawan</h3><p>Berdasarkan status master</p></div></div>
-                <div class="fs-employee-donut-wrap">
-                    <div class="fs-employee-donut" style="--active-share: {{ $totalEmployees > 0 ? ($activeEmployees / $totalEmployees) * 100 : 0 }}%">
-                        <div><strong>{{ number_format($totalEmployees, 0, ',', '.') }}</strong><span>Karyawan</span></div>
+                <div class="fs-panel-heading"><div><h3>Status Kehadiran</h3><p>Persentase status kehadiran hari ini</p></div></div>
+                <div class="fs-attendance-pie-wrap">
+                    <div class="fs-attendance-pie">
+                        <div><strong>—</strong><span>Belum tersedia</span></div>
                     </div>
                 </div>
-                <div class="fs-legend-list">
-                    <div><span class="fs-legend-dot fs-dot-green"></span><span>Aktif</span><strong>{{ number_format($activeEmployees, 0, ',', '.') }}</strong></div>
-                    <div><span class="fs-legend-dot fs-dot-rose"></span><span>Nonaktif</span><strong>{{ number_format($inactiveEmployees, 0, ',', '.') }}</strong></div>
+                <div class="fs-attendance-legend">
+                    <div><span class="fs-attendance-dot fs-dot-present"></span><span>Hadir</span><strong>—%</strong></div>
+                    <div><span class="fs-attendance-dot fs-dot-permission"></span><span>Izin</span><strong>—%</strong></div>
+                    <div><span class="fs-attendance-dot fs-dot-sick"></span><span>Sakit</span><strong>—%</strong></div>
+                    <div><span class="fs-attendance-dot fs-dot-leave"></span><span>Cuti</span><strong>—%</strong></div>
+                    <div><span class="fs-attendance-dot fs-dot-absent"></span><span>Alpa</span><strong>—%</strong></div>
                 </div>
+                <p class="mt-3 text-center text-xs text-slate-400">Perhitungan status kehadiran belum diimplementasikan.</p>
             </section>
         </div>
 
@@ -171,13 +175,16 @@
         .fs-hour-hidden { visibility: hidden; }
         .fs-chart-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .9rem; color: #94a3b8; font-size: .7rem; }
         .fs-chart-foot span { display: inline-flex; align-items: center; gap: .4rem; } .fs-chart-foot i { width: .45rem; height: .45rem; border-radius: 50%; background: #3b82f6; } .fs-chart-foot strong { color: #334155; }
-        .fs-employee-donut-wrap { display: flex; justify-content: center; padding: .4rem 0 1.1rem; }
-        .fs-employee-donut { display: grid; width: 10rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#10b981 0 var(--active-share),#fb7185 var(--active-share) 100%); }
-        .fs-employee-donut::before { content: ''; grid-area: 1/1; width: 7.2rem; aspect-ratio: 1; border-radius: 50%; background: #fff; }
-        .fs-employee-donut > div { z-index: 1; grid-area: 1/1; display: flex; flex-direction: column; align-items: center; }
-        .fs-employee-donut strong { color: #243247; font-size: 1.65rem; font-weight: 800; } .fs-employee-donut span { color: #94a3b8; font-size: .7rem; }
-        .fs-legend-list { display: grid; gap: .65rem; } .fs-legend-list > div { display: flex; align-items: center; gap: .5rem; color: #64748b; font-size: .78rem; } .fs-legend-list strong { margin-left: auto; color: #334155; }
-        .fs-legend-dot { width: .55rem; height: .55rem; border-radius: 50%; } .fs-dot-green { background: #10b981; } .fs-dot-rose { background: #fb7185; }
+        .fs-attendance-pie-wrap { display: flex; justify-content: center; padding: .15rem 0 1rem; }
+        .fs-attendance-pie { display: grid; width: 9.5rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#e2e8f0 0 100%); }
+        .fs-attendance-pie::before { content: ''; grid-area: 1/1; width: 6.4rem; aspect-ratio: 1; border-radius: 50%; background: #fff; }
+        .fs-attendance-pie > div { z-index: 1; grid-area: 1/1; display: flex; flex-direction: column; align-items: center; }
+        .fs-attendance-pie strong { color: #64748b; font-size: 1.35rem; font-weight: 800; } .fs-attendance-pie span { color: #94a3b8; font-size: .62rem; }
+        .fs-attendance-legend { display: grid; gap: .55rem; }
+        .fs-attendance-legend > div { display: flex; align-items: center; gap: .5rem; color: #64748b; font-size: .75rem; }
+        .fs-attendance-legend strong { margin-left: auto; color: #334155; font-weight: 750; }
+        .fs-attendance-dot { width: .58rem; height: .58rem; flex: 0 0 auto; border-radius: 50%; }
+        .fs-dot-present { background: #10b981; } .fs-dot-permission { background: #3b82f6; } .fs-dot-sick { background: #f59e0b; } .fs-dot-leave { background: #8b5cf6; } .fs-dot-absent { background: #f43f5e; }
         .fs-location-track { height: .65rem; overflow: hidden; border-radius: 999px; background: #f1f5f9; } .fs-location-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#34d399,#059669); }
         .fs-count-pill { border-radius: 999px; background: #f1f5f9; padding: .35rem .65rem; color: #64748b; font-size: .68rem; font-weight: 700; white-space: nowrap; }
         .fs-device-list { display: grid; gap: .15rem; } .fs-device-row { display: flex; align-items: center; gap: .75rem; border-bottom: 1px solid #f1f5f9; padding: .7rem 0; } .fs-device-row:last-child { border-bottom: 0; }
