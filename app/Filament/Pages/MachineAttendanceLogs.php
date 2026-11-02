@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\\Filament\\Pages;
 
 use BackedEnum;
-use Filament\Pages\Page;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
-use Livewire\WithPagination;
+use Filament\\Pages\\Page;
+use Illuminate\\Database\\Query\\Builder;
+use Illuminate\\Support\\Facades\\DB;
+use Livewire\\WithPagination;
+use Symfony\\Component\\HttpFoundation\\StreamedResponse;
 use UnitEnum;
 
 class MachineAttendanceLogs extends Page
@@ -57,7 +58,52 @@ class MachineAttendanceLogs extends Page
         $this->resetPage();
     }
 
-    protected function getViewData(): array
+    public function exportCsv(): StreamedResponse
+    {
+        $fileName = 'log-absensi-mesin-' . now()->format('Ymd-His') . '.csv';
+
+        return response()->streamDownload(function () {
+            $output = fopen('php://output', 'w');
+
+            // BOM agar karakter Indonesia terbaca dengan benar di Excel.
+            fwrite($output, "\xEF\xBB\xBF");
+
+            fputcsv($output, [
+                'Waktu Scan',
+                'Nama Pengguna',
+                'PIN',
+                'Nama Mesin',
+                'Cloud ID',
+                'Status Scan (Kode)',
+                'Verifikasi (Kode)',
+                'Diterima Server',
+            ], ';');
+
+            $this->logsQuery()
+                ->orderByDesc('logs.scan_date')
+                ->orderByDesc('logs.id')
+                ->chunk(1000, function ($logs) use ($output) {
+                    foreach ($logs as $log) {
+                        fputcsv($output, [
+                            $log->scan_date,
+                            $log->user_name ?: 'Pengguna belum dikenal',
+                            $log->pin,
+                            $log->device_name ?: 'Mesin tidak dikenal',
+                            $log->cloud_id,
+                            $log->status_scan,
+                            $log->verify,
+                            $log->received_at,
+                        ], ';');
+                    }
+                });
+
+            fclose($output);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    protected function logsQuery(): Builder
     {
         $query = DB::table('logs')
             ->leftJoin('devices', 'devices.cloud_id', '=', 'logs.cloud_id')
@@ -99,6 +145,13 @@ class MachineAttendanceLogs extends Page
                     ->orWhere('logs.cloud_id', 'like', '%' . $search . '%');
             });
         }
+
+        return $query;
+    }
+
+    protected function getViewData(): array
+    {
+        $query = $this->logsQuery();
 
         $filteredLogs = (clone $query)->count('logs.id');
 
