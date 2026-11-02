@@ -5,22 +5,11 @@
         </button>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <div class="text-sm text-gray-500 dark:text-gray-400">Total Karyawan</div>
-            <div class="mt-1 text-2xl font-semibold text-gray-950 dark:text-white">{{ number_format($totalEmployees, 0, ',', '.') }}</div>
-        </div>
-        <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <div class="text-sm text-gray-500 dark:text-gray-400">Karyawan Aktif</div>
-            <div class="mt-1 text-2xl font-semibold text-gray-950 dark:text-white">{{ number_format($totalActiveEmployees, 0, ',', '.') }}</div>
-        </div>
-    </div>
-
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
         <div class="flex flex-wrap items-end gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
             <div class="min-w-52 flex-1">
                 <label for="filterWorkLocationId" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Lokasi Kerja</label>
-                <select id="filterWorkLocationId" wire:model.live="filterWorkLocationId" class="w-full rounded-lg border-gray-300 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                <select id="filterWorkLocationId" wire:model.live="filterWorkLocationId" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                     <option value="">Semua Lokasi</option>
                     @foreach ($workLocations as $location)
                         <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -58,7 +47,7 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($employees as $employee)
                         <tr class="text-gray-700 dark:text-gray-200">
-                            <td class="whitespace-nowrap px-4 py-3">{{ $loop->iteration }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">{{ (($currentPage - 1) * $perPage) + $loop->iteration }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $employee->name }}</td>
                             <td class="whitespace-nowrap px-4 py-3">{{ $employee->nik ?: '—' }}</td>
                             <td class="px-4 py-3">{{ $employee->position_name ?: '—' }}</td>
@@ -86,6 +75,25 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-700">
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+                Menampilkan
+                <span class="font-medium">{{ $totalFilteredEmployees === 0 ? 0 : (($currentPage - 1) * $perPage) + 1 }}</span>
+                sampai
+                <span class="font-medium">{{ min($currentPage * $perPage, $totalFilteredEmployees) }}</span>
+                dari
+                <span class="font-medium">{{ $totalFilteredEmployees }}</span> karyawan
+            </p>
+            <div class="flex items-center gap-1">
+                <button type="button" wire:click="goToEmployeePage({{ $currentPage - 1 }})" @disabled($currentPage <= 1) class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                    Sebelumnya
+                </button>
+                <span class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300">Halaman {{ $currentPage }} dari {{ $lastPage }}</span>
+                <button type="button" wire:click="goToEmployeePage({{ $currentPage + 1 }})" @disabled($currentPage >= $lastPage) class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                    Berikutnya
+                </button>
+            </div>
         </div>
     </div>
 
