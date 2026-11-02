@@ -1,4 +1,7 @@
 @php
+    $currentGroupLabel = null;
+    $currentLabel = null;
+
     $findActiveNavigationLabel = function ($items) use (&$findActiveNavigationLabel) {
         foreach ($items as $item) {
             if (! $item->isActive()) {
@@ -13,12 +16,12 @@
         return null;
     };
 
-    $currentLabel = null;
-
     foreach (filament()->getNavigation() as $group) {
-        $currentLabel = $findActiveNavigationLabel($group->getItems());
+        $activeLabel = $findActiveNavigationLabel($group->getItems());
 
-        if ($currentLabel !== null) {
+        if ($activeLabel !== null) {
+            $currentGroupLabel = $group->getLabel();
+            $currentLabel = $activeLabel;
             break;
         }
     }
@@ -27,5 +30,9 @@
 @endphp
 
 <nav aria-label="Breadcrumb" class="fs-topbar-breadcrumb">
+    @if (filled($currentGroupLabel))
+        <span class="fs-topbar-breadcrumb-parent">{{ $currentGroupLabel }}</span>
+        <span class="fs-topbar-breadcrumb-separator" aria-hidden="true">›</span>
+    @endif
     <span class="fs-topbar-breadcrumb-current">{{ $currentLabel }}</span>
 </nav>
