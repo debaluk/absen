@@ -18,7 +18,7 @@ class MachineAttendanceLogs extends Page
 
     protected static ?string $title = 'Log Absensi Mesin';
 
-    protected static ?string $navigationLabel = 'Log Absensi Mesin';
+    protected static ?string $navigationLabel = 'Log Mesin';
 
     protected static string | UnitEnum | null $navigationGroup = 'Absensi';
 
