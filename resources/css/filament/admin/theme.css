@@ -517,10 +517,6 @@
         transform: translateY(-50%);
     }
 
-    /* Saat sidebar diciutkan, area brand ikut memakai lebar sidebar yang ciut. */
-    .fi-body-has-sidebar-collapsible-on-desktop:has(.fi-sidebar:not(.fi-sidebar-open)) .fi-topbar {
-        --fs-topbar-brand-width: var(--sidebar-collapsed-width, 4.5rem);
-    }
 }
 
 /* Di layar kecil, ikuti susunan topbar bawaan Filament. */
