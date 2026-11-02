@@ -3,7 +3,7 @@
 return [
 
     'freedom_finger' => [
-        'url' => env('FREEDOM_FINGER_URL', 'http://103.119.237.50:8013'),
+        'url' => env('FREEDOM_FINGER_URL', 'http://127.0.0.1:8013'),
         'token' => env('FREEDOM_FINGER_TOKEN'),
     ],
 
