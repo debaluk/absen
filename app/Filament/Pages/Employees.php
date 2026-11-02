@@ -324,8 +324,6 @@ class Employees extends Page
             ->orderBy('employees.name')
             ->get();
 
-        $allEmployees = $employees;
-
         $filteredEmployees = $employees
             ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
             ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
