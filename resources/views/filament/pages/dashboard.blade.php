@@ -95,23 +95,6 @@
 
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <section class="fs-dashboard-panel">
-                <div class="fs-panel-heading"><div><h3>Karyawan per Lokasi</h3><p>Jumlah karyawan dan yang berstatus aktif</p></div></div>
-                <div class="space-y-4 pt-2">
-                    @forelse ($locationStats as $location)
-                        <div>
-                            <div class="mb-2 flex items-center justify-between gap-3 text-sm">
-                                <span class="font-semibold text-slate-700">{{ $location->name }}</span>
-                                <span class="text-slate-500">{{ number_format($location->active_employees, 0, ',', '.') }} / {{ number_format($location->total_employees, 0, ',', '.') }} aktif</span>
-                            </div>
-                            <div class="fs-location-track"><div class="fs-location-fill" style="width: {{ $location->total_employees > 0 ? ($location->active_employees / $location->total_employees) * 100 : 0 }}%"></div></div>
-                        </div>
-                    @empty
-                        <div class="fs-dashboard-empty">Belum ada data lokasi kerja.</div>
-                    @endforelse
-                </div>
-            </section>
-
-            <section class="fs-dashboard-panel">
                 <div class="fs-panel-heading"><div><h3>Status Mesin Absensi</h3><p>Informasi perangkat dan aktivitas terakhir</p></div><span class="fs-count-pill">{{ $devices->count() }} mesin</span></div>
                 <div class="fs-device-list">
                     @forelse ($devices as $device)
