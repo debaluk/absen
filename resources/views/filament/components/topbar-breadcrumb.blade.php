@@ -1,27 +1,25 @@
 @php
-    $currentPath = '/' . trim(request()->path(), '/');
-    $currentPath = $currentPath === '/' ? '/' : rtrim($currentPath, '/');
-    $currentLabel = null;
-    $matchedPathLength = -1;
-
-    foreach (\Filament\Facades\Filament::getNavigation() as $group) {
-        foreach ($group->getItems() as $item) {
-            $url = $item->getUrl();
-            $path = parse_url($url, PHP_URL_PATH);
-
-            if (! $path) {
+    $findActiveNavigationLabel = function ($items) use (&$findActiveNavigationLabel) {
+        foreach ($items as $item) {
+            if (! $item->isActive()) {
                 continue;
             }
 
-            $path = rtrim($path, '/') ?: '/';
-            $matches = $path === '/'
-                ? $currentPath === '/'
-                : ($currentPath === $path || str_starts_with($currentPath, $path . '/'));
+            $childLabel = $findActiveNavigationLabel($item->getChildItems());
 
-            if ($matches && strlen($path) > $matchedPathLength) {
-                $currentLabel = $item->getLabel();
-                $matchedPathLength = strlen($path);
-            }
+            return $childLabel ?? $item->getLabel();
+        }
+
+        return null;
+    };
+
+    $currentLabel = null;
+
+    foreach (filament()->getNavigation() as $group) {
+        $currentLabel = $findActiveNavigationLabel($group->getItems());
+
+        if ($currentLabel !== null) {
+            break;
         }
     }
 
