@@ -471,80 +471,64 @@
 }
 
 
-/* Urutan topbar: HADIRRA | tombol menu + breadcrumb | perusahaan + avatar */
-.fi-topbar {
-    display: flex;
-    align-items: center;
-    gap: 0;
-}
-
-.fi-topbar-start {
-    display: contents;
-}
-
-.fi-topbar-start > a,
-.fi-topbar-start > .fi-logo {
-    order: 0;
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-}
-
-/* Garis pemisah tepat setelah brand */
-.fi-topbar-start > a::after,
-.fi-topbar-start > .fi-logo::after {
-    content: "|";
-    display: inline-block;
-    margin-inline: 1rem;
-    color: #94a3b8;
-    font-weight: 400;
-}
-
-.fi-topbar-open-sidebar-btn,
-.fi-topbar-close-sidebar-btn,
-.fi-topbar-collapse-sidebar-btn-ctn {
-    order: 1;
-    flex: 0 0 auto;
-    margin-inline: 0 0.5rem;
-}
-
-.fi-topbar-end {
-    order: 3;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-inline-start: auto;
-}
-
-.fi-topbar-end > .fs-topbar-breadcrumb {
-    order: 0;
-    flex: 0 1 auto;
-    margin: 0 1rem 0 0;
-}
-
-.fs-topbar-breadcrumb {
-    gap: 0.45rem;
-}
-
-@media (max-width: 767px) {
-    .fi-topbar-start > a::after,
-    .fi-topbar-start > .fi-logo::after {
-        margin-inline: 0.5rem;
+/* Topbar: area brand sejajar dengan lebar sidebar, lalu menu dan breadcrumb */
+@media (min-width: 1024px) {
+    .fi-topbar {
+        position: relative;
+        --fs-topbar-brand-width: var(--sidebar-width, 16rem);
     }
 
-    .fi-topbar-open-sidebar-btn,
-    .fi-topbar-close-sidebar-btn,
+    .fi-topbar-start {
+        position: relative;
+        display: flex;
+        flex: 0 0 var(--fs-topbar-brand-width);
+        width: var(--fs-topbar-brand-width);
+        min-width: 0;
+        margin-inline-end: 0;
+    }
+
+    .fi-topbar-start > a,
+    .fi-topbar-start > .fi-logo {
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+    }
+
     .fi-topbar-collapse-sidebar-btn-ctn {
-        margin-inline: 0 0.35rem;
+        position: absolute;
+        inset-inline-start: var(--fs-topbar-brand-width);
+        top: 50%;
+        z-index: 1;
+        transform: translateY(-50%);
     }
 
     .fi-topbar-end {
-        gap: 0.5rem;
+        display: flex;
+        align-items: center;
+        margin-inline-start: auto;
     }
 
     .fi-topbar-end > .fs-topbar-breadcrumb {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        position: absolute;
+        inset-inline-start: calc(var(--fs-topbar-brand-width) + 3.25rem);
+        top: 50%;
+        max-width: min(40vw, 32rem);
+        margin: 0;
+        transform: translateY(-50%);
+    }
+
+    /* Saat sidebar diciutkan, area brand ikut memakai lebar sidebar yang ciut. */
+    .fi-body-has-sidebar-collapsible-on-desktop:has(.fi-sidebar:not(.fi-sidebar-open)) .fi-topbar {
+        --fs-topbar-brand-width: var(--sidebar-collapsed-width, 4.5rem);
+    }
+}
+
+/* Di layar kecil, ikuti susunan topbar bawaan Filament. */
+@media (max-width: 1023px) {
+    .fi-topbar-end > .fs-topbar-breadcrumb {
+        position: static;
+        max-width: none;
+        margin-inline: 0 0.5rem;
+        transform: none;
     }
 }
