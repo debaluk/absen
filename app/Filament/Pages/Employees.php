@@ -53,6 +53,12 @@ class Employees extends Page
 
     public string $machineUserSelection = '';
 
+    public function clearEmployeeFilters(): void
+    {
+        $this->filterWorkLocationId = null;
+        $this->filterStatus = '';
+    }
+
     public function createEmployee(): void
     {
         $this->resetEmployeeForm();
