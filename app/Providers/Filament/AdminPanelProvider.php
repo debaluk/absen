@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->sidebarFullyCollapsibleOnDesktop()
             ->breadcrumbs(hasNavigationHierarchy: true)
+            ->renderHook(\Filament\View\PanelsRenderHook::TOPBAR_LOGO_AFTER, fn (): \Illuminate\Contracts\View\View => view('filament.components.topbar-breadcrumb'))
             ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.company-name', [
                 'companyName' => \Illuminate\Support\Facades\DB::table('companies')->where('id', 1)->value('name'),
             ]))
