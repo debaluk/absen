@@ -1,10 +1,10 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
 class Dashboard extends Page
@@ -51,12 +51,15 @@ class Dashboard extends Page
 
         $todayScans = (clone $todayLogsQuery)->count('logs.id');
 
-        $hourlyScans = collect(range(0, 23))->map(function ($hour) use ($todayLogsQuery) {
-            return [
-                'hour' => sprintf('%02d', $hour),
-                'total' => (clone $todayLogsQuery)->whereRaw('HOUR(logs.scan_date) = ?', [$hour])->count('logs.id'),
-            ];
-        });
+        $hourlyTotals = (clone $todayLogsQuery)
+            ->selectRaw('HOUR(logs.scan_date) as scan_hour, COUNT(logs.id) as total')
+            ->groupByRaw('HOUR(logs.scan_date)')
+            ->pluck('total', 'scan_hour');
+
+        $hourlyScans = collect(range(0, 23))->map(fn ($hour) => [
+            'hour' => sprintf('%02d', $hour),
+            'total' => (int) ($hourlyTotals[$hour] ?? 0),
+        ]);
 
         $locationStats = DB::table('work_locations')
             ->leftJoin('employees', 'employees.work_location_id', '=', 'work_locations.id')
