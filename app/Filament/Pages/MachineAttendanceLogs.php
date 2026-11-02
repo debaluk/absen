@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\\Pages\\Page;
-use Illuminate\\Database\\Query\\Builder;
-use Illuminate\\Support\\Facades\\DB;
-use Livewire\\WithPagination;
-use Symfony\\Component\\HttpFoundation\\StreamedResponse;
+use Filament\Pages\Page;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use Livewire\WithPagination;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
 class MachineAttendanceLogs extends Page
