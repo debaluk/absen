@@ -473,3 +473,57 @@
         font-size: 0.75rem;
     }
 }
+
+
+/* Susunan topbar: brand, tombol menu, breadcrumb, lalu identitas perusahaan */
+.fi-topbar {
+    display: flex;
+    align-items: center;
+}
+
+.fi-topbar-start {
+    display: contents;
+}
+
+.fi-topbar-start > a,
+.fi-topbar-start > .fi-logo {
+    order: 0;
+    flex: 0 0 auto;
+}
+
+.fi-topbar-open-sidebar-btn,
+.fi-topbar-close-sidebar-btn,
+.fi-topbar-collapse-sidebar-btn-ctn {
+    order: 1;
+    flex: 0 0 auto;
+    margin-inline: 0.75rem 0.35rem;
+}
+
+.fi-topbar-start > .fs-topbar-breadcrumb {
+    order: 2;
+    flex: 0 1 auto;
+    margin-inline: 0;
+}
+
+.fi-topbar-end {
+    order: 3;
+    margin-inline-start: auto;
+}
+
+.fs-topbar-breadcrumb {
+    gap: 0.45rem;
+}
+
+@media (max-width: 767px) {
+    .fi-topbar-open-sidebar-btn,
+    .fi-topbar-close-sidebar-btn,
+    .fi-topbar-collapse-sidebar-btn-ctn {
+        margin-inline: 0.35rem;
+    }
+
+    .fi-topbar-start > .fs-topbar-breadcrumb {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
