@@ -553,3 +553,20 @@
     width: 100%;
     justify-content: flex-start;
 }
+
+
+/* Logout: biru lembut agar tidak terlalu mencolok */
+.fs-sidebar-logout .fs-logout-button {
+    background: #eaf2fb !important;
+    color: #315b80 !important;
+    box-shadow: none !important;
+}
+
+.fs-sidebar-logout .fs-logout-button:hover {
+    background: #dceafa !important;
+    color: #24496b !important;
+}
+
+.fs-sidebar-logout .fs-logout-button svg {
+    color: #52799e !important;
+}
