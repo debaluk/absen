@@ -50,10 +50,18 @@ class MachineAttendanceLogs extends Page
 
     public function updatedAutoSyncEnabled(bool $enabled): void
     {
-        DB::table('application_settings')->updateOrInsert(
-            ['key' => 'freedom_finger_auto_sync'],
-            ['value' => $enabled ? '1' : '0', 'updated_at' => now(), 'created_at' => now()],
-        );
+        $setting = DB::table('application_settings')->where('key', 'freedom_finger_auto_sync');
+
+        if ($setting->exists()) {
+            $setting->update(['value' => $enabled ? '1' : '0', 'updated_at' => now()]);
+        } else {
+            DB::table('application_settings')->insert([
+                'key' => 'freedom_finger_auto_sync',
+                'value' => $enabled ? '1' : '0',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         Notification::make()
             ->title($enabled ? 'Sinkronisasi otomatis diaktifkan.' : 'Sinkronisasi otomatis dinonaktifkan.')
