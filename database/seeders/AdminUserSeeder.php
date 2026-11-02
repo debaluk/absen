@@ -18,10 +18,14 @@ class AdminUserSeeder extends Seeder
             throw new RuntimeException('ADMIN_PASSWORD wajib diisi sebelum menjalankan seeder admin.');
         }
 
+        $username = strtolower((string) str($email)->before('@'));
+        $username = preg_replace('/[^a-z0-9._-]/', '', $username) ?: 'admin';
+
         User::firstOrCreate(
             ['email' => $email],
             [
                 'name' => config('app.admin.name'),
+                'username' => $username,
                 'password' => Hash::make($password),
                 'email_verified_at' => now(),
             ]
