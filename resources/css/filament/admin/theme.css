@@ -358,3 +358,75 @@
     border-color: #7893ad;
     outline: 2px solid rgb(100 130 160 / 14%);
 }
+
+/* Halaman autentikasi: minimalis dan senada dengan tema admin */
+.fi-simple-layout {
+    min-height: 100vh;
+    background: var(--fs-page);
+}
+
+.fi-simple-main {
+    width: 100%;
+    max-width: 25rem;
+    padding: 1.5rem;
+}
+
+.fi-simple-main-ctn {
+    background: transparent;
+}
+
+.fi-simple-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.fi-simple-header-heading {
+    display: none !important;
+}
+
+.fi-simple-header-subheading {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.fi-simple-main .fi-section,
+.fi-simple-main .fi-card {
+    border: 1px solid var(--fs-border);
+    border-radius: 0.85rem;
+    background: var(--fs-surface);
+    box-shadow: 0 4px 18px rgb(15 23 42 / 5%);
+}
+
+.fi-simple-main .fi-fo-field-wrp-label {
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.fi-simple-main .fi-input-wrp {
+    min-height: 2.75rem;
+    border: 1px solid #dce3ec;
+    border-radius: 0.55rem;
+    background: #fff;
+    box-shadow: none;
+}
+
+.fi-simple-main .fi-input-wrp:focus-within {
+    border-color: #7893ad;
+    box-shadow: 0 0 0 3px rgb(100 130 160 / 13%);
+}
+
+.fi-simple-main .fi-btn {
+    min-height: 2.75rem;
+    width: 100%;
+    justify-content: center;
+    border-radius: 0.55rem;
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .fi-simple-main {
+        max-width: 100%;
+        padding: 1rem;
+    }
+}
