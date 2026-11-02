@@ -51,7 +51,7 @@ class Employees extends Page
 
     public function goToEmployeePage(int $page): void
     {
-        $this->page = max(1, min($page, $this->lastPage));
+        $this->page = max(1, $page);
     }
 
     public string $employee_no = '';
