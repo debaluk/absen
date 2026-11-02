@@ -1,4 +1,5 @@
 <x-filament-panels::page>
+    <div class="fs-employees-page">
     <div class="flex justify-end">
         <button type="button" wire:click="createEmployee" class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-500">
             Tambah Karyawan
@@ -9,7 +10,7 @@
         <div class="flex flex-wrap items-end gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
             <div class="min-w-52 flex-1">
                 <label for="filterWorkLocationId" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Lokasi Kerja</label>
-                <select id="filterWorkLocationId" wire:model.live="filterWorkLocationId" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                <select id="filterWorkLocationId" wire:model.live="filterWorkLocationId" class="fs-form-control">
                     <option value="">Semua Lokasi</option>
                     @foreach ($workLocations as $location)
                         <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -18,7 +19,7 @@
             </div>
             <div class="min-w-44 flex-1">
                 <label for="filterStatus" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
-                <select id="filterStatus" wire:model.live="filterStatus" class="w-full rounded-lg border-gray-300 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                <select id="filterStatus" wire:model.live="filterStatus" class="fs-form-control">
                     <option value="">Semua Status</option>
                     <option value="active">Aktif</option>
                     <option value="inactive">Tidak Aktif</option>
@@ -118,32 +119,32 @@
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                     <div>
                         <label for="employee_no" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">No. Karyawan <span class="text-danger-600">*</span></label>
-                        <input id="employee_no" type="text" wire:model="employee_no" maxlength="30" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <input id="employee_no" type="text" wire:model="employee_no" maxlength="30" class="fs-form-control">
                         @error('employee_no') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="nik" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">NIK</label>
-                        <input id="nik" type="text" wire:model="nik" maxlength="32" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <input id="nik" type="text" wire:model="nik" maxlength="32" class="fs-form-control">
                         @error('nik') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="name" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Nama Karyawan <span class="text-danger-600">*</span></label>
-                        <input id="name" type="text" wire:model="name" maxlength="255" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <input id="name" type="text" wire:model="name" maxlength="255" class="fs-form-control">
                         @error('name') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="hire_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Mulai Bekerja</label>
-                        <input id="hire_date" type="date" wire:model="hire_date" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <input id="hire_date" type="date" wire:model="hire_date" class="fs-form-control">
                         @error('hire_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="attendance_start_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Mulai Wajib Absensi</label>
-                        <input id="attendance_start_date" type="date" wire:model="attendance_start_date" min="{{ $hire_date }}" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <input id="attendance_start_date" type="date" wire:model="attendance_start_date" min="{{ $hire_date }}" class="fs-form-control">
                         @error('attendance_start_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="position_id" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Jabatan</label>
-                        <select id="position_id" wire:model="position_id" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <select id="position_id" wire:model="position_id" class="fs-form-control">
                             <option value="">Pilih jabatan</option>
                             @foreach ($positions as $position)
                                 <option value="{{ $position->id }}">{{ $position->name }}</option>
@@ -153,7 +154,7 @@
                     </div>
                     <div>
                         <label for="work_location_id" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Lokasi Kerja</label>
-                        <select id="work_location_id" wire:model="work_location_id" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <select id="work_location_id" wire:model="work_location_id" class="fs-form-control">
                             <option value="">Pilih lokasi kerja</option>
                             @foreach ($workLocations as $location)
                                 <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -163,7 +164,7 @@
                     </div>
                     <div>
                         <label for="employment_status" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
-                        <select id="employment_status" wire:model="employment_status" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <select id="employment_status" wire:model="employment_status" class="fs-form-control">
                             <option value="active">Aktif</option>
                             <option value="inactive">Tidak Aktif</option>
                         </select>
@@ -171,7 +172,7 @@
                     </div>
                     <div class="md:col-span-2 xl:col-span-3">
                         <label for="machineUserSelection" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">PIN Mesin (opsional)</label>
-                        <select id="machineUserSelection" wire:model="machineUserSelection" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <select id="machineUserSelection" wire:model="machineUserSelection" class="fs-form-control">
                             <option value="">Tidak ditautkan ke PIN mesin</option>
                             @foreach ($machineUsers as $machineUser)
                                 <option value="{{ $machineUser->selection }}">PIN {{ $machineUser->pin }} — {{ $machineUser->name ?: 'Tanpa nama' }} — {{ $machineUser->device_name ?: $machineUser->cloud_id }} (ID Mesin: {{ $machineUser->cloud_id }})</option>
@@ -188,5 +189,6 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
 </x-filament-panels::page>
