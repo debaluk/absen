@@ -48,26 +48,6 @@
         </div>
 
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
-            <section class="fs-dashboard-panel xl:col-span-2">
-                <div class="fs-panel-heading">
-                    <div><h3>Aktivitas Scan Hari Ini</h3><p>Jumlah log mesin berdasarkan jam scan</p></div>
-                    <span class="fs-panel-tag"><span></span> Data aktual</span>
-                </div>
-                <div class="fs-hourly-chart">
-                    @foreach ($hourlyScans as $item)
-                        <div class="fs-hour-column" title="{{ $item['hour'] }}:00 — {{ number_format($item['total'], 0, ',', '.') }} scan">
-                            <div class="fs-hour-bar-wrap"><div class="fs-hour-bar" style="height: {{ max(3, ($item['total'] / $maxHourlyScans) * 100) }}%"></div></div>
-                            @if ($loop->first || $loop->last || $loop->index % 3 === 0)
-                                <span>{{ $item['hour'] }}</span>
-                            @else
-                                <span class="fs-hour-hidden">·</span>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-                <div class="fs-chart-foot"><span><i></i> Jumlah scan masuk ke server</span><strong>{{ number_format($todayScans, 0, ',', '.') }} scan</strong></div>
-            </section>
-
             <section class="fs-dashboard-panel">
                 <div class="fs-panel-heading"><div><h3>Status Kehadiran</h3><p>Persentase status kehadiran hari ini</p></div></div>
                 <div class="fs-attendance-content">
