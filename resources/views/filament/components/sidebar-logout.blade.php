@@ -7,9 +7,9 @@
         @csrf
         <x-filament::button
             type="submit"
-            color="danger"
+            color="gray"
             icon="heroicon-o-arrow-left-on-rectangle"
-            class="w-full justify-start"
+            class="w-full justify-start fs-logout-button"
         >
             Logout
         </x-filament::button>
