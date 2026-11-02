@@ -1,23 +1,5 @@
 <x-filament-panels::page>
     <div class="space-y-5">
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <x-filament::section compact>
-                <div class="flex items-center justify-between gap-3">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total seluruh log</span>
-                    <x-filament::icon icon="heroicon-o-clipboard-document-list" class="h-5 w-5 text-gray-400" />
-                </div>
-                <div class="mt-2 text-2xl font-semibold tracking-tight">{{ number_format($totalLogs, 0, ',', '.') }}</div>
-            </x-filament::section>
-
-            <x-filament::section compact>
-                <div class="flex items-center justify-between gap-3">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Log sesuai filter</span>
-                    <x-filament::icon icon="heroicon-o-funnel" class="h-5 w-5 text-gray-400" />
-                </div>
-                <div class="mt-2 text-2xl font-semibold tracking-tight">{{ number_format($filteredLogs, 0, ',', '.') }}</div>
-            </x-filament::section>
-        </div>
-
         <x-filament::section>
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
