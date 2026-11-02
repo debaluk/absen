@@ -9,6 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table) {
+            $table->date('hire_date')->nullable()->after('employment_status');
+            $table->date('attendance_start_date')->nullable()->after('hire_date');
+
             $table->foreignId('position_id')
                 ->nullable()
                 ->after('name')
@@ -46,7 +49,12 @@ return new class extends Migration
             $table->dropUnique('employees_machine_user_unique');
             $table->dropConstrainedForeignId('work_location_id');
             $table->dropConstrainedForeignId('position_id');
-            $table->dropColumn(['machine_user_cloud_id', 'machine_user_pin']);
+            $table->dropColumn([
+                'machine_user_cloud_id',
+                'machine_user_pin',
+                'hire_date',
+                'attendance_start_date',
+            ]);
         });
     }
 };
