@@ -36,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.company-name', [
                 'companyName' => \Illuminate\Support\Facades\DB::table('companies')->where('id', 1)->value('name'),
             ]))
+            ->renderHook(\\Filament\\View\\PanelsRenderHook::SIDEBAR_FOOTER, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.sidebar-logout'))
             ->colors([
                 'primary' => Color::Amber,
             ])
