@@ -47,7 +47,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <section class="fs-dashboard-panel xl:col-span-2">
                 <div class="fs-panel-heading">
                     <div><h3>Aktivitas Scan Hari Ini</h3><p>Jumlah log mesin berdasarkan jam scan</p></div>
@@ -70,17 +70,19 @@
 
             <section class="fs-dashboard-panel">
                 <div class="fs-panel-heading"><div><h3>Status Kehadiran</h3><p>Persentase status kehadiran hari ini</p></div></div>
-                <div class="fs-attendance-pie-wrap">
-                    <div class="fs-attendance-pie">
-                        <div><strong>—</strong><span>Belum tersedia</span></div>
+                <div class="fs-attendance-content">
+                    <div class="fs-attendance-pie-wrap">
+                        <div class="fs-attendance-pie">
+                            <div><strong>—</strong><span>Belum tersedia</span></div>
+                        </div>
                     </div>
-                </div>
-                <div class="fs-attendance-legend">
-                    <div><span class="fs-attendance-dot fs-dot-present"></span><span>Hadir</span><strong>—%</strong></div>
-                    <div><span class="fs-attendance-dot fs-dot-permission"></span><span>Izin</span><strong>—%</strong></div>
-                    <div><span class="fs-attendance-dot fs-dot-sick"></span><span>Sakit</span><strong>—%</strong></div>
-                    <div><span class="fs-attendance-dot fs-dot-leave"></span><span>Cuti</span><strong>—%</strong></div>
-                    <div><span class="fs-attendance-dot fs-dot-absent"></span><span>Alpa</span><strong>—%</strong></div>
+                    <div class="fs-attendance-legend">
+                        <div><span class="fs-attendance-dot fs-dot-present"></span><span>Hadir</span><strong>—%</strong></div>
+                        <div><span class="fs-attendance-dot fs-dot-permission"></span><span>Izin</span><strong>—%</strong></div>
+                        <div><span class="fs-attendance-dot fs-dot-sick"></span><span>Sakit</span><strong>—%</strong></div>
+                        <div><span class="fs-attendance-dot fs-dot-leave"></span><span>Cuti</span><strong>—%</strong></div>
+                        <div><span class="fs-attendance-dot fs-dot-absent"></span><span>Alpa</span><strong>—%</strong></div>
+                    </div>
                 </div>
                 <p class="mt-3 text-center text-xs text-slate-400">Perhitungan status kehadiran belum diimplementasikan.</p>
             </section>
@@ -175,7 +177,7 @@
         .fs-hour-hidden { visibility: hidden; }
         .fs-chart-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .9rem; color: #94a3b8; font-size: .7rem; }
         .fs-chart-foot span { display: inline-flex; align-items: center; gap: .4rem; } .fs-chart-foot i { width: .45rem; height: .45rem; border-radius: 50%; background: #3b82f6; } .fs-chart-foot strong { color: #334155; }
-        .fs-attendance-pie-wrap { display: flex; justify-content: center; padding: .15rem 0 1rem; }
+        .fs-attendance-content { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 1rem; min-height: 11rem; }\n        .fs-attendance-pie-wrap { display: flex; justify-content: center; padding: .15rem 0; }
         .fs-attendance-pie { display: grid; width: 9.5rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#e2e8f0 0 100%); }
         .fs-attendance-pie::before { content: ''; grid-area: 1/1; width: 6.4rem; aspect-ratio: 1; border-radius: 50%; background: #fff; }
         .fs-attendance-pie > div { z-index: 1; grid-area: 1/1; display: flex; flex-direction: column; align-items: center; }
@@ -197,6 +199,6 @@
         .fs-dashboard-table th { background: #f8fafc; padding: .75rem 1.25rem; color: #94a3b8; font-size: .65rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
         .fs-dashboard-table td { border-top: 1px solid #f1f5f9; padding: .85rem 1.25rem; color: #64748b; }
         .fs-scan-code { display: inline-flex; border-radius: 999px; background: #eff6ff; padding: .3rem .55rem; color: #1d4ed8; font-size: .67rem; font-weight: 700; }
-        @media (max-width: 640px) { .fs-dashboard-select { min-width: 0; flex: 1; } .fs-hourly-chart { gap: .15rem; } .fs-hour-column span { font-size: .5rem; } .fs-dashboard-panel { padding: 1rem; } }
+        @media (max-width: 640px) { .fs-attendance-content { grid-template-columns: 1fr; gap: .75rem; } .fs-attendance-pie { width: 8.5rem; } .fs-dashboard-select { min-width: 0; flex: 1; } .fs-hourly-chart { gap: .15rem; } .fs-hour-column span { font-size: .5rem; } .fs-dashboard-panel { padding: 1rem; } }
     </style>
 </x-filament-panels::page>
