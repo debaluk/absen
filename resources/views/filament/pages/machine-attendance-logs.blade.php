@@ -42,7 +42,7 @@
             </div>
             <div class="mt-3 flex justify-end">
                 <x-filament::button color="gray" outlined
-                    wire:click="$set('dateFrom', ''); $set('dateTo', ''); $set('device', ''); $set('search', '')">
+                    wire:click="resetFilters">
                     Reset filter
                 </x-filament::button>
             </div>
