@@ -19,6 +19,20 @@
         </div>
 
         <x-filament::section>
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div class="font-semibold text-gray-950 dark:text-white">Sinkronisasi Freedom Finger</div>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Aktifkan agar mesin, pengguna, dan log diperbarui otomatis setiap menit oleh service server.</p>
+                </div>
+                <label class="inline-flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-200">
+                    <input type="checkbox" wire:model.live="autoSyncEnabled" class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900">
+                    <span>Aktifkan Sync Otomatis</span>
+                </label>
+                <x-filament::badge :color="$autoSyncEnabled ? 'success' : 'gray'">{{ $autoSyncEnabled ? 'SYNC AKTIF' : 'SYNC NONAKTIF' }}</x-filament::badge>
+            </div>
+        </x-filament::section>
+
+        <x-filament::section>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <div>
                     <label for="log-date-from" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Dari tanggal</label>
