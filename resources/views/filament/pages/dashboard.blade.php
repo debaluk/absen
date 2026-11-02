@@ -64,7 +64,6 @@
                         <div><span class="fs-attendance-dot fs-dot-absent"></span><span>Alpa</span><strong>—%</strong></div>
                     </div>
                 </div>
-                <p class="mt-3 text-center text-xs text-slate-400">Perhitungan status kehadiran belum diimplementasikan.</p>
             </section>
 
             <section class="fs-dashboard-panel">
