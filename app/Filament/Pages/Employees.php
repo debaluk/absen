@@ -36,6 +36,10 @@ class Employees extends Page
 
     public string $name = '';
 
+    public ?string $hire_date = null;
+
+    public ?string $attendance_start_date = null;
+
     public string $employment_status = 'active';
 
     public ?string $position_id = null;
@@ -51,6 +55,8 @@ class Employees extends Page
                 'employee_no' => $this->employee_no,
                 'nik' => $this->nik,
                 'name' => $this->name,
+                'hire_date' => $this->hire_date,
+                'attendance_start_date' => $this->attendance_start_date,
                 'employment_status' => $this->employment_status,
                 'position_id' => $this->position_id,
                 'work_location_id' => $this->work_location_id,
@@ -70,6 +76,16 @@ class Employees extends Page
                     Rule::unique('employees', 'nik')->ignore($this->editingEmployeeId),
                 ],
                 'name' => ['required', 'string', 'max:255'],
+                'hire_date' => ['nullable', 'date'],
+                'attendance_start_date' => [
+                    'nullable',
+                    'date',
+                    function ($attribute, $value, $fail) {
+                        if (filled($value) && filled($this->hire_date) && $value < $this->hire_date) {
+                            $fail('Tanggal mulai absensi tidak boleh sebelum tanggal mulai bekerja.');
+                        }
+                    },
+                ],
                 'employment_status' => ['required', Rule::in(['active', 'inactive'])],
                 'position_id' => ['nullable', 'integer', 'exists:positions,id'],
                 'work_location_id' => ['nullable', 'integer', 'exists:work_locations,id'],
@@ -127,6 +143,8 @@ class Employees extends Page
             'employee_no' => $validated['employee_no'],
             'nik' => filled($validated['nik']) ? $validated['nik'] : null,
             'name' => $validated['name'],
+            'hire_date' => $validated['hire_date'] ?: null,
+            'attendance_start_date' => $validated['attendance_start_date'] ?: null,
             'employment_status' => $validated['employment_status'],
             'position_id' => $validated['position_id'] ?: null,
             'work_location_id' => $validated['work_location_id'] ?: null,
@@ -162,6 +180,8 @@ class Employees extends Page
         $this->employee_no = $employee->employee_no;
         $this->nik = $employee->nik;
         $this->name = $employee->name;
+        $this->hire_date = $employee->hire_date;
+        $this->attendance_start_date = $employee->attendance_start_date;
         $this->employment_status = $employee->employment_status;
         $this->position_id = $employee->position_id !== null ? (string) $employee->position_id : null;
         $this->work_location_id = $employee->work_location_id !== null ? (string) $employee->work_location_id : null;
@@ -207,6 +227,8 @@ class Employees extends Page
             'employee_no',
             'nik',
             'name',
+            'hire_date',
+            'attendance_start_date',
             'employment_status',
             'position_id',
             'work_location_id',
@@ -250,6 +272,8 @@ class Employees extends Page
                 'employees.employee_no',
                 'employees.nik',
                 'employees.name',
+                'employees.hire_date',
+                'employees.attendance_start_date',
                 'employees.employment_status',
                 'employees.position_id',
                 'employees.work_location_id',
