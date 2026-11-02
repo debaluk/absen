@@ -47,7 +47,7 @@
                         <th class="px-4 py-3">PIN</th>
                         <th class="px-4 py-3">ID Mesin</th>
                         <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-right">Aksi</th>
+                        <th class="w-24 px-4 py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -67,10 +67,10 @@
                                     <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">Tidak Aktif</span>
                                 @endif
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-right">
-                                <div class="inline-flex items-center gap-2">
-                                    <button type="button" wire:click="editEmployee({{ $employee->id }})" class="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">Ubah</button>
-                                    <button type="button" wire:click="deleteEmployee({{ $employee->id }})" wire:confirm="Yakin ingin menghapus karyawan {{ addslashes($employee->name) }}?" class="rounded-lg border border-danger-300 px-3 py-1.5 text-xs font-medium text-danger-700 hover:bg-danger-50 dark:border-danger-800 dark:text-danger-300 dark:hover:bg-danger-950">Hapus</button>
+                            <td class="whitespace-nowrap px-4 py-3">
+                                <div class="flex items-center justify-center gap-3">
+                                    <button type="button" wire:click="editEmployee({{ $employee->id }})" title="Ubah" aria-label="Ubah" class="text-primary-600 hover:text-primary-500 dark:text-primary-400"><x-heroicon-m-pencil-square class="h-5 w-5" /></button>
+                                    <button type="button" wire:click="deleteEmployee({{ $employee->id }})" wire:confirm="Yakin ingin menghapus karyawan {{ addslashes($employee->name) }}?" title="Hapus" aria-label="Hapus" class="text-danger-600 hover:text-danger-500 dark:text-danger-400"><x-heroicon-m-trash class="h-5 w-5" /></button>
                                 </div>
                             </td>
                         </tr>
