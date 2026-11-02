@@ -6,7 +6,7 @@ use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
-use Illuminate\SensitiveParameter;
+use SensitiveParameter;
 use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
