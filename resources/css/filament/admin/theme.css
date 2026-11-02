@@ -577,3 +577,9 @@
 .fi-page-header .fi-breadcrumbs {
     display: none !important;
 }
+
+
+/* Breadcrumb bawaan pada area body disembunyikan; breadcrumb topbar tetap terpisah */
+.fi-breadcrumbs {
+    display: none !important;
+}
