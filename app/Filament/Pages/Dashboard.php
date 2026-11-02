@@ -3,11 +3,11 @@
 namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\Pages\Page;
+use Filament\Pages\Dashboard as BaseDashboard;
 use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
-class Dashboard extends Page
+class Dashboard extends BaseDashboard
 {
     protected string $view = 'filament.pages.dashboard';
 
