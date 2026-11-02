@@ -54,6 +54,18 @@
                 </div>
 
                 <div>
+                    <label for="hire_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Mulai Bekerja</label>
+                    <input id="hire_date" type="date" wire:model="hire_date" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                    @error('hire_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label for="attendance_start_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Mulai Wajib Absensi</label>
+                    <input id="attendance_start_date" type="date" wire:model="attendance_start_date" min="{{ $hire_date }}" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                    @error('attendance_start_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
                     <label for="position_id" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Jabatan</label>
                     <select id="position_id" wire:model="position_id" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                         <option value="">Pilih jabatan</option>
@@ -124,6 +136,8 @@
                         <th class="px-4 py-3">No. Karyawan</th>
                         <th class="px-4 py-3">NIK</th>
                         <th class="px-4 py-3">Nama Karyawan</th>
+                        <th class="px-4 py-3">Mulai Bekerja</th>
+                        <th class="px-4 py-3">Mulai Wajib Absensi</th>
                         <th class="px-4 py-3">Jabatan</th>
                         <th class="px-4 py-3">Lokasi Kerja</th>
                         <th class="px-4 py-3">PIN</th>
@@ -138,6 +152,8 @@
                             <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $employee->employee_no }}</td>
                             <td class="whitespace-nowrap px-4 py-3">{{ $employee->nik ?: '—' }}</td>
                             <td class="px-4 py-3">{{ $employee->name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">{{ $employee->hire_date ?: '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">{{ $employee->attendance_start_date ?: '—' }}</td>
                             <td class="px-4 py-3">{{ $employee->position_name ?: '—' }}</td>
                             <td class="px-4 py-3">{{ $employee->work_location_name ?: '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $employee->machine_user_pin ?: '—' }}</td>
@@ -162,7 +178,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Master karyawan belum terbentuk.</td>
+                            <td colspan="11" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Master karyawan belum terbentuk.</td>
                         </tr>
                     @endforelse
                 </tbody>
