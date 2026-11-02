@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use BackedEnum;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -36,10 +37,28 @@ class MachineAttendanceLogs extends Page
 
     public string $search = '';
 
+    public bool $autoSyncEnabled = false;
+
     public function mount(): void
     {
         $this->dateFrom = now()->toDateString();
         $this->dateTo = now()->toDateString();
+        $this->autoSyncEnabled = DB::table('application_settings')
+            ->where('key', 'freedom_finger_auto_sync')
+            ->value('value') === '1';
+    }
+
+    public function updatedAutoSyncEnabled(bool $enabled): void
+    {
+        DB::table('application_settings')->updateOrInsert(
+            ['key' => 'freedom_finger_auto_sync'],
+            ['value' => $enabled ? '1' : '0', 'updated_at' => now(), 'created_at' => now()],
+        );
+
+        Notification::make()
+            ->title($enabled ? 'Sinkronisasi otomatis diaktifkan.' : 'Sinkronisasi otomatis dinonaktifkan.')
+            ->success()
+            ->send();
     }
 
     public function updated($property): void
@@ -64,19 +83,11 @@ class MachineAttendanceLogs extends Page
 
         return response()->streamDownload(function () {
             $output = fopen('php://output', 'w');
-
-            // BOM agar karakter Indonesia terbaca dengan benar di Excel.
             fwrite($output, "\xEF\xBB\xBF");
 
             fputcsv($output, [
-                'Waktu Scan',
-                'Nama Pengguna',
-                'PIN',
-                'Nama Mesin',
-                'Cloud ID',
-                'Status Scan (Kode)',
-                'Verifikasi (Kode)',
-                'Diterima Server',
+                'Waktu Scan', 'Nama Pengguna', 'PIN', 'Nama Mesin',
+                'Cloud ID', 'Status Scan (Kode)', 'Verifikasi (Kode)', 'Diterima Server',
             ], ';');
 
             $this->logsQuery()
@@ -98,9 +109,7 @@ class MachineAttendanceLogs extends Page
                 });
 
             fclose($output);
-        }, $fileName, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        }, $fileName, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     protected function logsQuery(): Builder
@@ -112,16 +121,9 @@ class MachineAttendanceLogs extends Page
                     ->on('machine_users.pin', '=', 'logs.pin');
             })
             ->select([
-                'logs.id',
-                'logs.cloud_id',
-                'logs.pin',
-                'logs.scan_date',
-                'logs.verify',
-                'logs.status_scan',
-                'logs.photo',
-                'logs.received_at',
-                'devices.name as device_name',
-                'machine_users.name as user_name',
+                'logs.id', 'logs.cloud_id', 'logs.pin', 'logs.scan_date',
+                'logs.verify', 'logs.status_scan', 'logs.photo', 'logs.received_at',
+                'devices.name as device_name', 'machine_users.name as user_name',
             ]);
 
         if ($this->dateFrom !== '') {
@@ -153,18 +155,11 @@ class MachineAttendanceLogs extends Page
     {
         $query = $this->logsQuery();
 
-        $filteredLogs = (clone $query)->count('logs.id');
-
-        $logs = $query
-            ->orderByDesc('logs.scan_date')
-            ->orderByDesc('logs.id')
-            ->paginate(25);
-
         return [
-            'logs' => $logs,
+            'logs' => $query->orderByDesc('logs.scan_date')->orderByDesc('logs.id')->paginate(25),
             'devices' => DB::table('devices')->orderBy('name')->get(['cloud_id', 'name']),
             'totalLogs' => DB::table('logs')->count(),
-            'filteredLogs' => $filteredLogs,
+            'filteredLogs' => (clone $query)->count('logs.id'),
         ];
     }
 }
