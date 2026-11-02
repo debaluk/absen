@@ -48,6 +48,15 @@ class MachineAttendanceLogs extends Page
         }
     }
 
+    public function resetFilters(): void
+    {
+        $this->dateFrom = '';
+        $this->dateTo = '';
+        $this->device = '';
+        $this->search = '';
+        $this->resetPage();
+    }
+
     protected function getViewData(): array
     {
         $query = DB::table('logs')
@@ -91,6 +100,8 @@ class MachineAttendanceLogs extends Page
             });
         }
 
+        $filteredLogs = (clone $query)->count('logs.id');
+
         $logs = $query
             ->orderByDesc('logs.scan_date')
             ->orderByDesc('logs.id')
@@ -100,7 +111,7 @@ class MachineAttendanceLogs extends Page
             'logs' => $logs,
             'devices' => DB::table('devices')->orderBy('name')->get(['cloud_id', 'name']),
             'totalLogs' => DB::table('logs')->count(),
-            'filteredLogs' => (clone $query)->count('logs.id'),
+            'filteredLogs' => $filteredLogs,
         ];
     }
 }
