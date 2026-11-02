@@ -4,7 +4,7 @@
     $currentLabel = null;
     $matchedPathLength = -1;
 
-    foreach (\\Filament\\Facades\\Filament::getNavigation() as $group) {
+    foreach (\Filament\Facades\Filament::getNavigation() as $group) {
         foreach ($group->getItems() as $item) {
             $url = $item->getUrl();
             $path = parse_url($url, PHP_URL_PATH);
