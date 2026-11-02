@@ -76,6 +76,13 @@ class MachineAttendanceLogs extends Page
         }
     }
 
+    public function goToLogsPage(int $page): void
+    {
+        $lastPage = max(1, (int) ceil($this->logsQuery()->count('logs.id') / 15));
+
+        $this->setPage(min(max(1, $page), $lastPage));
+    }
+
     public function resetFilters(): void
     {
         $this->dateFrom = '';
@@ -164,7 +171,7 @@ class MachineAttendanceLogs extends Page
         $query = $this->logsQuery();
 
         return [
-            'logs' => $query->orderByDesc('logs.scan_date')->orderByDesc('logs.id')->paginate(25),
+            'logs' => $query->orderByDesc('logs.scan_date')->orderByDesc('logs.id')->paginate(15),
             'devices' => DB::table('devices')->orderBy('name')->get(['cloud_id', 'name']),
             'totalLogs' => DB::table('logs')->count(),
             'filteredLogs' => (clone $query)->count('logs.id'),
