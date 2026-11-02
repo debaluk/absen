@@ -572,14 +572,9 @@
 }
 
 
-/* Hilangkan breadcrumb bawaan di area body; breadcrumb hanya di topbar */
-.fi-breadcrumbs,
-.fi-page-header .fi-breadcrumbs {
-    display: none !important;
-}
 
 
-/* Breadcrumb bawaan pada area body disembunyikan; breadcrumb topbar tetap terpisah */
-.fi-breadcrumbs {
+/* Sembunyikan breadcrumb hanya di area konten/body, jangan sentuh topbar */
+.fi-main .fi-breadcrumbs {
     display: none !important;
 }
