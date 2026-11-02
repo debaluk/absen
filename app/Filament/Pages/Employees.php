@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use UnitEnum;
 
@@ -25,117 +26,261 @@ class Employees extends Page
 
     protected static ?int $navigationSort = 1;
 
-    protected ?string $subheading = 'Master karyawan dan penghubung data PIN dari mesin.';
+    protected ?string $subheading = 'Master karyawan, jabatan, lokasi kerja, dan identitas PIN mesin.';
 
-    public array $nikInputs = [];
+    public ?int $editingEmployeeId = null;
 
-    public function linkMachineEmployee(int $sourceId): void
+    public string $employee_no = '';
+
+    public ?string $nik = null;
+
+    public string $name = '';
+
+    public string $employment_status = 'active';
+
+    public ?string $position_id = null;
+
+    public ?string $work_location_id = null;
+
+    public string $machineUserSelection = '';
+
+    public function saveEmployee(): void
     {
-        $source = DB::table('freedom_finger_employees')->where('id', $sourceId)->first();
+        $validated = Validator::make(
+            [
+                'employee_no' => $this->employee_no,
+                'nik' => $this->nik,
+                'name' => $this->name,
+                'employment_status' => $this->employment_status,
+                'position_id' => $this->position_id,
+                'work_location_id' => $this->work_location_id,
+                'machine_user_selection' => $this->machineUserSelection,
+            ],
+            [
+                'employee_no' => [
+                    'required',
+                    'string',
+                    'max:30',
+                    Rule::unique('employees', 'employee_no')->ignore($this->editingEmployeeId),
+                ],
+                'nik' => [
+                    'nullable',
+                    'string',
+                    'max:32',
+                    Rule::unique('employees', 'nik')->ignore($this->editingEmployeeId),
+                ],
+                'name' => ['required', 'string', 'max:255'],
+                'employment_status' => ['required', Rule::in(['active', 'inactive'])],
+                'position_id' => ['nullable', 'integer', 'exists:positions,id'],
+                'work_location_id' => ['nullable', 'integer', 'exists:work_locations,id'],
+                'machine_user_selection' => ['nullable', 'string', 'max:70'],
+            ],
+            [
+                'employee_no.required' => 'Nomor karyawan wajib diisi.',
+                'employee_no.unique' => 'Nomor karyawan sudah digunakan.',
+                'nik.unique' => 'NIK sudah digunakan oleh karyawan lain.',
+                'name.required' => 'Nama karyawan wajib diisi.',
+                'position_id.exists' => 'Jabatan yang dipilih tidak ditemukan.',
+                'work_location_id.exists' => 'Lokasi kerja yang dipilih tidak ditemukan.',
+            ],
+        )->validate();
 
-        if (! $source) {
-            Notification::make()->title('Data mesin tidak ditemukan.')->danger()->send();
+        $machineUserCloudId = null;
+        $machineUserPin = null;
+
+        if (filled($validated['machine_user_selection'])) {
+            $parts = explode('|', $validated['machine_user_selection'], 2);
+
+            if (count($parts) !== 2 || blank($parts[0]) || blank($parts[1])) {
+                throw ValidationException::withMessages([
+                    'machineUserSelection' => 'Pilihan PIN mesin tidak valid.',
+                ]);
+            }
+
+            [$machineUserCloudId, $machineUserPin] = $parts;
+
+            $machineUserExists = DB::table('machine_users')
+                ->where('cloud_id', $machineUserCloudId)
+                ->where('pin', $machineUserPin)
+                ->exists();
+
+            if (! $machineUserExists) {
+                throw ValidationException::withMessages([
+                    'machineUserSelection' => 'PIN tidak ditemukan pada data pengguna mesin.',
+                ]);
+            }
+
+            $alreadyAssigned = DB::table('employees')
+                ->where('machine_user_cloud_id', $machineUserCloudId)
+                ->where('machine_user_pin', $machineUserPin)
+                ->when($this->editingEmployeeId, fn ($query) => $query->where('id', '<>', $this->editingEmployeeId))
+                ->exists();
+
+            if ($alreadyAssigned) {
+                throw ValidationException::withMessages([
+                    'machineUserSelection' => 'PIN tersebut sudah dipilih oleh karyawan lain.',
+                ]);
+            }
+        }
+
+        $values = [
+            'employee_no' => $validated['employee_no'],
+            'nik' => filled($validated['nik']) ? $validated['nik'] : null,
+            'name' => $validated['name'],
+            'employment_status' => $validated['employment_status'],
+            'position_id' => $validated['position_id'] ?: null,
+            'work_location_id' => $validated['work_location_id'] ?: null,
+            'machine_user_cloud_id' => $machineUserCloudId,
+            'machine_user_pin' => $machineUserPin,
+            'updated_at' => now(),
+        ];
+
+        if ($this->editingEmployeeId) {
+            DB::table('employees')->where('id', $this->editingEmployeeId)->update($values);
+            $message = 'Data karyawan berhasil diperbarui.';
+        } else {
+            $values['created_at'] = now();
+            DB::table('employees')->insert($values);
+            $message = 'Karyawan berhasil ditambahkan.';
+        }
+
+        $this->resetEmployeeForm();
+
+        Notification::make()
+            ->title($message)
+            ->success()
+            ->send();
+    }
+
+    public function editEmployee(int $employeeId): void
+    {
+        $employee = DB::table('employees')->where('id', $employeeId)->first();
+
+        abort_unless($employee, 404);
+
+        $this->editingEmployeeId = (int) $employee->id;
+        $this->employee_no = $employee->employee_no;
+        $this->nik = $employee->nik;
+        $this->name = $employee->name;
+        $this->employment_status = $employee->employment_status;
+        $this->position_id = $employee->position_id !== null ? (string) $employee->position_id : null;
+        $this->work_location_id = $employee->work_location_id !== null ? (string) $employee->work_location_id : null;
+        $this->machineUserSelection = $employee->machine_user_cloud_id !== null && $employee->machine_user_pin !== null
+            ? $employee->machine_user_cloud_id . '|' . $employee->machine_user_pin
+            : '';
+
+        $this->resetValidation();
+    }
+
+    public function deleteEmployee(int $employeeId): void
+    {
+        $employee = DB::table('employees')->where('id', $employeeId)->first();
+
+        abort_unless($employee, 404);
+
+        // Riwayat izin tetap dipertahankan; karyawan yang sudah memiliki izin tidak dihapus.
+        if (DB::table('leaves')->where('employee_id', $employeeId)->exists()) {
+            Notification::make()
+                ->title('Karyawan tidak dapat dihapus karena sudah memiliki riwayat izin.')
+                ->danger()
+                ->send();
+
             return;
         }
 
-        $validated = Validator::make(
-            ['nik' => $this->nikInputs[$sourceId] ?? null],
-            ['nik' => ['required', 'string', 'max:32']],
-            ['nik.required' => 'NIK wajib diisi sebelum data mesin dihubungkan.'],
-        )->validate();
+        DB::table('employees')->where('id', $employeeId)->delete();
 
-        DB::transaction(function () use ($source, $validated): void {
-            $employee = DB::table('employees')->where('nik', $validated['nik'])->first();
-
-            if (! $employee) {
-                $employeeId = DB::table('employees')->insertGetId([
-                    'employee_no' => 'TEMP-' . strtoupper(bin2hex(random_bytes(5))),
-                    'nik' => $validated['nik'],
-                    'name' => $source->name ?: 'Karyawan ' . $source->pin,
-                    'employment_status' => 'active',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                $employeeNo = 'EMP-' . str_pad((string) $employeeId, 6, '0', STR_PAD_LEFT);
-                DB::table('employees')->where('id', $employeeId)->update([
-                    'employee_no' => $employeeNo,
-                    'updated_at' => now(),
-                ]);
-                $employeeIdToLink = $employeeId;
-            } else {
-                $employeeIdToLink = $employee->id;
-            }
-
-            $activeRegistration = DB::table('employee_device_registrations')
-                ->where('cloud_id', $source->cloud_id)
-                ->where('pin', $source->pin)
-                ->where('is_active', true)
-                ->whereNull('valid_until')
-                ->first();
-
-            if ($activeRegistration && (int) $activeRegistration->employee_id !== (int) $employeeIdToLink) {
-                throw ValidationException::withMessages([
-                    'nik' => 'PIN pada mesin ini sudah terhubung ke karyawan lain.',
-                ]);
-            }
-
-            if (! $activeRegistration) {
-                DB::table('employee_device_registrations')->insert([
-                    'employee_id' => $employeeIdToLink,
-                    'cloud_id' => $source->cloud_id,
-                    'pin' => $source->pin,
-                    'valid_from' => now()->toDateString(),
-                    'valid_until' => null,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-        });
-
-        unset($this->nikInputs[$sourceId]);
+        if ($this->editingEmployeeId === $employeeId) {
+            $this->resetEmployeeForm();
+        }
 
         Notification::make()
-            ->title('Data mesin berhasil dihubungkan ke master karyawan.')
+            ->title('Data karyawan berhasil dihapus.')
             ->success()
             ->send();
+    }
+
+    public function resetEmployeeForm(): void
+    {
+        $this->reset([
+            'editingEmployeeId',
+            'employee_no',
+            'nik',
+            'name',
+            'employment_status',
+            'position_id',
+            'work_location_id',
+            'machineUserSelection',
+        ]);
+
+        $this->employment_status = 'active';
+        $this->resetValidation();
     }
 
     protected function getViewData(): array
     {
         $sync = app(FreedomFingerEmployeeSynchronizer::class)->sync();
 
-        $machineEmployees = DB::table('freedom_finger_employees as source')
-            ->leftJoin('employee_device_registrations as registration', function ($join) {
-                $join->on('registration.cloud_id', '=', 'source.cloud_id')
-                    ->on('registration.pin', '=', 'source.pin')
-                    ->where('registration.is_active', true)
-                    ->whereNull('registration.valid_until');
-            })
-            ->leftJoin('employees', 'employees.id', '=', 'registration.employee_id')
+        $machineUsers = DB::table('machine_users')
+            ->leftJoin('devices', 'devices.cloud_id', '=', 'machine_users.cloud_id')
             ->select([
-                'source.id',
-                'source.pin',
-                'source.name as machine_name',
-                'source.cloud_id',
-                'source.last_synced_at',
-                'employees.id as employee_id',
+                'machine_users.cloud_id',
+                'machine_users.pin',
+                'machine_users.name',
+                'devices.name as device_name',
+            ])
+            ->orderBy('machine_users.name')
+            ->orderBy('machine_users.pin')
+            ->get()
+            ->map(function ($machineUser) {
+                $machineUser->selection = $machineUser->cloud_id . '|' . $machineUser->pin;
+
+                return $machineUser;
+            });
+
+        $employees = DB::table('employees')
+            ->leftJoin('positions', 'positions.id', '=', 'employees.position_id')
+            ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
+            ->leftJoin('machine_users', function ($join) {
+                $join->on('machine_users.cloud_id', '=', 'employees.machine_user_cloud_id')
+                    ->on('machine_users.pin', '=', 'employees.machine_user_pin');
+            })
+            ->select([
+                'employees.id',
                 'employees.employee_no',
                 'employees.nik',
-                'employees.name as employee_name',
+                'employees.name',
+                'employees.employment_status',
+                'employees.position_id',
+                'employees.work_location_id',
+                'employees.machine_user_cloud_id',
+                'employees.machine_user_pin',
+                'positions.name as position_name',
+                'work_locations.name as work_location_name',
+                'machine_users.name as machine_user_name',
             ])
-            ->orderBy('source.name')
-            ->orderBy('source.pin')
+            ->orderBy('employees.name')
             ->get();
 
-        $employees = DB::table('employees')->orderBy('name')->get();
+        $positions = DB::table('positions')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $workLocations = DB::table('work_locations')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return [
-            'machineEmployees' => $machineEmployees,
             'employees' => $employees,
-            'totalMachineEmployees' => $machineEmployees->count(),
+            'machineUsers' => $machineUsers,
+            'positions' => $positions,
+            'workLocations' => $workLocations,
             'totalEmployees' => $employees->count(),
+            'totalActiveEmployees' => $employees->where('employment_status', 'active')->count(),
+            'totalMachineUsers' => $machineUsers->count(),
             'syncedCount' => $sync['synced'],
             'syncSuccess' => $sync['success'],
             'syncMessage' => $sync['message'],
