@@ -9,7 +9,7 @@
         <div class="flex flex-wrap items-end gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
             <div class="min-w-52 flex-1">
                 <label for="filterWorkLocationId" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Lokasi Kerja</label>
-                <x-filament::input.wrapper :valid="! $errors->has('filterWorkLocationId')">
+                <x-filament::input.wrapper class="border" :valid="! $errors->has('filterWorkLocationId')">
                             <x-filament::input.select id="filterWorkLocationId" wire:model.live="filterWorkLocationId">
 
                     <option value="">Semua Lokasi</option>
@@ -21,7 +21,7 @@
             </div>
             <div class="min-w-44 flex-1">
                 <label for="filterStatus" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
-                <x-filament::input.wrapper :valid="! $errors->has('filterStatus')">
+                <x-filament::input.wrapper class="border" :valid="! $errors->has('filterStatus')">
                             <x-filament::input.select id="filterStatus" wire:model.live="filterStatus">
 
                     <option value="">Semua Status</option>
@@ -124,42 +124,42 @@
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                     <div>
                         <label for="employee_no" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">No. Karyawan <span class="text-danger-600">*</span></label>
-                        <x-filament::input.wrapper :valid="! $errors->has('employee_no')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('employee_no')">
                             <x-filament::input id="employee_no" type="text" wire:model="employee_no" maxlength="30" />
                         </x-filament::input.wrapper>
                         @error('employee_no') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="nik" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">NIK</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('nik')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('nik')">
                             <x-filament::input id="nik" type="text" wire:model="nik" maxlength="32" />
                         </x-filament::input.wrapper>
                         @error('nik') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="name" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Nama Karyawan <span class="text-danger-600">*</span></label>
-                        <x-filament::input.wrapper :valid="! $errors->has('name')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('name')">
                             <x-filament::input id="name" type="text" wire:model="name" maxlength="255" />
                         </x-filament::input.wrapper>
                         @error('name') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="hire_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Mulai Bekerja</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('hire_date')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('hire_date')">
                             <x-filament::input id="hire_date" type="date" wire:model="hire_date" />
                         </x-filament::input.wrapper>
                         @error('hire_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="attendance_start_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Mulai Wajib Absensi</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('attendance_start_date')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('attendance_start_date')">
                             <x-filament::input id="attendance_start_date" type="date" wire:model="attendance_start_date" min="{{ $hire_date }}" />
                         </x-filament::input.wrapper>
                         @error('attendance_start_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="position_id" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Jabatan</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('position_id')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('position_id')">
                             <x-filament::input.select id="position_id" wire:model="position_id">
 
                             <option value="">Pilih jabatan</option>
@@ -172,7 +172,7 @@
                     </div>
                     <div>
                         <label for="work_location_id" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Lokasi Kerja</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('work_location_id')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('work_location_id')">
                             <x-filament::input.select id="work_location_id" wire:model="work_location_id">
 
                             <option value="">Pilih lokasi kerja</option>
@@ -185,7 +185,7 @@
                     </div>
                     <div>
                         <label for="employment_status" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('employment_status')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('employment_status')">
                             <x-filament::input.select id="employment_status" wire:model="employment_status">
 
                             <option value="active">Aktif</option>
@@ -196,7 +196,7 @@
                     </div>
                     <div class="md:col-span-2 xl:col-span-3">
                         <label for="machineUserSelection" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">PIN Mesin (opsional)</label>
-                        <x-filament::input.wrapper :valid="! $errors->has('machineUserSelection')">
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('machineUserSelection')">
                             <x-filament::input.select id="machineUserSelection" wire:model="machineUserSelection">
 
                             <option value="">Tidak ditautkan ke PIN mesin</option>
