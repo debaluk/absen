@@ -23,17 +23,17 @@
                 <div>
                     <label for="log-date-from" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Dari tanggal</label>
                     <input id="log-date-from" type="date" wire:model.live="dateFrom"
-                        class="block w-full rounded-lg border-gray-300 bg-white text-sm shadow-sm transition focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                        class="block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-5 text-gray-950 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                 </div>
                 <div>
                     <label for="log-date-to" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Sampai tanggal</label>
                     <input id="log-date-to" type="date" wire:model.live="dateTo"
-                        class="block w-full rounded-lg border-gray-300 bg-white text-sm shadow-sm transition focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                        class="block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-5 text-gray-950 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                 </div>
                 <div>
                     <label for="log-device" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Mesin</label>
                     <select id="log-device" wire:model.live="device"
-                        class="block w-full rounded-lg border-gray-300 bg-white text-sm shadow-sm transition focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                        class="block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-5 text-gray-950 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                         <option value="">Semua mesin</option>
                         @foreach ($devices as $item)
                             <option value="{{ $item->cloud_id }}">{{ $item->name ?: $item->cloud_id }}</option>
@@ -44,7 +44,7 @@
                     <label for="log-search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Cari pengguna / PIN</label>
                     <input id="log-search" type="search" wire:model.live.debounce.400ms="search"
                         placeholder="Nama, PIN, atau Cloud ID"
-                        class="block w-full rounded-lg border-gray-300 bg-white text-sm shadow-sm transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                        class="block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-5 text-gray-950 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                 </div>
             </div>
 
