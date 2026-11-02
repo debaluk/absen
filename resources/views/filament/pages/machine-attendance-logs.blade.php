@@ -76,7 +76,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-4 py-3 dark:border-gray-700 sm:px-6">
                 <div class="font-semibold text-gray-950 dark:text-white">Daftar Log Absensi Mesin</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">
-                    Menampilkan {{ $logs->firstItem() ?? 0 }}–{{ $logs->lastItem() ?? 0 }} dari {{ number_format($logs->total(), 0, ',', '.') }} data
+                    {{ number_format($logs->total(), 0, ',', '.') }} data
                 </div>
             </div>
 
@@ -135,7 +135,25 @@
                     <span><span class="font-medium text-gray-700 dark:text-gray-200">Kode 0</span> = Masuk</span>
                     <span><span class="font-medium text-gray-700 dark:text-gray-200">Kode 1</span> = Pulang</span>
                 </div>
-                {{ $logs->onEachSide(1)->links() }}
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        Menampilkan
+                        <span class="font-medium">{{ $logs->firstItem() ?? 0 }}</span>
+                        sampai
+                        <span class="font-medium">{{ $logs->lastItem() ?? 0 }}</span>
+                        dari
+                        <span class="font-medium">{{ $logs->total() }}</span> log
+                    </p>
+                    <div class="flex items-center gap-1">
+                        <button type="button" wire:click="goToLogsPage({{ $logs->currentPage() - 1 }})" @disabled($logs->currentPage() <= 1) class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                            Sebelumnya
+                        </button>
+                        <span class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300">Halaman {{ $logs->currentPage() }} dari {{ $logs->lastPage() }}</span>
+                        <button type="button" wire:click="goToLogsPage({{ $logs->currentPage() + 1 }})" @disabled($logs->currentPage() >= $logs->lastPage()) class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                            Berikutnya
+                        </button>
+                    </div>
+                </div>
             </div>
         </x-filament::section>
     </div>
