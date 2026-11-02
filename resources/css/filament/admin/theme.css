@@ -430,3 +430,14 @@
         padding: 1rem;
     }
 }
+
+
+/* Header halaman: gunakan breadcrumb sebagai penunjuk halaman */
+.fi-header-heading,
+.fi-header-subheading {
+    display: none !important;
+}
+
+.fi-header {
+    margin-bottom: 1rem;
+}
