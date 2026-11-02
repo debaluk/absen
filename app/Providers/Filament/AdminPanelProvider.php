@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(new HtmlString('<span class="hadirra-brand"><strong>HADIRRA</strong><em>Smart Attendance</em></span>'))
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
-            ->breadcrumbs(hasNavigationHierarchy: true)
+            ->breadcrumbs(false)
             ->renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.topbar-breadcrumb'))
             ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.company-name', [
                 'companyName' => \Illuminate\Support\Facades\DB::table('companies')->where('id', 1)->value('name'),
