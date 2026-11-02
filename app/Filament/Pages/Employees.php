@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\FreedomFingerEmployeeSynchronizer;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -30,6 +29,12 @@ class Employees extends Page
 
     public ?int $editingEmployeeId = null;
 
+    public bool $isFormModalOpen = false;
+
+    public ?string $filterWorkLocationId = null;
+
+    public string $filterStatus = '';
+
     public string $employee_no = '';
 
     public ?string $nik = null;
@@ -47,6 +52,12 @@ class Employees extends Page
     public ?string $work_location_id = null;
 
     public string $machineUserSelection = '';
+
+    public function createEmployee(): void
+    {
+        $this->resetEmployeeForm();
+        $this->isFormModalOpen = true;
+    }
 
     public function saveEmployee(): void
     {
@@ -163,6 +174,7 @@ class Employees extends Page
         }
 
         $this->resetEmployeeForm();
+        $this->isFormModalOpen = false;
 
         Notification::make()
             ->title($message)
@@ -190,6 +202,7 @@ class Employees extends Page
             : '';
 
         $this->resetValidation();
+        $this->isFormModalOpen = true;
     }
 
     public function deleteEmployee(int $employeeId): void
@@ -236,13 +249,12 @@ class Employees extends Page
         ]);
 
         $this->employment_status = 'active';
+        $this->isFormModalOpen = false;
         $this->resetValidation();
     }
 
     protected function getViewData(): array
     {
-        $sync = app(FreedomFingerEmployeeSynchronizer::class)->sync();
-
         $machineUsers = DB::table('machine_users')
             ->leftJoin('devices', 'devices.cloud_id', '=', 'machine_users.cloud_id')
             ->select([
@@ -286,6 +298,13 @@ class Employees extends Page
             ->orderBy('employees.name')
             ->get();
 
+        $allEmployees = $employees;
+
+        $employees = $employees
+            ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
+            ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
+            ->values();
+
         $positions = DB::table('positions')
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -302,12 +321,8 @@ class Employees extends Page
             'machineUsers' => $machineUsers,
             'positions' => $positions,
             'workLocations' => $workLocations,
-            'totalEmployees' => $employees->count(),
-            'totalActiveEmployees' => $employees->where('employment_status', 'active')->count(),
-            'totalMachineUsers' => $machineUsers->count(),
-            'syncedCount' => $sync['synced'],
-            'syncSuccess' => $sync['success'],
-            'syncMessage' => $sync['message'],
+            'totalEmployees' => $allEmployees->count(),
+            'totalActiveEmployees' => $allEmployees->where('employment_status', 'active')->count(),
         ];
     }
 }
