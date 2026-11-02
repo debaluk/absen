@@ -66,6 +66,32 @@
                 </div>
                 <p class="mt-3 text-center text-xs text-slate-400">Perhitungan status kehadiran belum diimplementasikan.</p>
             </section>
+
+            <section class="fs-dashboard-panel">
+                <div class="fs-panel-heading">
+                    <div><h3>Absen Hari Ini</h3><p>Ringkasan aktivitas karyawan hari ini</p></div>
+                    <span class="fs-count-pill">{{ $todayLabel }}</span>
+                </div>
+                <div class="fs-today-attendance-grid">
+                    <div class="fs-today-attendance-item fs-today-green">
+                        <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-user-check" class="h-5 w-5" /></div>
+                        <div><span>Sudah Absen</span><strong>—</strong><small>Karyawan</small></div>
+                    </div>
+                    <div class="fs-today-attendance-item fs-today-amber">
+                        <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-user-minus" class="h-5 w-5" /></div>
+                        <div><span>Belum Absen</span><strong>—</strong><small>Karyawan</small></div>
+                    </div>
+                    <div class="fs-today-attendance-item fs-today-rose">
+                        <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-clock" class="h-5 w-5" /></div>
+                        <div><span>Terlambat</span><strong>—</strong><small>Karyawan</small></div>
+                    </div>
+                    <div class="fs-today-attendance-item fs-today-blue">
+                        <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-arrow-right-on-rectangle" class="h-5 w-5" /></div>
+                        <div><span>Pulang</span><strong>—</strong><small>Karyawan</small></div>
+                    </div>
+                </div>
+                <p class="mt-4 text-xs text-slate-400">Jumlah akan ditampilkan setelah perhitungan absensi harian diterapkan.</p>
+            </section>
         </div>
 
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
@@ -147,17 +173,9 @@
         .fs-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; margin-bottom: 1.1rem; }
         .fs-panel-heading h3 { margin: 0; color: #243247; font-size: .95rem; font-weight: 750; }
         .fs-panel-heading p { margin: .25rem 0 0; color: #94a3b8; font-size: .72rem; }
-        .fs-panel-tag { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; border-radius: 999px; background: #ecfdf5; padding: .35rem .6rem; color: #047857; font-size: .68rem; font-weight: 700; }
-        .fs-panel-tag span { width: .4rem; height: .4rem; border-radius: 50%; background: #10b981; }
-        .fs-hourly-chart { display: grid; height: 12.5rem; grid-template-columns: repeat(24,minmax(0,1fr)); align-items: end; gap: .35rem; padding: .5rem 0 0; border-bottom: 1px solid #e8edf3; background: repeating-linear-gradient(to top,transparent 0,transparent 24%,#f1f5f9 25%,transparent 26%); }
-        .fs-hour-column { display: flex; height: 100%; min-width: 0; flex-direction: column; align-items: center; justify-content: end; gap: .45rem; }
-        .fs-hour-bar-wrap { display: flex; width: 100%; height: calc(100% - 1.2rem); align-items: end; }
-        .fs-hour-bar { width: 100%; min-height: 3px; border-radius: .35rem .35rem .1rem .1rem; background: linear-gradient(180deg,#60a5fa,#2563eb); transition: height .2s ease; }
-        .fs-hour-column span { color: #94a3b8; font-size: .58rem; }
-        .fs-hour-hidden { visibility: hidden; }
-        .fs-chart-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .9rem; color: #94a3b8; font-size: .7rem; }
-        .fs-chart-foot span { display: inline-flex; align-items: center; gap: .4rem; } .fs-chart-foot i { width: .45rem; height: .45rem; border-radius: 50%; background: #3b82f6; } .fs-chart-foot strong { color: #334155; }
-        .fs-attendance-content { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 1rem; min-height: 11rem; }\n        .fs-attendance-pie-wrap { display: flex; justify-content: center; padding: .15rem 0; }
+        .fs-count-pill { border-radius: 999px; background: #f1f5f9; padding: .35rem .65rem; color: #64748b; font-size: .68rem; font-weight: 700; white-space: nowrap; }
+        .fs-attendance-content { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 1rem; min-height: 11rem; }
+        .fs-attendance-pie-wrap { display: flex; justify-content: center; padding: .15rem 0; }
         .fs-attendance-pie { display: grid; width: 9.5rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#e2e8f0 0 100%); }
         .fs-attendance-pie::before { content: ''; grid-area: 1/1; width: 6.4rem; aspect-ratio: 1; border-radius: 50%; background: #fff; }
         .fs-attendance-pie > div { z-index: 1; grid-area: 1/1; display: flex; flex-direction: column; align-items: center; }
@@ -167,8 +185,17 @@
         .fs-attendance-legend strong { margin-left: auto; color: #334155; font-weight: 750; }
         .fs-attendance-dot { width: .58rem; height: .58rem; flex: 0 0 auto; border-radius: 50%; }
         .fs-dot-present { background: #10b981; } .fs-dot-permission { background: #3b82f6; } .fs-dot-sick { background: #f59e0b; } .fs-dot-leave { background: #8b5cf6; } .fs-dot-absent { background: #f43f5e; }
+        .fs-today-attendance-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; }
+        .fs-today-attendance-item { display: flex; align-items: center; gap: .7rem; min-width: 0; border: 1px solid; border-radius: .85rem; padding: .85rem .75rem; }
+        .fs-today-attendance-icon { display: grid; width: 2.5rem; height: 2.5rem; flex: 0 0 auto; place-items: center; border-radius: .75rem; }
+        .fs-today-attendance-item span { display: block; color: #64748b; font-size: .68rem; font-weight: 650; }
+        .fs-today-attendance-item strong { display: block; margin-top: .15rem; color: #1e293b; font-size: 1.45rem; font-weight: 800; line-height: 1.1; }
+        .fs-today-attendance-item small { display: block; margin-top: .15rem; color: #94a3b8; font-size: .62rem; }
+        .fs-today-green { background: #f0fdf4; border-color: #dcfce7; } .fs-today-green .fs-today-attendance-icon { background: #dcfce7; color: #15803d; }
+        .fs-today-amber { background: #fffbeb; border-color: #fef3c7; } .fs-today-amber .fs-today-attendance-icon { background: #fef3c7; color: #b45309; }
+        .fs-today-rose { background: #fff1f2; border-color: #ffe4e6; } .fs-today-rose .fs-today-attendance-icon { background: #ffe4e6; color: #be123c; }
+        .fs-today-blue { background: #eff6ff; border-color: #dbeafe; } .fs-today-blue .fs-today-attendance-icon { background: #dbeafe; color: #1d4ed8; }
         .fs-location-track { height: .65rem; overflow: hidden; border-radius: 999px; background: #f1f5f9; } .fs-location-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,#34d399,#059669); }
-        .fs-count-pill { border-radius: 999px; background: #f1f5f9; padding: .35rem .65rem; color: #64748b; font-size: .68rem; font-weight: 700; white-space: nowrap; }
         .fs-device-list { display: grid; gap: .15rem; } .fs-device-row { display: flex; align-items: center; gap: .75rem; border-bottom: 1px solid #f1f5f9; padding: .7rem 0; } .fs-device-row:last-child { border-bottom: 0; }
         .fs-device-icon { display: grid; width: 2.4rem; height: 2.4rem; flex: 0 0 auto; place-items: center; border-radius: .7rem; background: #eff6ff; color: #2563eb; }
         .fs-device-row strong,.fs-dashboard-table td strong { display: block; overflow: hidden; color: #334155; font-size: .78rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
@@ -179,6 +206,6 @@
         .fs-dashboard-table th { background: #f8fafc; padding: .75rem 1.25rem; color: #94a3b8; font-size: .65rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
         .fs-dashboard-table td { border-top: 1px solid #f1f5f9; padding: .85rem 1.25rem; color: #64748b; }
         .fs-scan-code { display: inline-flex; border-radius: 999px; background: #eff6ff; padding: .3rem .55rem; color: #1d4ed8; font-size: .67rem; font-weight: 700; }
-        @media (max-width: 640px) { .fs-attendance-content { grid-template-columns: 1fr; gap: .75rem; } .fs-attendance-pie { width: 8.5rem; } .fs-dashboard-select { min-width: 0; flex: 1; } .fs-hourly-chart { gap: .15rem; } .fs-hour-column span { font-size: .5rem; } .fs-dashboard-panel { padding: 1rem; } }
+        @media (max-width: 640px) { .fs-attendance-content { grid-template-columns: 1fr; gap: .75rem; } .fs-attendance-pie { width: 8.5rem; } .fs-dashboard-select { min-width: 0; flex: 1; } .fs-dashboard-panel { padding: 1rem; } }
     </style>
 </x-filament-panels::page>
