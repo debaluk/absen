@@ -1,9 +1,10 @@
  <x-filament-panels::page>
-    <x-filament::tabs label="Pengaturan organisasi">
-        <x-filament::tabs.item :active="$activeTab === 'umum'" wire:click="setTab('umum')">Umum</x-filament::tabs.item>
-        <x-filament::tabs.item :active="$activeTab === 'jabatan'" wire:click="setTab('jabatan')">Jabatan</x-filament::tabs.item>
-        <x-filament::tabs.item :active="$activeTab === 'lokasi-kerja'" wire:click="setTab('lokasi-kerja')">Lokasi Kerja</x-filament::tabs.item>
-    </x-filament::tabs>
+    <div class="space-y-5">
+        <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+            <button type="button" wire:click="setTab('umum')" class="border-b-2 px-4 py-3 text-sm font-medium {{ $activeTab === 'umum' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500' }}">Umum</button>
+            <button type="button" wire:click="setTab('jabatan')" class="border-b-2 px-4 py-3 text-sm font-medium {{ $activeTab === 'jabatan' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500' }}">Jabatan</button>
+            <button type="button" wire:click="setTab('lokasi-kerja')" class="border-b-2 px-4 py-3 text-sm font-medium {{ $activeTab === 'lokasi-kerja' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500' }}">Lokasi Kerja</button>
+        </div>
 
     @if ($activeTab === 'umum')
         <form wire:submit="saveCompany" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
