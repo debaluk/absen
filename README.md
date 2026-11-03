@@ -79,6 +79,8 @@ Migration Laravel merupakan sumber struktur database yang digunakan aplikasi saa
 - **Pengaturan absensi:** jadwal kerja, hari libur, izin, dan koreksi absensi.
 - **Aplikasi:** pengguna, sesi, cache, antrean, dan pengaturan aplikasi.
 
+Rancangan database MySQL yang disertakan dalam dokumentasi proyek berisi 38 tabel dan ditujukan untuk MySQL 8.0.16+ dengan InnoDB. Rancangan tersebut memisahkan tanggal mulai bekerja (`employees.hire_date`), tanggal mulai penempatan (`employee_branch_assignments.start_date`), dan tanggal mulai kewajiban absensi (`employee_branch_assignments.attendance_start_date`).
+
 Beberapa nama tabel penting:
 
 | Tabel | Fungsi |
@@ -86,8 +88,8 @@ Beberapa nama tabel penting:
 | `companies` | Data perusahaan |
 | `work_locations` | Cabang/lokasi kerja |
 | `positions` | Struktur jabatan |
-| `employees` | Data karyawan |
-| `employee_branch_assignments` | Riwayat penempatan karyawan pada cabang |
+| `employees` | Data karyawan, termasuk `hire_date` sebagai tanggal resmi mulai bekerja |
+| `employee_branch_assignments` | Riwayat penempatan cabang, termasuk `start_date` dan `attendance_start_date` |
 | `devices` | Identitas mesin berdasarkan `cloud_id` |
 | `machine_users` | Pengguna/PIN yang terdaftar pada mesin |
 | `logs` | Data scan mentah dari mesin |
@@ -107,8 +109,8 @@ Beberapa nama tabel penting:
 Tanggal berikut memiliki arti berbeda dan tidak boleh dipertukarkan:
 
 - `hire_date`: tanggal resmi mulai bekerja di perusahaan.
-- `start_date`: tanggal mulai penempatan karyawan pada cabang.
-- `attendance_start_date`: tanggal mulai kewajiban absensi pada penempatan tersebut.
+- `employee_branch_assignments.start_date`: tanggal mulai penempatan karyawan pada cabang.
+- `employee_branch_assignments.attendance_start_date`: tanggal mulai kewajiban absensi pada penempatan tersebut.
 
 Tanggal mulai kewajiban absensi tidak boleh mendahului tanggal mulai penempatan atau melewati tanggal akhir penempatan.
 
