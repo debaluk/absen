@@ -343,7 +343,7 @@
                         <div class="ah-modal-subtitle">
                             <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $editingEmployeeName }}</span>
                             <span>·</span>
-                            <span>{{ \\Illuminate\\Support\\Carbon::parse($editingDate)->format('d/m/Y') }}</span>
+                            <span>{{ \Illuminate\Support\Carbon::parse($editingDate)->format('d/m/Y') }}</span>
                         </div>
                     </div>
                     <button type="button" wire:click="closeEditModal" aria-label="Tutup" class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-white">✕</button>
