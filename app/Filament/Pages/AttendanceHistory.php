@@ -43,11 +43,7 @@ class AttendanceHistory extends Page
             ->where('employment_status', 'active')->first(['id', 'name']);
         abort_unless($employee, 404);
 
-        $corrections = DB::table('corrections')
-            ->where('pin', DB::table('employees')->where('id', $employeeId)->value('machine_user_pin'))
-            ->where('date', $date)
-            ->orderBy('time')
-            ->get(['time', 'reason']);
+        $corrections = DB::table('attendance_corrections')->where('employee_id', $employeeId)->where('date', $date)->first(['check_in', 'check_out', 'reason']);
 
         $times = DB::table('logs')
             ->join('employees', function ($join) {
@@ -71,14 +67,14 @@ class AttendanceHistory extends Page
         $this->editingEmployeeId = $employeeId;
         $this->editingDate = $date;
         $this->editingEmployeeName = $employee->name;
-        if ($corrections->isNotEmpty()) {
-            $first = substr($corrections->first()->time, 0, 5);
-            $last = $corrections->count() > 1 ? substr($corrections->last()->time, 0, 5) : null;
+        if ($corrections) {
+            $first = $corrections->check_in ? substr($corrections->check_in, 0, 5) : null;
+            $last = $corrections->check_out ? substr($corrections->check_out, 0, 5) : null;
         }
 
         $this->checkIn = $first;
         $this->checkOut = $last;
-        $this->correctionReason = $corrections->pluck('reason')->filter()->unique()->implode('; ');
+        $this->correctionReason = $corrections->reason ?? '';
         $this->showEditModal = true;
     }
 
@@ -99,24 +95,29 @@ class AttendanceHistory extends Page
             ->first(['machine_user_pin']);
         abort_unless($employee?->machine_user_pin, 422, 'PIN mesin karyawan belum ditautkan.');
 
-        DB::transaction(function () use ($data, $employee): void {
-            DB::table('corrections')
-                ->where('pin', $employee->machine_user_pin)
-                ->where('date', $data['editingDate'])
-                ->delete();
+        $existing = DB::table('attendance_corrections')
+            ->where('employee_id', $data['editingEmployeeId'])
+            ->where('date', $data['editingDate'])
+            ->exists();
 
-            foreach (array_filter([$data['checkIn'], $data['checkOut']]) as $time) {
-                DB::table('corrections')->insert([
-                    'id' => (string) Str::uuid(),
-                    'pin' => $employee->machine_user_pin,
-                    'date' => $data['editingDate'],
-                    'time' => $time,
-                    'reason' => trim($data['correctionReason']),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-        });
+        $values = [
+            'check_in' => $data['checkIn'],
+            'check_out' => $data['checkOut'],
+            'reason' => trim($data['correctionReason']),
+            'updated_at' => now(),
+        ];
+
+        if ($existing) {
+            DB::table('attendance_corrections')
+                ->where('employee_id', $data['editingEmployeeId'])
+                ->where('date', $data['editingDate'])
+                ->update($values);
+        } else {
+            $values['employee_id'] = $data['editingEmployeeId'];
+            $values['date'] = $data['editingDate'];
+            $values['created_at'] = now();
+            DB::table('attendance_corrections')->insert($values);
+        }
 
         $this->closeEditModal();
         Notification::make()->title('Koreksi absensi berhasil disimpan.')->success()->send();
@@ -177,12 +178,11 @@ class AttendanceHistory extends Page
             }
         }
 
-        $pins = $employees->pluck('machine_user_pin')->filter()->unique()->values();
-        $correctionMap = DB::table('corrections')->whereIn('pin', $pins)
+        $correctionMap = DB::table('attendance_corrections')
+            ->whereIn('employee_id', $ids)
             ->whereBetween('date', [$start, $end])
-            ->orderBy('time')
-            ->get(['pin', 'date', 'time', 'reason'])
-            ->groupBy(fn ($row) => $row->pin . '|' . $row->date);
+            ->get(['employee_id', 'date', 'check_in', 'check_out', 'reason'])
+            ->keyBy(fn ($row) => $row->employee_id . '|' . $row->date);
 
         $settings = DB::table('work_schedule_settings')->where('id', 1)->first();
         $scheduleDays = $settings ? json_decode($settings->days, true) : [];
@@ -221,14 +221,10 @@ class AttendanceHistory extends Page
                     $out = null;
                 }
 
-                $employeeCorrections = $employee->machine_user_pin
-                    ? $correctionMap->get($employee->machine_user_pin . '|' . $date, collect())
-                    : collect();
-                if ($employeeCorrections->isNotEmpty()) {
-                    $in = substr($employeeCorrections->first()->time, 0, 5);
-                    $out = $employeeCorrections->count() > 1
-                        ? substr($employeeCorrections->last()->time, 0, 5)
-                        : null;
+                $employeeCorrection = $correctionMap->get($employee->id . '|' . $date);
+                if ($employeeCorrection) {
+                    $in = $employeeCorrection->check_in ? substr($employeeCorrection->check_in, 0, 5) : null;
+                    $out = $employeeCorrection->check_out ? substr($employeeCorrection->check_out, 0, 5) : null;
                 }
 
                 $leave = $leaveMap[$employee->id][$date] ?? null;
