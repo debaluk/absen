@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Facades\\Http;
 use Throwable;
 
 class FreedomFingerEmployeeSynchronizer
@@ -14,7 +14,7 @@ class FreedomFingerEmployeeSynchronizer
         $token = (string) config('services.freedom_finger.token', '');
 
         if ($baseUrl === '' || $token === '') {
-            return ['success' => false, 'message' => 'URL dan token Freedom Finger wajib dikonfigurasi.', 'synced' => 0];
+            return ['success' => false, 'message' => 'URL dan token layanan mesin wajib dikonfigurasi.', 'synced' => 0];
         }
 
         try {
@@ -23,12 +23,12 @@ class FreedomFingerEmployeeSynchronizer
                 ->post($baseUrl . '/api/get_users', (object) []);
 
             if (! $response->successful()) {
-                return ['success' => false, 'message' => 'Freedom Finger merespons HTTP ' . $response->status() . '.', 'synced' => 0];
+                return ['success' => false, 'message' => 'Layanan mesin merespons HTTP ' . $response->status() . '.', 'synced' => 0];
             }
 
             $result = $response->json();
             if (! is_array($result) || ($result['success'] ?? false) !== true || ! is_array($result['data'] ?? null)) {
-                return ['success' => false, 'message' => 'Format daftar pengguna dari Freedom Finger tidak valid.', 'synced' => 0];
+                return ['success' => false, 'message' => 'Format daftar pengguna dari mesin tidak valid.', 'synced' => 0];
             }
 
             $synced = 0;
@@ -72,7 +72,7 @@ class FreedomFingerEmployeeSynchronizer
                         DB::table('employees')->where('id', $employee->id)->update($values);
                     } else {
                         DB::table('employees')->insert([
-                            'employee_no' => null,
+                            'employee_no' => $this->nextEmployeeNumber(),
                             'name' => $machineName !== '' ? mb_substr($machineName, 0, 15) : 'PIN ' . $pin,
                             'employment_status' => 'active',
                             'work_location_id' => $locationId,
@@ -91,7 +91,28 @@ class FreedomFingerEmployeeSynchronizer
         } catch (Throwable $exception) {
             report($exception);
 
-            return ['success' => false, 'message' => 'Gagal mengambil daftar pengguna Freedom Finger.', 'synced' => 0];
+            return ['success' => false, 'message' => 'Gagal mengambil atau menyimpan data pengguna mesin.', 'synced' => 0];
         }
+    }
+
+    /**
+     * Membuat nomor karyawan berurutan dengan format K0001, K0002, dan seterusnya.
+     */
+    private function nextEmployeeNumber(): string
+    {
+        $employeeNumbers = DB::table('employees')
+            ->where('employee_no', 'like', 'K%')
+            ->lockForUpdate()
+            ->pluck('employee_no');
+
+        $lastNumber = 0;
+
+        foreach ($employeeNumbers as $employeeNumber) {
+            if (preg_match('/^K(\\d+)$/', (string) $employeeNumber, $matches)) {
+                $lastNumber = max($lastNumber, (int) $matches[1]);
+            }
+        }
+
+        return 'K' . str_pad((string) ($lastNumber + 1), 4, '0', STR_PAD_LEFT);
     }
 }
