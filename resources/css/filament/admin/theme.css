@@ -61,6 +61,11 @@
     font-weight: 700;
 }
 
+/* Lebar sidebar aktual Filament */
+.fi-body {
+    --sidebar-width: 10rem;
+}
+
 /* Sidebar */
 .fi-sidebar {
     background: var(--fs-sidebar) !important;
