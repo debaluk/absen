@@ -9,13 +9,10 @@ use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Livewire\WithPagination;
 use UnitEnum;
 
 class LeaveCorrections extends Page
 {
-    use WithPagination;
-
     protected string $view = 'filament.pages.leave-corrections';
     protected static ?string $title = 'Izin & Koreksi';
     protected static ?string $navigationLabel = 'Izin & Koreksi';
@@ -39,6 +36,8 @@ class LeaveCorrections extends Page
     public string $filterTo = '';
     public string $filterKind = '';
     public string $filterName = '';
+    public int $page = 1;
+    public int $perPage = 15;
 
     protected function rules(): array
     {
@@ -59,10 +58,15 @@ class LeaveCorrections extends Page
         }
     }
 
-    public function updatedFilterFrom(): void { $this->resetPage('leavePage'); }
-    public function updatedFilterTo(): void { $this->resetPage('leavePage'); }
-    public function updatedFilterKind(): void { $this->resetPage('leavePage'); }
-    public function updatedFilterName(): void { $this->resetPage('leavePage'); }
+    public function updatedFilterFrom(): void { $this->page = 1; }
+    public function updatedFilterTo(): void { $this->page = 1; }
+    public function updatedFilterKind(): void { $this->page = 1; }
+    public function updatedFilterName(): void { $this->page = 1; }
+
+    public function goToLeavePage(int $page): void
+    {
+        $this->page = max(1, $page);
+    }
 
     public function selectEmployee(int $id): void
     {
@@ -132,7 +136,7 @@ class LeaveCorrections extends Page
 
         $this->showLeaveModal = false;
         $this->resetLeaveForm();
-        $this->resetPage('leavePage');
+        $this->page = 1;
         Notification::make()->title($message)->success()->send();
     }
 
@@ -270,10 +274,16 @@ class LeaveCorrections extends Page
                 ->get(['id', 'name']);
         }
 
+        $totalFilteredLeaves = (clone $this->leaveQuery())->count();
+        $lastPage = max(1, (int) ceil($totalFilteredLeaves / $this->perPage));
+        $this->page = min(max(1, $this->page), $lastPage);
+
         $leaves = $this->leaveQuery()
             ->orderByDesc('leaves.from')
             ->orderByDesc('leaves.created_at')
-            ->paginate(15, ['*'], 'leavePage');
+            ->offset(($this->page - 1) * $this->perPage)
+            ->limit($this->perPage)
+            ->get();
 
         $today = today();
         foreach ($leaves as $leave) {
@@ -289,6 +299,10 @@ class LeaveCorrections extends Page
         return [
             'employees' => $employees,
             'leaves' => $leaves,
+            'totalFilteredLeaves' => $totalFilteredLeaves,
+            'currentPage' => $this->page,
+            'lastPage' => $lastPage,
+            'perPage' => $this->perPage,
             'leaveKinds' => ['izin' => 'Izin', 'sakit' => 'Sakit', 'cuti' => 'Cuti', 'dinas' => 'Dinas Luar'],
         ];
     }
