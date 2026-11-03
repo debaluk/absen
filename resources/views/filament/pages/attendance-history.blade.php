@@ -156,7 +156,7 @@
                         @foreach ($days as $date)
                             <th class="ah-day text-[10px] font-semibold text-gray-600 dark:text-gray-300">
                                 <div>{{ substr($date, 8, 2) }}</div>
-                                <div class="font-normal">{{ \Illuminate\Support\Carbon::parse($date)->translatedFormat('D') }}</div>
+                                <div class="font-normal">{{ ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][\Illuminate\Support\Carbon::parse($date)->dayOfWeek] }}</div>
                             </th>
                         @endforeach
                     </tr>
