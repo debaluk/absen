@@ -46,6 +46,20 @@
             padding: .4rem .25rem;
             text-align: center;
         }
+        .attendance-history .ah-day-off {
+            background: rgb(229 231 235) !important;
+            color: rgb(75 85 99) !important;
+        }
+        .dark .attendance-history .ah-day-off {
+            background: rgb(55 65 81) !important;
+            color: rgb(209 213 219) !important;
+        }
+        .attendance-history .ah-cell-off {
+            background: rgb(249 250 251);
+        }
+        .dark .attendance-history .ah-cell-off {
+            background: rgb(31 41 55 / 65%);
+        }
         .attendance-history .ah-employee {
             position: sticky;
             left: 0;
@@ -154,7 +168,10 @@
                     <tr>
                         <th class="ah-employee text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Karyawan Aktif</th>
                         @foreach ($days as $date)
-                            <th class="ah-day text-[10px] font-semibold text-gray-600 dark:text-gray-300">
+                            <th @class([
+                                'ah-day text-[10px] font-semibold text-gray-600 dark:text-gray-300',
+                                'ah-day-off' => $dayOffMap[$date] ?? false,
+                            ]) title="{{ ($dayOffMap[$date] ?? false) ? 'Hari libur' : 'Hari kerja' }}">
                                 <div>{{ substr($date, 8, 2) }}</div>
                                 <div class="font-normal">{{ ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][\Illuminate\Support\Carbon::parse($date)->dayOfWeek] }}</div>
                             </th>
@@ -171,7 +188,10 @@
                             @foreach ($days as $date)
                                 @php($cell = $matrix[$employee->id][$date])
                                 @php($status = strtolower((string) $cell['status']))
-                                <td class="ah-cell" wire:key="attendance-cell-{{ $employee->id }}-{{ $date }}">
+                                <td @class([
+                                    'ah-cell',
+                                    'ah-cell-off' => $cell['is_day_off'] ?? false,
+                                ]) wire:key="attendance-cell-{{ $employee->id }}-{{ $date }}">
                                     <div class="flex flex-col items-center gap-0.5">
                                         @if ($cell['status'])
                                             <span class="ah-status ah-status-{{ $status }}">
