@@ -165,15 +165,16 @@
     background: #f8fafc;
 }
 
-/* Form */
+/* Form: garis input tegas dan konsisten dengan form Karyawan */
 .fi-input-wrp {
-    border-color: #dce3ec;
+    border: 1px solid #dce3ec !important;
     border-radius: 0.55rem;
+    background: #fff;
     box-shadow: none;
 }
 
 .fi-input-wrp:focus-within {
-    border-color: #7893ad;
+    border-color: #7893ad !important;
     box-shadow: 0 0 0 3px rgb(100 130 160 / 13%);
 }
 
