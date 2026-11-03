@@ -48,6 +48,12 @@
                                             </x-filament::input.select>
                         </x-filament::input.wrapper>
             </div>
+            <div class="min-w-56 flex-1">
+                <label for="filterName" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Cari Nama Karyawan</label>
+                <x-filament::input.wrapper class="border">
+                    <x-filament::input id="filterName" type="search" wire:model.live.debounce.300ms="filterName" placeholder="Masukkan nama karyawan..." />
+                </x-filament::input.wrapper>
+            </div>
             <div class="min-w-44 flex-1">
                 <label for="filterStatus" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
                 <x-filament::input.wrapper class="border" :valid="! $errors->has('filterStatus')">
@@ -59,9 +65,6 @@
                                             </x-filament::input.select>
                         </x-filament::input.wrapper>
             </div>
-            <button type="button" wire:click="clearEmployeeFilters" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
-                Reset Filter
-            </button>
         </div>
 
         <div class="overflow-x-auto">
