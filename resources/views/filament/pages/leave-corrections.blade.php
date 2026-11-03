@@ -37,7 +37,25 @@
                     @endforelse
                     </tbody>
                 </table></div>
-                <div class="border-t border-gray-100 px-4 py-3 dark:border-gray-800">{{ $leaves->links() }}</div>
+                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 dark:border-gray-800">
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        Menampilkan
+                        <span class="font-medium">{{ $totalFilteredLeaves === 0 ? 0 : (($currentPage - 1) * $perPage) + 1 }}</span>
+                        sampai
+                        <span class="font-medium">{{ min($currentPage * $perPage, $totalFilteredLeaves) }}</span>
+                        dari
+                        <span class="font-medium">{{ $totalFilteredLeaves }}</span> data
+                    </p>
+                    <div class="flex items-center gap-1">
+                        <button type="button" wire:click="goToLeavePage({{ $currentPage - 1 }})" @disabled($currentPage <= 1) class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                            Sebelumnya
+                        </button>
+                        <span class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300">Halaman {{ $currentPage }} dari {{ $lastPage }}</span>
+                        <button type="button" wire:click="goToLeavePage({{ $currentPage + 1 }})" @disabled($currentPage >= $lastPage) class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                            Berikutnya
+                        </button>
+                    </div>
+                </div>
             </section>
         @else
             <section class="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center dark:bg-gray-900"><h2 class="text-sm font-semibold">Data Koreksi Absen</h2><p class="mt-1 text-sm text-gray-500">Modul ini belum diaktifkan.</p></section>
