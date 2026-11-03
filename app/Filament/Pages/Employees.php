@@ -35,6 +35,8 @@ class Employees extends Page
 
     public string $filterStatus = '';
 
+    public string $filterName = '';
+
     public int $page = 1;
 
     public int $perPage = 15;
@@ -45,6 +47,11 @@ class Employees extends Page
     }
 
     public function updatedFilterStatus(): void
+    {
+        $this->page = 1;
+    }
+
+    public function updatedFilterName(): void
     {
         $this->page = 1;
     }
@@ -93,6 +100,7 @@ class Employees extends Page
     {
         $this->filterWorkLocationId = null;
         $this->filterStatus = '';
+        $this->filterName = '';
         $this->page = 1;
     }
 
@@ -374,6 +382,7 @@ class Employees extends Page
         $filteredEmployees = $employees
             ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
             ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
+            ->when(filled($this->filterName), fn ($rows) => $rows->filter(fn ($employee) => str_contains(mb_strtolower($employee->name), mb_strtolower(trim($this->filterName)))))
             ->values();
 
         $totalFilteredEmployees = $filteredEmployees->count();
