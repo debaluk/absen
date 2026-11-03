@@ -58,60 +58,49 @@ class UserResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Pengguna')
-                ->description('Masukkan identitas akun yang digunakan untuk masuk ke aplikasi.')
-                ->schema([
-                    Grid::make(2)
-                        ->schema([
-                            TextInput::make('name')
-                                ->label('Nama Lengkap')
-                                ->placeholder('Masukkan nama lengkap')
-                                ->required()
-                                ->maxLength(255),
+            TextInput::make('name')
+                ->label('Nama Lengkap')
+                ->required()
+                ->maxLength(255),
 
-                            TextInput::make('username')
-                                ->label('Nama Pengguna')
-                                ->placeholder('Masukkan nama pengguna untuk masuk')
-                                ->required()
-                                ->unique(ignoreRecord: true)
-                                ->maxLength(255),
+            TextInput::make('username')
+                ->label('Nama Pengguna')
+                ->required()
+                ->unique(ignoreRecord: true)
+                ->maxLength(255),
 
-                            TextInput::make('email')
-                                ->label('Alamat Email')
-                                ->placeholder('nama@perusahaan.com')
-                                ->email()
-                                ->required()
-                                ->unique(ignoreRecord: true)
-                                ->maxLength(255),
+            TextInput::make('email')
+                ->label('Alamat Email')
+                ->email()
+                ->required()
+                ->unique(ignoreRecord: true)
+                ->maxLength(255),
 
-                            Select::make('level')
-                                ->label('Hak Akses')
-                                ->options([
-                                    0 => 'Administrator',
-                                    1 => 'Operator',
-                                ])
-                                ->default(1)
-                                ->required()
-                                ->native(false)
-                                ->helperText('Administrator dapat mengakses seluruh pengaturan. Operator tidak memiliki akses ke menu Pengaturan.'),
-                        ]),
-                ]),
+            TextInput::make('password')
+                ->label('Kata Sandi')
+                ->password()
+                ->revealable()
+                ->confirmed()
+                ->required(fn (string $operation): bool => $operation === 'create')
+                ->dehydrated(fn (?string $state): bool => filled($state))
+                ->minLength(8),
 
-            Section::make('Keamanan Akun')
-                ->description('Kata sandi minimal 8 karakter. Kosongkan saat mengubah data jika tidak ingin mengganti kata sandi.')
-                ->schema([
-                    TextInput::make('password')
-                        ->label('Kata Sandi')
-                        ->placeholder(fn (string $operation): string => $operation === 'create'
-                            ? 'Masukkan kata sandi'
-                            : 'Kosongkan jika tidak ingin mengganti kata sandi')
-                        ->password()
-                        ->revealable()
-                        ->required(fn (string $operation): bool => $operation === 'create')
-                        ->dehydrated(fn (?string $state): bool => filled($state))
-                        ->minLength(8)
-                        ->columnSpanFull(),
-                ]),
+            TextInput::make('password_confirmation')
+                ->label('Ulang Kata Sandi')
+                ->password()
+                ->revealable()
+                ->required(fn (string $operation): bool => $operation === 'create')
+                ->dehydrated(false),
+
+            Select::make('level')
+                ->label('Level Pengguna')
+                ->options([
+                    0 => 'Administrator',
+                    1 => 'Operator',
+                ])
+                ->default(1)
+                ->required()
+                ->native(false),
         ]);
     }
 
