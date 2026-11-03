@@ -24,12 +24,13 @@ class LeaveCorrections extends Page
     public string $activeTab = 'leaves';
     public bool $showLeaveModal = false;
     public bool $showCorrectionModal = false;
-    public ?string $correctionId = null;
+    public ?int $correctionId = null;
     public string $correctionEmployeeSearch = '';
     public ?int $correctionEmployeeId = null;
     public ?string $correctionEmployeeName = null;
     public string $correctionDate = '';
-    public string $correctionTime = '';
+    public ?string $correctionCheckIn = null;
+    public ?string $correctionCheckOut = null;
     public string $correctionReason = '';
     public string $correctionFilterFrom = '';
     public string $correctionFilterTo = '';
@@ -107,21 +108,23 @@ class LeaveCorrections extends Page
         $this->showCorrectionModal = true;
     }
 
-    public function editCorrection(string $id): void
+    public function editCorrection(int $employeeId, string $date): void
     {
-        $correction = DB::table('corrections')
-            ->leftJoin('employees', 'employees.machine_user_pin', '=', 'corrections.pin')
-            ->where('corrections.id', $id)
-            ->first(['corrections.*', 'employees.id as employee_id', 'employees.name as employee_name']);
+        $correction = DB::table('attendance_corrections')
+            ->join('employees', 'employees.id', '=', 'attendance_corrections.employee_id')
+            ->where('attendance_corrections.employee_id', $employeeId)
+            ->where('attendance_corrections.date', $date)
+            ->first(['attendance_corrections.*', 'employees.name as employee_name']);
 
         abort_unless($correction, 404);
 
-        $this->correctionId = $correction->id;
-        $this->correctionEmployeeId = $correction->employee_id ? (int) $correction->employee_id : null;
+        $this->correctionId = (int) $correction->id;
+        $this->correctionEmployeeId = (int) $correction->employee_id;
         $this->correctionEmployeeName = $correction->employee_name;
-        $this->correctionEmployeeSearch = $correction->employee_name ?? '';
+        $this->correctionEmployeeSearch = $correction->employee_name;
         $this->correctionDate = $correction->date;
-        $this->correctionTime = substr($correction->time, 0, 5);
+        $this->correctionCheckIn = $correction->check_in ? substr($correction->check_in, 0, 5) : null;
+        $this->correctionCheckOut = $correction->check_out ? substr($correction->check_out, 0, 5) : null;
         $this->correctionReason = $correction->reason ?? '';
         $this->showCorrectionModal = true;
     }
@@ -131,49 +134,60 @@ class LeaveCorrections extends Page
         $data = $this->validate([
             'correctionEmployeeId' => ['required', 'integer', 'exists:employees,id'],
             'correctionDate' => ['required', 'date'],
-            'correctionTime' => ['required', 'date_format:H:i'],
+            'correctionCheckIn' => ['nullable', 'date_format:H:i'],
+            'correctionCheckOut' => ['nullable', 'date_format:H:i'],
             'correctionReason' => ['required', 'string', 'max:1000'],
         ], [
             'correctionEmployeeId.required' => 'Karyawan wajib dipilih.',
-            'correctionTime.required' => 'Jam koreksi wajib diisi.',
             'correctionReason.required' => 'Alasan koreksi wajib diisi.',
         ]);
 
-        $employee = DB::table('employees')
-            ->where('id', $data['correctionEmployeeId'])
-            ->first(['id', 'machine_user_pin']);
-
-        if (! $employee || ! $employee->machine_user_pin) {
-            Notification::make()->title('PIN mesin karyawan belum ditautkan.')->danger()->send();
+        if (! $data['correctionCheckIn'] && ! $data['correctionCheckOut']) {
+            $this->addError('correctionCheckIn', 'Isi minimal jam masuk atau jam pulang.');
             return;
         }
 
+        if ($data['correctionCheckIn'] && $data['correctionCheckOut'] && $data['correctionCheckOut'] <= $data['correctionCheckIn']) {
+            $this->addError('correctionCheckOut', 'Jam pulang harus setelah jam masuk.');
+            return;
+        }
+
+        $existing = DB::table('attendance_corrections')
+            ->where('employee_id', $data['correctionEmployeeId'])
+            ->where('date', $data['correctionDate'])
+            ->exists();
+
         $values = [
-            'pin' => $employee->machine_user_pin,
-            'date' => $data['correctionDate'],
-            'time' => $data['correctionTime'],
+            'check_in' => $data['correctionCheckIn'],
+            'check_out' => $data['correctionCheckOut'],
             'reason' => trim($data['correctionReason']),
             'updated_at' => now(),
         ];
 
-        if ($this->correctionId) {
-            DB::table('corrections')->where('id', $this->correctionId)->update($values);
-            $message = 'Koreksi absensi berhasil diperbarui.';
+        if ($existing) {
+            DB::table('attendance_corrections')
+                ->where('employee_id', $data['correctionEmployeeId'])
+                ->where('date', $data['correctionDate'])
+                ->update($values);
         } else {
-            $values['id'] = (string) Str::uuid();
+            $values['employee_id'] = $data['correctionEmployeeId'];
+            $values['date'] = $data['correctionDate'];
             $values['created_at'] = now();
-            DB::table('corrections')->insert($values);
-            $message = 'Koreksi absensi berhasil ditambahkan.';
+            DB::table('attendance_corrections')->insert($values);
         }
 
         $this->closeCorrectionModal();
         $this->correctionPage = 1;
-        Notification::make()->title($message)->success()->send();
+        Notification::make()->title('Koreksi absensi berhasil disimpan.')->success()->send();
     }
 
-    public function deleteCorrection(string $id): void
+    public function deleteCorrection(int $employeeId, string $date): void
     {
-        $deleted = DB::table('corrections')->where('id', $id)->delete();
+        $deleted = DB::table('attendance_corrections')
+            ->where('employee_id', $employeeId)
+            ->where('date', $date)
+            ->delete();
+
         $notification = Notification::make()
             ->title($deleted ? 'Koreksi absensi berhasil dihapus.' : 'Data koreksi tidak ditemukan.');
         $deleted ? $notification->success()->send() : $notification->warning()->send();
@@ -189,7 +203,7 @@ class LeaveCorrections extends Page
     {
         $this->reset([
             'correctionId', 'correctionEmployeeSearch', 'correctionEmployeeId',
-            'correctionEmployeeName', 'correctionDate', 'correctionTime', 'correctionReason',
+            'correctionEmployeeName', 'correctionDate', 'correctionCheckIn', 'correctionCheckOut', 'correctionReason',
         ]);
         $this->resetValidation();
     }
@@ -426,18 +440,18 @@ class LeaveCorrections extends Page
                 ->orderBy('name')->limit(10)->get(['id', 'name']);
         }
 
-        $correctionQuery = DB::table('corrections')
-            ->leftJoin('employees', 'employees.machine_user_pin', '=', 'corrections.pin')
-            ->when($this->correctionFilterFrom, fn ($query) => $query->whereDate('corrections.date', '>=', $this->correctionFilterFrom))
-            ->when($this->correctionFilterTo, fn ($query) => $query->whereDate('corrections.date', '<=', $this->correctionFilterTo))
+        $correctionQuery = DB::table('attendance_corrections')
+            ->join('employees', 'employees.id', '=', 'attendance_corrections.employee_id')
+            ->when($this->correctionFilterFrom, fn ($query) => $query->whereDate('attendance_corrections.date', '>=', $this->correctionFilterFrom))
+            ->when($this->correctionFilterTo, fn ($query) => $query->whereDate('attendance_corrections.date', '<=', $this->correctionFilterTo))
             ->when(trim($this->correctionFilterName) !== '', fn ($query) => $query->where('employees.name', 'like', '%'.trim($this->correctionFilterName).'%'))
-            ->select('corrections.*', 'employees.name as employee_name');
+            ->select('attendance_corrections.*', 'employees.name as employee_name');
 
         $totalCorrections = (clone $correctionQuery)->count();
         $lastCorrectionPage = max(1, (int) ceil($totalCorrections / $this->perPage));
         $this->correctionPage = min(max(1, $this->correctionPage), $lastCorrectionPage);
-        $corrections = $correctionQuery->orderByDesc('corrections.date')
-            ->orderByDesc('corrections.time')
+        $corrections = $correctionQuery->orderByDesc('attendance_corrections.date')
+            ->orderBy('employees.name')
             ->offset(($this->correctionPage - 1) * $this->perPage)
             ->limit($this->perPage)->get();
 
