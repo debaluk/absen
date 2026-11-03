@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Facades\\Http;
 use Throwable;
 
 class FreedomFingerEmployeeSynchronizer
@@ -32,26 +32,65 @@ class FreedomFingerEmployeeSynchronizer
             }
 
             $synced = 0;
-            foreach ($result['data'] as $user) {
-                if (! is_array($user) || blank($user['cloud_id'] ?? null) || blank($user['pin'] ?? null)) {
-                    continue;
-                }
 
-                // Kolom data tidak disentuh agar cadangan biometrik yang sudah ada tetap utuh.
-                DB::table('machine_users')->updateOrInsert(
-                    ['cloud_id' => (string) $user['cloud_id'], 'pin' => (string) $user['pin']],
-                    [
-                        'name' => $user['name'] ?? null,
-                        'privilege' => isset($user['privilege']) ? (string) $user['privilege'] : null,
-                        'updated' => $user['updated'] ?? now(),
-                    ],
-                );
-                $synced++;
-            }
+            DB::transaction(function () use ($result, &$synced) {
+                foreach ($result['data'] as $user) {
+                    if (! is_array($user) || blank($user['cloud_id'] ?? null) || blank($user['pin'] ?? null)) {
+                        continue;
+                    }
+
+                    $cloudId = (string) $user['cloud_id'];
+                    $pin = (string) $user['pin'];
+                    $machineName = trim((string) ($user['name'] ?? ''));
+
+                    // Simpan identitas mesin tanpa mengubah payload biometrik.
+                    DB::table('machine_users')->updateOrInsert(
+                        ['cloud_id' => $cloudId, 'pin' => $pin],
+                        [
+                            'name' => $machineName !== '' ? mb_substr($machineName, 0, 100) : null,
+                            'privilege' => isset($user['privilege']) ? (string) $user['privilege'] : null,
+                            'updated' => $user['updated'] ?? now(),
+                        ],
+                    );
+
+                    $employee = DB::table('employees')
+                        ->where('machine_user_cloud_id', $cloudId)
+                        ->where('machine_user_pin', $pin)
+                        ->first();
+
+                    $locationId = DB::table('devices_location')
+                        ->where('cloud_id', $cloudId)
+                        ->value('work_location_id');
+
+                    if ($employee) {
+                        // Jangan menimpa nama master yang mungkin sudah dilengkapi menjadi nama lengkap.
+                        $values = ['updated_at' => now()];
+                        if ($locationId) {
+                            $values['work_location_id'] = $locationId;
+                        }
+
+                        DB::table('employees')->where('id', $employee->id)->update($values);
+                    } else {
+                        DB::table('employees')->insert([
+                            'employee_no' => null,
+                            'name' => $machineName !== '' ? mb_substr($machineName, 0, 15) : 'PIN ' . $pin,
+                            'employment_status' => 'active',
+                            'work_location_id' => $locationId,
+                            'machine_user_cloud_id' => $cloudId,
+                            'machine_user_pin' => $pin,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    $synced++;
+                }
+            });
 
             return ['success' => true, 'message' => null, 'synced' => $synced];
         } catch (Throwable $exception) {
             report($exception);
+
             return ['success' => false, 'message' => 'Gagal mengambil daftar pengguna Freedom Finger.', 'synced' => 0];
         }
     }
