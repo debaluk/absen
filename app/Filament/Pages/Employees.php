@@ -79,6 +79,36 @@ class Employees extends Page
         $this->page = 1;
     }
 
+    public function syncMachineUsers(): void
+    {
+        $result = app(\\App\\Services\\FreedomFingerEmployeeSynchronizer::class)->sync();
+
+        if (! $result['success']) {
+            Notification::make()
+                ->title('Gagal mengambil data dari mesin.')
+                ->body($result['message'] ?? 'Periksa koneksi Freedom Finger.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        // Lokasi karyawan mengikuti lokasi mesin jika identitas PIN dan Cloud ID sudah tertaut.
+        DB::table('employees')
+            ->join('devices_location', 'devices_location.cloud_id', '=', 'employees.machine_user_cloud_id')
+            ->whereNotNull('employees.machine_user_pin')
+            ->update([
+                'employees.work_location_id' => DB::raw('devices_location.work_location_id'),
+                'employees.updated_at' => now(),
+            ]);
+
+        Notification::make()
+            ->title('Download nama karyawan dari mesin selesai.')
+            ->body($result['synced'] . ' pengguna berhasil dibaca.')
+            ->success()
+            ->send();
+    }
+
     public function createEmployee(): void
     {
         $this->resetEmployeeForm();
