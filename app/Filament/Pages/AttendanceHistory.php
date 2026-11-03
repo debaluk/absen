@@ -67,9 +67,11 @@ class AttendanceHistory extends Page
         $this->editingEmployeeId = $employeeId;
         $this->editingDate = $date;
         $this->editingEmployeeName = $employee->name;
-        if ($corrections) {
-            $first = $corrections->check_in ? substr($corrections->check_in, 0, 5) : null;
-            $last = $corrections->check_out ? substr($corrections->check_out, 0, 5) : null;
+        if ($corrections?->check_in) {
+            $first = substr($corrections->check_in, 0, 5);
+        }
+        if ($corrections?->check_out) {
+            $last = substr($corrections->check_out, 0, 5);
         }
 
         $this->checkIn = $first;
@@ -222,9 +224,11 @@ class AttendanceHistory extends Page
                 }
 
                 $employeeCorrection = $correctionMap->get($employee->id . '|' . $date);
-                if ($employeeCorrection) {
-                    $in = $employeeCorrection->check_in ? substr($employeeCorrection->check_in, 0, 5) : null;
-                    $out = $employeeCorrection->check_out ? substr($employeeCorrection->check_out, 0, 5) : null;
+                if ($employeeCorrection?->check_in) {
+                    $in = substr($employeeCorrection->check_in, 0, 5);
+                }
+                if ($employeeCorrection?->check_out) {
+                    $out = substr($employeeCorrection->check_out, 0, 5);
                 }
 
                 $leave = $leaveMap[$employee->id][$date] ?? null;
