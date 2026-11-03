@@ -1,5 +1,17 @@
 <x-filament-panels::page>
-    <div class="flex justify-end">
+    <div x-data="{ syncing: false }" class="flex justify-end gap-2">
+        <button
+            type="button"
+            x-on:click="syncing = true; $wire.syncMachineUsers().finally(() => syncing = false)"
+            x-bind:disabled="syncing"
+            class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-wait disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+        >
+            <svg x-show="syncing" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span x-text="syncing ? 'Download nama karyawan dari mesin sedang diproses...' : 'Ambil dari Mesin'"></span>
+        </button>
         <button type="button" wire:click="createEmployee" class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-500">
             Tambah Karyawan
         </button>
