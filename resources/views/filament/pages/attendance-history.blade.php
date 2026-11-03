@@ -143,6 +143,110 @@
             height: .45rem;
             border-radius: 9999px;
         }
+        .attendance-history .ah-modal-backdrop {
+            background: rgb(17 24 39 / 58%);
+            backdrop-filter: blur(2px);
+        }
+        .attendance-history .ah-modal {
+            width: min(100%, 34rem);
+            overflow: hidden;
+            border: 1px solid rgb(229 231 235);
+            border-radius: 1rem;
+            background: white;
+            box-shadow: 0 24px 70px rgb(0 0 0 / 22%);
+        }
+        .dark .attendance-history .ah-modal {
+            border-color: rgb(55 65 81);
+            background: rgb(17 24 39);
+        }
+        .attendance-history .ah-modal-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgb(229 231 235);
+        }
+        .dark .attendance-history .ah-modal-head {
+            border-color: rgb(55 65 81);
+        }
+        .attendance-history .ah-modal-subtitle {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            margin-top: .35rem;
+            color: rgb(107 114 128);
+            font-size: .8rem;
+        }
+        .dark .attendance-history .ah-modal-subtitle {
+            color: rgb(156 163 175);
+        }
+        .attendance-history .ah-modal-body {
+            padding: 1.25rem 1.5rem;
+        }
+        .attendance-history .ah-form-label {
+            display: block;
+            color: rgb(55 65 81);
+            font-size: .8rem;
+            font-weight: 650;
+        }
+        .dark .attendance-history .ah-form-label {
+            color: rgb(229 231 235);
+        }
+        .attendance-history .ah-form-control {
+            display: block;
+            width: 100%;
+            min-height: 2.75rem;
+            margin-top: .45rem;
+            border: 1px solid rgb(209 213 219);
+            border-radius: .625rem;
+            background: white;
+            padding: .55rem .75rem;
+            color: rgb(17 24 39);
+            font-size: .9rem;
+            line-height: 1.35rem;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+        .attendance-history .ah-form-control:focus {
+            border-color: rgb(59 130 246);
+            outline: none;
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 14%);
+        }
+        .dark .attendance-history .ah-form-control {
+            border-color: rgb(75 85 99);
+            background: rgb(31 41 55);
+            color: rgb(243 244 246);
+        }
+        .attendance-history .ah-form-hint {
+            margin-top: .35rem;
+            color: rgb(107 114 128);
+            font-size: .7rem;
+            font-weight: 400;
+        }
+        .dark .attendance-history .ah-form-hint {
+            color: rgb(156 163 175);
+        }
+        .attendance-history .ah-modal-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: .5rem;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgb(229 231 235);
+            background: rgb(249 250 251);
+        }
+        .dark .attendance-history .ah-modal-foot {
+            border-color: rgb(55 65 81);
+            background: rgb(31 41 55 / 55%);
+        }
+        @media (max-width: 640px) {
+            .attendance-history .ah-modal-head,
+            .attendance-history .ah-modal-body {
+                padding: 1rem;
+            }
+            .attendance-history .ah-modal-foot {
+                padding: .875rem 1rem;
+            }
+        }
     </style>
 
     <div class="attendance-history space-y-3" wire:poll.visible.30s="refreshHistory">
@@ -231,34 +335,46 @@
     </div>
 
     @if ($showEditModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4">
-            <div class="w-full max-w-lg rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">
-                <div class="mb-5 flex items-center justify-between">
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Koreksi Absensi</h2>
-                    <button type="button" wire:click="closeEditModal" class="text-gray-500">✕</button>
+        <div class="attendance-history ah-modal-backdrop fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-3 sm:p-5">
+            <section class="ah-modal my-auto" role="dialog" aria-modal="true" aria-labelledby="ah-edit-title">
+                <div class="ah-modal-head">
+                    <div>
+                        <h2 id="ah-edit-title" class="text-base font-semibold text-gray-900 dark:text-white">Koreksi Absensi</h2>
+                        <div class="ah-modal-subtitle">
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">{{ $editingEmployeeName }}</span>
+                            <span>·</span>
+                            <span>{{ \\Illuminate\\Support\\Carbon::parse($editingDate)->format('d/m/Y') }}</span>
+                        </div>
+                    </div>
+                    <button type="button" wire:click="closeEditModal" aria-label="Tutup" class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-white">✕</button>
                 </div>
-                <div class="mb-4 text-sm text-gray-600 dark:text-gray-300">{{ $editingEmployeeName }} · {{ \Illuminate\Support\Carbon::parse($editingDate)->format('d/m/Y') }}</div>
-                <form wire:submit="saveAttendanceCorrection" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jam Masuk
-                            <input type="time" wire:model="checkIn" class="mt-1 block h-10 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-                            @error('checkIn')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
-                        </label>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jam Pulang
-                            <input type="time" wire:model="checkOut" class="mt-1 block h-10 w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-                            @error('checkOut')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
+
+                <form wire:submit="saveAttendanceCorrection">
+                    <div class="ah-modal-body space-y-5">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <label class="ah-form-label">Jam Masuk
+                                <input type="time" wire:model="checkIn" class="ah-form-control">
+                                @error('checkIn')<span class="mt-1 block text-xs font-normal text-danger-600">{{ $message }}</span>@enderror
+                            </label>
+                            <label class="ah-form-label">Jam Pulang
+                                <input type="time" wire:model="checkOut" class="ah-form-control">
+                                @error('checkOut')<span class="mt-1 block text-xs font-normal text-danger-600">{{ $message }}</span>@enderror
+                            </label>
+                        </div>
+
+                        <label class="ah-form-label">Alasan Koreksi
+                            <textarea rows="3" wire:model="correctionReason" class="ah-form-control min-h-24 resize-y" placeholder="Tuliskan alasan perubahan jam absensi..."></textarea>
+                            <div class="ah-form-hint">Wajib diisi sebagai catatan dan dasar perubahan absensi.</div>
+                            @error('correctionReason')<span class="mt-1 block text-xs font-normal text-danger-600">{{ $message }}</span>@enderror
                         </label>
                     </div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Alasan Koreksi
-                        <textarea rows="3" wire:model="correctionReason" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></textarea>
-                        @error('correctionReason')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
-                    </label>
-                    <div class="flex justify-end gap-2">
-                        <x-filament::button type="button" color="gray" wire:click="closeEditModal">Batal</x-filament::button>
-                        <x-filament::button type="submit">Simpan Koreksi</x-filament::button>
+
+                    <div class="ah-modal-foot">
+                        <x-filament::button type="button" color="gray" outlined wire:click="closeEditModal">Batal</x-filament::button>
+                        <x-filament::button type="submit" icon="heroicon-m-check">Simpan Koreksi</x-filament::button>
                     </div>
                 </form>
-            </div>
+            </section>
         </div>
     @endif
 </x-filament-panels::page>
