@@ -21,14 +21,19 @@ class AdminUserSeeder extends Seeder
         $username = strtolower((string) str($email)->before('@'));
         $username = preg_replace('/[^a-z0-9._-]/', '', $username) ?: 'admin';
 
-        User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['email' => $email],
             [
                 'name' => config('app.admin.name'),
                 'username' => $username,
                 'password' => Hash::make($password),
                 'email_verified_at' => now(),
+                'level' => 0,
             ]
         );
+
+        if ((int) $user->level !== 0) {
+            $user->forceFill(['level' => 0])->save();
+        }
     }
 }
