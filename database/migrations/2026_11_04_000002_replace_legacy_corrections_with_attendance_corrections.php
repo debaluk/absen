@@ -22,10 +22,10 @@ return new class extends Migration
                     ->where('machine_user_pin', $row->pin)
                     ->pluck('id');
 
-                // PIN lama tidak menyimpan cloud_id. Hindari memindahkan koreksi
-                // jika PIN tersebut dipakai lebih dari satu karyawan.
+                // PIN lama tidak menyimpan cloud_id. Hentikan migrasi agar data
+                // tidak salah dipindahkan atau hilang jika pemilik PIN ambigu.
                 if ($employees->count() !== 1) {
-                    continue;
+                    throw new RuntimeException('Migrasi koreksi dihentikan: PIN '.$row->pin.' pada '.$row->date.' tidak terhubung tepat ke satu karyawan.');
                 }
 
                 $employeeId = (int) $employees->first();
