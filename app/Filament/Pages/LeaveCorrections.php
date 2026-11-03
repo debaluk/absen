@@ -38,6 +38,7 @@ class LeaveCorrections extends Page
     public string $filterFrom = '';
     public string $filterTo = '';
     public string $filterKind = '';
+    public string $filterName = '';
 
     protected function rules(): array
     {
@@ -61,6 +62,7 @@ class LeaveCorrections extends Page
     public function updatedFilterFrom(): void { $this->resetPage('leavePage'); }
     public function updatedFilterTo(): void { $this->resetPage('leavePage'); }
     public function updatedFilterKind(): void { $this->resetPage('leavePage'); }
+    public function updatedFilterName(): void { $this->resetPage('leavePage'); }
 
     public function selectEmployee(int $id): void
     {
@@ -252,6 +254,7 @@ class LeaveCorrections extends Page
             ->when($this->filterFrom, fn ($query) => $query->whereDate('leaves.to', '>=', $this->filterFrom))
             ->when($this->filterTo, fn ($query) => $query->whereDate('leaves.from', '<=', $this->filterTo))
             ->when($this->filterKind, fn ($query) => $query->where('leaves.kind', $this->filterKind))
+            ->when(trim($this->filterName) !== '', fn ($query) => $query->where('employees.name', 'like', '%'.trim($this->filterName).'%'))
             ->select('leaves.*', 'employees.name as employee_name');
     }
 
