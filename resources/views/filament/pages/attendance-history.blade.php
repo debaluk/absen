@@ -225,6 +225,8 @@
             <span class="ah-legend"><i style="background:#8b5cf6"></i>Cuti</span>
             <span class="ah-legend"><i style="background:#3b82f6"></i>Dinas</span>
             <span class="ah-legend"><i style="background:#f43f5e"></i>Alpa</span>
+            <span class="ah-legend"><i style="background:#d1d5db"></i>Libur</span>
+            <span class="w-full text-[11px] text-gray-500 dark:text-gray-400">Libur: Berdasarkan kalender umum dan jadwal kerja.</span>
         </div>
     </div>
 
