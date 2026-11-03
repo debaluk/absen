@@ -48,9 +48,11 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
             ])
-            ->navigationGroups([
+            ->navigationGroups(fn (): array => [
                 NavigationGroup::make()->label('Absen'),
-                NavigationGroup::make()->label('Pengaturan'),
+                ...((int) \Illuminate\Support\Facades\Auth::user()?->level === 0
+                    ? [NavigationGroup::make()->label('Pengaturan')]
+                    : []),
             ])
             ->middleware([
                 EncryptCookies::class,
