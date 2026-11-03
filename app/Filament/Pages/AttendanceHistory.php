@@ -46,11 +46,30 @@ class AttendanceHistory extends Page
         $correction = DB::table('attendance_corrections')
             ->where('employee_id', $employeeId)->where('date', $date)->first();
 
+        $times = DB::table('logs')
+            ->join('employees', function ($join) {
+                $join->on('employees.machine_user_cloud_id', '=', 'logs.cloud_id')
+                    ->on('employees.machine_user_pin', '=', 'logs.pin');
+            })
+            ->where('employees.id', $employeeId)
+            ->whereDate('logs.scan_date', $date)
+            ->orderBy('logs.scan_date')
+            ->pluck('logs.scan_date')
+            ->map(fn ($time) => substr($time, 11, 5))
+            ->values();
+
+        $first = $times->first();
+        $last = $times->count() > 1 ? $times->last() : null;
+        $minGap = (int) (DB::table('work_schedule_settings')->where('id', 1)->value('min_gap') ?? 60);
+        if ($first && $last && (strtotime($date . ' ' . $last) - strtotime($date . ' ' . $first)) < $minGap * 60) {
+            $last = null;
+        }
+
         $this->editingEmployeeId = $employeeId;
         $this->editingDate = $date;
         $this->editingEmployeeName = $employee->name;
-        $this->checkIn = $correction?->check_in ? substr($correction->check_in, 0, 5) : null;
-        $this->checkOut = $correction?->check_out ? substr($correction->check_out, 0, 5) : null;
+        $this->checkIn = $correction ? ($correction->check_in ? substr($correction->check_in, 0, 5) : null) : $first;
+        $this->checkOut = $correction ? ($correction->check_out ? substr($correction->check_out, 0, 5) : null) : $last;
         $this->correctionReason = $correction?->reason ?? '';
         $this->showEditModal = true;
     }
@@ -68,16 +87,26 @@ class AttendanceHistory extends Page
         abort_unless(DB::table('employees')->where('id', $data['editingEmployeeId'])
             ->where('employment_status', 'active')->exists(), 404);
 
-        DB::table('attendance_corrections')->updateOrInsert(
-            ['employee_id' => $data['editingEmployeeId'], 'date' => $data['editingDate']],
-            [
-                'check_in' => $data['checkIn'] ?: null,
-                'check_out' => $data['checkOut'] ?: null,
-                'reason' => trim($data['correctionReason']),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        );
+        $existing = DB::table('attendance_corrections')
+            ->where('employee_id', $data['editingEmployeeId'])
+            ->where('date', $data['editingDate'])
+            ->first(['id']);
+
+        $values = [
+            'check_in' => $data['checkIn'] ?: null,
+            'check_out' => $data['checkOut'] ?: null,
+            'reason' => trim($data['correctionReason']),
+            'updated_at' => now(),
+        ];
+
+        if ($existing) {
+            DB::table('attendance_corrections')->where('id', $existing->id)->update($values);
+        } else {
+            $values['employee_id'] = $data['editingEmployeeId'];
+            $values['date'] = $data['editingDate'];
+            $values['created_at'] = now();
+            DB::table('attendance_corrections')->insert($values);
+        }
 
         $this->closeEditModal();
         Notification::make()->title('Koreksi absensi berhasil disimpan.')->success()->send();
