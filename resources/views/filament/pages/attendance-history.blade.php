@@ -38,18 +38,18 @@
                             </td>
                             @foreach ($days as $date)
                                 @php($cell = $matrix[$employee->id][$date])
-                                @php($statusClasses = [
-                                    'hadir' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
-                                    'izin' => 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
-                                    'sakit' => 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
-                                    'cuti' => 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
-                                    'dinas' => 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
-                                    'alpa' => 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
+                                @php($statusColors = [
+                                    'hadir' => '#10b981',
+                                    'izin' => '#3b82f6',
+                                    'sakit' => '#f59e0b',
+                                    'cuti' => '#8b5cf6',
+                                    'dinas' => '#3b82f6',
+                                    'alpa' => '#f43f5e',
                                 ])
                                 <td class="px-2 py-2 text-center" wire:key="attendance-cell-{{ $employee->id }}-{{ $date }}">
                                     <div class="flex min-w-24 flex-col items-center gap-1">
                                         @if ($cell['status'])
-                                            <span class="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase {{ $statusClasses[$cell['status']] ?? 'bg-gray-100 text-gray-600' }}">
+                                            <span style="background-color: {{ $statusColors[$cell['status']] ?? '#6b7280' }}; color: #ffffff;" class="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase">
                                                 {{ $cell['status'] === 'hadir' ? 'Hadir' : ($cell['status'] === 'alpa' ? 'Alpa' : ($cell['status'] === 'dinas' ? 'Dinas' : $cell['status'])) }}
                                             </span>
                                         @endif
