@@ -50,8 +50,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()->label('Absen'),
-                NavigationGroup::make()->label('Kelola'),
-                NavigationGroup::make()->label('Pengaturan'),
+                NavigationGroup::make()->label('Pengelolaan'),
+                NavigationGroup::make()->label('Pengaturan')->visible(fn (): bool => (int) auth()->user()?->level === 0),
             ])
             ->middleware([
                 EncryptCookies::class,
