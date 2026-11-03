@@ -9,7 +9,7 @@
    ========================================================= */
 
 :root {
-    --sidebar-width: 11.5rem;
+    --sidebar-width: 12.5rem;
     --fs-chrome: #edf1f5;
     --fs-sidebar: #edf1f5;
     --fs-sidebar-muted: #64748b;
@@ -63,7 +63,7 @@
 
 /* Lebar sidebar aktual Filament */
 .fi-body {
-    --sidebar-width: 10rem;
+    --sidebar-width: 12.5rem;
 }
 
 /* Sidebar */
