@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                    <span class="text-xs text-gray-500">{{ number_format($leaves->total(), 0, ',', '.') }} data</span>
+                    <span class="text-xs text-gray-500">{{ number_format($totalFilteredLeaves, 0, ',', '.') }} data</span>
                     <div class="flex gap-2"><x-filament::button size="sm" color="gray" wire:click="exportExcel">Export Excel</x-filament::button><x-filament::button size="sm" wire:click="openCreateLeave">Tambah Izin</x-filament::button></div>
                 </div>
                 <div class="overflow-x-auto"><table class="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
