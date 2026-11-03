@@ -178,8 +178,24 @@ class AttendanceHistory extends Page
         $holidays = DB::table('holidays')->whereBetween('date', [$start, $end])->get();
         $holidayLocations = DB::table('holiday_work_locations')->get()->groupBy('holiday_id');
         $holidayMap = [];
+        $globalHolidayMap = [];
         foreach ($holidays as $holiday) {
-            $holidayMap[$holiday->date] = $holidayLocations->get($holiday->id, collect())->pluck('work_location_id')->all();
+            $locations = $holidayLocations->get($holiday->id, collect())->pluck('work_location_id')->all();
+            $holidayMap[$holiday->date] = $locations;
+            if (count($locations) === 0) {
+                $globalHolidayMap[$holiday->date] = true;
+            }
+        }
+
+        $dayOffMap = [];
+        foreach ($days as $date) {
+            $weekday = (int) date('w', strtotime($date));
+            $scheduled = is_array($scheduleDays[$weekday] ?? null) && ! empty($scheduleDays[$weekday]);
+            $locationHoliday = $holidayMap[$date] ?? [];
+            $selectedLocationHoliday = $this->filterWorkLocationId !== ''
+                && in_array((int) $this->filterWorkLocationId, array_map('intval', $locationHoliday), true);
+
+            $dayOffMap[$date] = ! $scheduled || isset($globalHolidayMap[$date]) || $selectedLocationHoliday;
         }
 
         $matrix = [];
@@ -213,13 +229,19 @@ class AttendanceHistory extends Page
                     $status = 'alpa';
                 }
 
-                $matrix[$employee->id][$date] = ['check_in' => $in, 'check_out' => $out, 'status' => $status];
+                $matrix[$employee->id][$date] = [
+                    'check_in' => $in,
+                    'check_out' => $out,
+                    'status' => $status,
+                    'is_day_off' => ! $scheduled || $holiday,
+                ];
             }
         }
 
         return [
             'employees' => $employees,
             'days' => $days,
+            'dayOffMap' => $dayOffMap,
             'matrix' => $matrix,
             'workLocations' => DB::table('work_locations')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'monthLabel' => \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
