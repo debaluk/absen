@@ -23,6 +23,18 @@ class LeaveCorrections extends Page
 
     public string $activeTab = 'leaves';
     public bool $showLeaveModal = false;
+    public bool $showCorrectionModal = false;
+    public ?string $correctionId = null;
+    public string $correctionEmployeeSearch = '';
+    public ?int $correctionEmployeeId = null;
+    public ?string $correctionEmployeeName = null;
+    public string $correctionDate = '';
+    public string $correctionTime = '';
+    public string $correctionReason = '';
+    public string $correctionFilterFrom = '';
+    public string $correctionFilterTo = '';
+    public string $correctionFilterName = '';
+    public int $correctionPage = 1;
     public ?string $leaveId = null;
     public string $employeeSearch = '';
     public ?int $employeeId = null;
@@ -62,6 +74,125 @@ class LeaveCorrections extends Page
     public function updatedFilterTo(): void { $this->page = 1; }
     public function updatedFilterKind(): void { $this->page = 1; }
     public function updatedFilterName(): void { $this->page = 1; }
+    public function updatedCorrectionFilterFrom(): void { $this->correctionPage = 1; }
+    public function updatedCorrectionFilterTo(): void { $this->correctionPage = 1; }
+    public function updatedCorrectionFilterName(): void { $this->correctionPage = 1; }
+
+    public function updatedCorrectionEmployeeSearch(): void
+    {
+        if ($this->correctionEmployeeSearch !== $this->correctionEmployeeName) {
+            $this->correctionEmployeeId = null;
+            $this->correctionEmployeeName = null;
+        }
+    }
+
+    public function selectCorrectionEmployee(int $id): void
+    {
+        $employee = DB::table('employees')->where('id', $id)->first(['id', 'name']);
+        if (! $employee) {
+            Notification::make()->title('Karyawan tidak ditemukan.')->warning()->send();
+            return;
+        }
+
+        $this->correctionEmployeeId = (int) $employee->id;
+        $this->correctionEmployeeName = $employee->name;
+        $this->correctionEmployeeSearch = $employee->name;
+        $this->resetValidation('correctionEmployeeId');
+    }
+
+    public function openCreateCorrection(): void
+    {
+        $this->resetCorrectionForm();
+        $this->correctionDate = today()->toDateString();
+        $this->showCorrectionModal = true;
+    }
+
+    public function editCorrection(string $id): void
+    {
+        $correction = DB::table('corrections')
+            ->leftJoin('employees', 'employees.machine_user_pin', '=', 'corrections.pin')
+            ->where('corrections.id', $id)
+            ->first(['corrections.*', 'employees.id as employee_id', 'employees.name as employee_name']);
+
+        abort_unless($correction, 404);
+
+        $this->correctionId = $correction->id;
+        $this->correctionEmployeeId = $correction->employee_id ? (int) $correction->employee_id : null;
+        $this->correctionEmployeeName = $correction->employee_name;
+        $this->correctionEmployeeSearch = $correction->employee_name ?? '';
+        $this->correctionDate = $correction->date;
+        $this->correctionTime = substr($correction->time, 0, 5);
+        $this->correctionReason = $correction->reason ?? '';
+        $this->showCorrectionModal = true;
+    }
+
+    public function saveCorrection(): void
+    {
+        $data = $this->validate([
+            'correctionEmployeeId' => ['required', 'integer', 'exists:employees,id'],
+            'correctionDate' => ['required', 'date'],
+            'correctionTime' => ['required', 'date_format:H:i'],
+            'correctionReason' => ['required', 'string', 'max:1000'],
+        ], [
+            'correctionEmployeeId.required' => 'Karyawan wajib dipilih.',
+            'correctionTime.required' => 'Jam koreksi wajib diisi.',
+            'correctionReason.required' => 'Alasan koreksi wajib diisi.',
+        ]);
+
+        $employee = DB::table('employees')
+            ->where('id', $data['correctionEmployeeId'])
+            ->first(['id', 'machine_user_pin']);
+
+        if (! $employee || ! $employee->machine_user_pin) {
+            Notification::make()->title('PIN mesin karyawan belum ditautkan.')->danger()->send();
+            return;
+        }
+
+        $values = [
+            'pin' => $employee->machine_user_pin,
+            'date' => $data['correctionDate'],
+            'time' => $data['correctionTime'],
+            'reason' => trim($data['correctionReason']),
+            'updated_at' => now(),
+        ];
+
+        if ($this->correctionId) {
+            DB::table('corrections')->where('id', $this->correctionId)->update($values);
+            $message = 'Koreksi absensi berhasil diperbarui.';
+        } else {
+            $values['id'] = (string) Str::uuid();
+            $values['created_at'] = now();
+            DB::table('corrections')->insert($values);
+            $message = 'Koreksi absensi berhasil ditambahkan.';
+        }
+
+        $this->closeCorrectionModal();
+        $this->correctionPage = 1;
+        Notification::make()->title($message)->success()->send();
+    }
+
+    public function deleteCorrection(string $id): void
+    {
+        $deleted = DB::table('corrections')->where('id', $id)->delete();
+        $notification = Notification::make()
+            ->title($deleted ? 'Koreksi absensi berhasil dihapus.' : 'Data koreksi tidak ditemukan.');
+        $deleted ? $notification->success()->send() : $notification->warning()->send();
+    }
+
+    public function closeCorrectionModal(): void
+    {
+        $this->showCorrectionModal = false;
+        $this->resetCorrectionForm();
+    }
+
+    protected function resetCorrectionForm(): void
+    {
+        $this->reset([
+            'correctionId', 'correctionEmployeeSearch', 'correctionEmployeeId',
+            'correctionEmployeeName', 'correctionDate', 'correctionTime', 'correctionReason',
+        ]);
+        $this->resetValidation();
+    }
 
     public function goToLeavePage(int $page): void
     {
@@ -285,6 +416,31 @@ class LeaveCorrections extends Page
             ->limit($this->perPage)
             ->get();
 
+        $correctionEmployees = collect();
+        if (mb_strlen(trim($this->correctionEmployeeSearch)) >= 2) {
+            $correctionEmployees = DB::table('employees')
+                ->where(function ($query) {
+                    $query->where('name', 'like', '%'.trim($this->correctionEmployeeSearch).'%')
+                        ->orWhere('employee_no', 'like', '%'.trim($this->correctionEmployeeSearch).'%');
+                })
+                ->orderBy('name')->limit(10)->get(['id', 'name']);
+        }
+
+        $correctionQuery = DB::table('corrections')
+            ->leftJoin('employees', 'employees.machine_user_pin', '=', 'corrections.pin')
+            ->when($this->correctionFilterFrom, fn ($query) => $query->whereDate('corrections.date', '>=', $this->correctionFilterFrom))
+            ->when($this->correctionFilterTo, fn ($query) => $query->whereDate('corrections.date', '<=', $this->correctionFilterTo))
+            ->when(trim($this->correctionFilterName) !== '', fn ($query) => $query->where('employees.name', 'like', '%'.trim($this->correctionFilterName).'%'))
+            ->select('corrections.*', 'employees.name as employee_name');
+
+        $totalCorrections = (clone $correctionQuery)->count();
+        $lastCorrectionPage = max(1, (int) ceil($totalCorrections / $this->perPage));
+        $this->correctionPage = min(max(1, $this->correctionPage), $lastCorrectionPage);
+        $corrections = $correctionQuery->orderByDesc('corrections.date')
+            ->orderByDesc('corrections.time')
+            ->offset(($this->correctionPage - 1) * $this->perPage)
+            ->limit($this->perPage)->get();
+
         $today = today();
         foreach ($leaves as $leave) {
             $leave->aging_days = $leave->created_at
@@ -304,6 +460,11 @@ class LeaveCorrections extends Page
             'lastPage' => $lastPage,
             'perPage' => $this->perPage,
             'leaveKinds' => ['izin' => 'Izin', 'sakit' => 'Sakit', 'cuti' => 'Cuti', 'dinas' => 'Dinas Luar'],
+            'correctionEmployees' => $correctionEmployees,
+            'corrections' => $corrections,
+            'totalCorrections' => $totalCorrections,
+            'currentCorrectionPage' => $this->correctionPage,
+            'lastCorrectionPage' => $lastCorrectionPage,
         ];
     }
 }
