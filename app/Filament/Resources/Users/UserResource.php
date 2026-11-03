@@ -113,15 +113,15 @@ class UserResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->defaultSort('name');
+            ->defaultSort('name')
+            ->paginated([15])
+            ->defaultPaginationPageOption(15);
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ListUsers::route('/'),
-            'create' => CreateUser::route('/create'),
-            'edit' => EditUser::route('/{record}/edit'),
         ];
     }
 }
