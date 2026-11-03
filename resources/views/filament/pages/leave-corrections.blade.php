@@ -7,7 +7,7 @@
         @if ($activeTab === 'leaves')
             <section class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
                 <div class="flex flex-col gap-3 border-b border-gray-200 p-4 dark:border-gray-700 lg:flex-row lg:items-end lg:justify-between">
-                    <div><h2 class="text-sm font-semibold text-gray-950 dark:text-white">Daftar Data Izin</h2></div>
+                   
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Dari Tanggal<input type="date" wire:model.live="filterFrom" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm font-normal text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></label>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Sampai Tanggal<input type="date" wire:model.live="filterTo" class="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm font-normal text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"></label>
