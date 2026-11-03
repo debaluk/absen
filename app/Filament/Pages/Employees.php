@@ -81,7 +81,7 @@ class Employees extends Page
 
     public function syncMachineUsers(): void
     {
-        $result = app(\\App\\Services\\FreedomFingerEmployeeSynchronizer::class)->sync();
+        $result = app(\App\Services\FreedomFingerEmployeeSynchronizer::class)->sync();
 
         if (! $result['success']) {
             Notification::make()
