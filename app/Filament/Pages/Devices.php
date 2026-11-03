@@ -11,6 +11,11 @@ use UnitEnum;
 
 class Devices extends Page
 {
+    public static function canAccess(): bool
+    {
+        return (int) \Illuminate\Support\Facades\Auth::user()?->level === 0;
+    }
+
     protected string $view = 'filament.pages.device-registry';
 
     protected static ?string $title = 'Mesin';
