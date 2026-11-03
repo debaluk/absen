@@ -9,6 +9,7 @@
    ========================================================= */
 
 :root {
+    --sidebar-width: 14rem;
     --fs-chrome: #edf1f5;
     --fs-sidebar: #edf1f5;
     --fs-sidebar-muted: #64748b;
