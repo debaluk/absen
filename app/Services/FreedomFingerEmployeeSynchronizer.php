@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Services;
+namespace App\Services;
 
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Throwable;
 
 class FreedomFingerEmployeeSynchronizer
@@ -108,7 +108,7 @@ class FreedomFingerEmployeeSynchronizer
         $lastNumber = 0;
 
         foreach ($employeeNumbers as $employeeNumber) {
-            if (preg_match('/^K(\\d+)$/', (string) $employeeNumber, $matches)) {
+            if (preg_match('/^K(\d+)$/', (string) $employeeNumber, $matches)) {
                 $lastNumber = max($lastNumber, (int) $matches[1]);
             }
         }
