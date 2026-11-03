@@ -49,6 +49,23 @@ class Employees extends Page
         $this->page = 1;
     }
 
+    public function updatedMachineUserSelection(): void
+    {
+        if (blank($this->machineUserSelection)) {
+            return;
+        }
+
+        [$cloudId] = array_pad(explode('|', $this->machineUserSelection, 2), 2, null);
+
+        $locationId = DB::table('devices_location')
+            ->where('cloud_id', $cloudId)
+            ->value('work_location_id');
+
+        if ($locationId) {
+            $this->work_location_id = (string) $locationId;
+        }
+    }
+
     public function goToEmployeePage(int $page): void
     {
         $this->page = max(1, $page);
