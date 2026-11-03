@@ -1,5 +1,34 @@
 <x-filament-panels::page>
-    <div class="space-y-5">
+    <style>
+        .leave-corrections .lc-control {
+            display:block;width:100%;height:2.5rem;border:1px solid rgb(209 213 219);
+            border-radius:.5rem;background:white;padding:.5rem .75rem;font-size:.875rem;
+            color:rgb(17 24 39);box-shadow:0 1px 2px rgb(0 0 0 / .05);
+        }
+        .leave-corrections .lc-control:focus {
+            outline:2px solid transparent;border-color:rgb(99 102 241);
+            box-shadow:0 0 0 2px rgb(99 102 241 / .15);
+        }
+        .dark .leave-corrections .lc-control {
+            border-color:rgb(75 85 99);background:rgb(31 41 55);color:rgb(243 244 246);
+        }
+        .leave-corrections .lc-page-button {
+            border:1px solid rgb(209 213 219);border-radius:.5rem;padding:.4rem .75rem;
+            font-size:.8rem;font-weight:500;color:rgb(55 65 81);
+        }
+        .leave-corrections .lc-page-button:disabled {opacity:.4;cursor:not-allowed}
+        .dark .leave-corrections .lc-page-button {border-color:rgb(75 85 99);color:rgb(229 231 235)}
+        .leave-corrections .lc-field {
+            display:block;width:100%;border:1px solid rgb(209 213 219);border-radius:.6rem;
+            background:white;padding:.65rem .75rem;font-size:.9rem;color:rgb(17 24 39);
+            transition:border-color .15s,box-shadow .15s;
+        }
+        .leave-corrections .lc-field:focus {
+            outline:none;border-color:rgb(99 102 241);box-shadow:0 0 0 3px rgb(99 102 241 / .12);
+        }
+        .dark .leave-corrections .lc-field {border-color:rgb(75 85 99);background:rgb(31 41 55);color:white}
+    </style>
+    <div class="leave-corrections space-y-5">
         <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700">
             <button type="button" wire:click="$set('activeTab', 'leaves')" class="border-b-2 px-4 py-3 text-sm font-medium {{ $activeTab === 'leaves' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500' }}">Data Izin</button>
             <button type="button" wire:click="$set('activeTab', 'corrections')" class="border-b-2 px-4 py-3 text-sm font-medium {{ $activeTab === 'corrections' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500' }}">Data Koreksi Absen</button>
@@ -58,8 +87,96 @@
                 </div>
             </section>
         @else
-            <section class="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center dark:bg-gray-900"><h2 class="text-sm font-semibold">Data Koreksi Absen</h2><p class="mt-1 text-sm text-gray-500">Modul ini belum diaktifkan.</p></section>
+            <section class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+                <div class="grid grid-cols-1 gap-3 border-b border-gray-200 p-4 dark:border-gray-700 sm:grid-cols-3">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Dari Tanggal
+                        <input type="date" wire:model.live="correctionFilterFrom" class="lc-control mt-1">
+                    </label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Sampai Tanggal
+                        <input type="date" wire:model.live="correctionFilterTo" class="lc-control mt-1">
+                    </label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Nama Karyawan
+                        <input type="search" wire:model.live.debounce.300ms="correctionFilterName" placeholder="Cari nama karyawan" class="lc-control mt-1">
+                    </label>
+                </div>
+                <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+                    <span class="text-xs text-gray-500">{{ number_format($totalCorrections, 0, ',', '.') }} data koreksi</span>
+                    <x-filament::button size="sm" wire:click="openCreateCorrection">Tambah Koreksi</x-filament::button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
+                        <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-600 dark:bg-gray-800">
+                            <tr><th class="px-4 py-3">Karyawan</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Jam Koreksi</th><th class="px-4 py-3">Alasan</th><th class="px-4 py-3 text-center">Aksi</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @forelse ($corrections as $correction)
+                                <tr class="text-gray-700 dark:text-gray-200">
+                                    <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $correction->employee_name ?: 'PIN '.$correction->pin }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3">{{ \Illuminate\Support\Carbon::parse($correction->date)->format('d/m/Y') }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ substr($correction->time, 0, 5) }}</td>
+                                    <td class="px-4 py-3">{{ $correction->reason ?: '—' }}</td>
+                                    <td class="px-4 py-3"><div class="flex justify-center gap-3">
+                                        <button type="button" wire:click="editCorrection('{{ $correction->id }}')" title="Ubah"><x-heroicon-m-pencil-square class="h-5 w-5 text-primary-600" /></button>
+                                        <button type="button" wire:click="deleteCorrection('{{ $correction->id }}')" wire:confirm="Hapus koreksi absensi ini?" title="Hapus"><x-heroicon-m-trash class="h-5 w-5 text-danger-600" /></button>
+                                    </div></td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">Belum ada data koreksi absensi.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 text-sm dark:border-gray-800">
+                    <span class="text-gray-600 dark:text-gray-300">Halaman {{ $currentCorrectionPage }} dari {{ $lastCorrectionPage }}</span>
+                    <div class="flex gap-2">
+                        <button type="button" wire:click="$set('correctionPage', {{ max(1, $currentCorrectionPage - 1) }})" @disabled($currentCorrectionPage <= 1) class="lc-page-button">Sebelumnya</button>
+                        <button type="button" wire:click="$set('correctionPage', {{ min($lastCorrectionPage, $currentCorrectionPage + 1) }})" @disabled($currentCorrectionPage >= $lastCorrectionPage) class="lc-page-button">Berikutnya</button>
+                    </div>
+                </div>
+            </section>
         @endif
+        @if ($showCorrectionModal)
+            <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/60 p-4 backdrop-blur-[2px]">
+                <div class="my-auto w-full max-w-xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+                    <div class="flex items-start justify-between border-b border-gray-100 px-6 py-5 dark:border-gray-800">
+                        <div><h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ $correctionId ? 'Ubah Koreksi Absensi' : 'Tambah Koreksi Absensi' }}</h2><p class="mt-1 text-xs text-gray-500">Catat jam absensi pengganti berdasarkan bukti koreksi.</p></div>
+                        <button type="button" wire:click="closeCorrectionModal" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800" aria-label="Tutup"><x-heroicon-m-x-mark class="h-5 w-5" /></button>
+                    </div>
+                    <form wire:submit="saveCorrection" class="space-y-5 px-6 py-5">
+                        <div class="relative">
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200">Karyawan</label>
+                            <input type="search" wire:model.live.debounce.300ms="correctionEmployeeSearch" autocomplete="off" placeholder="Cari nama atau nomor karyawan" class="lc-field">
+                            @error('correctionEmployeeId')<span class="mt-1 block text-xs text-danger-600">Pilih karyawan dari daftar.</span>@enderror
+                            @if (count($correctionEmployees) && $correctionEmployeeSearch !== $correctionEmployeeName)
+                                <div class="absolute z-30 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+                                    @foreach ($correctionEmployees as $employee)
+                                        <button type="button" wire:click="selectCorrectionEmployee({{ $employee->id }})" class="block w-full px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">{{ $employee->name }}</button>
+                                    @endforeach
+                                </div>
+                            @endif
+                            @if ($correctionEmployeeId && $correctionEmployeeName)<p class="mt-1.5 text-xs font-medium text-success-600">Dipilih: {{ $correctionEmployeeName }}</p>@endif
+                        </div>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Absensi
+                                <input type="date" wire:model="correctionDate" class="lc-field mt-1.5">@error('correctionDate')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
+                            </label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jam Koreksi
+                                <input type="time" wire:model="correctionTime" class="lc-field mt-1.5">@error('correctionTime')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
+                            </label>
+                        </div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Alasan Koreksi
+                            <textarea rows="3" wire:model="correctionReason" placeholder="Jelaskan alasan perubahan jam absensi..." class="lc-field mt-1.5 min-h-24 resize-y"></textarea>
+                            @error('correctionReason')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
+                        </label>
+                        <div class="flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-gray-800">
+                            <x-filament::button type="button" color="gray" wire:click="closeCorrectionModal">Batal</x-filament::button>
+                            <x-filament::button type="submit">{{ $correctionId ? 'Simpan Perubahan' : 'Simpan Koreksi' }}</x-filament::button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         @if ($showLeaveModal)
             <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/50 p-4">
                 <div class="w-full max-w-2xl rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">
