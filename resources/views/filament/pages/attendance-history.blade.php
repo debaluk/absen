@@ -26,6 +26,21 @@
         .dark .attendance-history .ah-table td {
             border-color: rgb(55 65 81);
         }
+        .attendance-history .ah-scroll {
+            max-height: min(72vh, 52rem);
+            overflow: auto;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
+        }
+        .attendance-history .ah-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgb(249 250 251);
+        }
+        .dark .attendance-history .ah-table thead th {
+            background: rgb(31 41 55);
+        }
         .attendance-history .ah-day {
             min-width: 4.6rem;
             padding: .4rem .25rem;
@@ -34,7 +49,7 @@
         .attendance-history .ah-employee {
             position: sticky;
             left: 0;
-            z-index: 10;
+            z-index: 30;
             min-width: 13rem;
             padding: .45rem .75rem;
             border-right: 1px solid rgb(229 231 235);
@@ -44,6 +59,13 @@
         .dark .attendance-history .ah-employee {
             border-color: rgb(55 65 81);
             background: rgb(17 24 39);
+        }
+        .attendance-history .ah-table thead .ah-employee {
+            z-index: 40;
+            background: rgb(249 250 251);
+        }
+        .dark .attendance-history .ah-table thead .ah-employee {
+            background: rgb(31 41 55);
         }
         .attendance-history .ah-cell {
             min-width: 4.6rem;
@@ -126,11 +148,11 @@
             <div class="ml-auto pb-2 text-[11px] text-gray-400">Pembaruan otomatis setiap 30 detik</div>
         </div>
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div class="ah-scroll rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             <table class="ah-table min-w-max w-full">
-                <thead class="sticky top-0 z-20 bg-gray-50 dark:bg-gray-800">
+                <thead>
                     <tr>
-                        <th class="ah-employee sticky top-0 z-30 bg-gray-50 text-[10px] font-semibold uppercase text-gray-600 dark:bg-gray-800 dark:text-gray-300">Karyawan Aktif</th>
+                        <th class="ah-employee text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Karyawan Aktif</th>
                         @foreach ($days as $date)
                             <th class="ah-day text-[10px] font-semibold text-gray-600 dark:text-gray-300">
                                 <div>{{ substr($date, 8, 2) }}</div>
