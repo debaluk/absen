@@ -12,6 +12,11 @@ use UnitEnum;
 
 class Settings extends Page
 {
+    public static function canAccess(): bool
+    {
+        return (int) \Illuminate\Support\Facades\Auth::user()?->level === 0;
+    }
+
     protected string $view = 'filament.pages.settings';
 
     protected static ?string $title = 'Pengaturan';
