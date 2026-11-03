@@ -17,6 +17,23 @@
         </button>
     </div>
 
+    <div
+        x-show="syncing"
+        x-cloak
+        x-transition.opacity
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/50 p-4"
+        style="display: none;"
+    >
+        <div class="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-xl dark:bg-gray-900">
+            <svg class="mx-auto mb-4 h-10 w-10 animate-spin text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">Download nama karyawan dari mesin sedang diproses...</p>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Mohon tunggu.</p>
+        </div>
+    </div>
+
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
         <div class="flex flex-wrap items-end gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
             <div class="min-w-52 flex-1">
