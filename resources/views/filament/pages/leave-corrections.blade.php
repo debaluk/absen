@@ -106,22 +106,23 @@
                 <div class="overflow-x-auto">
                     <table class="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-600 dark:bg-gray-800">
-                            <tr><th class="px-4 py-3">Karyawan</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Jam Koreksi</th><th class="px-4 py-3">Alasan</th><th class="px-4 py-3 text-center">Aksi</th></tr>
+                            <tr><th class="px-4 py-3">Karyawan</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Jam Masuk</th><th class="px-4 py-3">Jam Pulang</th><th class="px-4 py-3">Alasan</th><th class="px-4 py-3 text-center">Aksi</th></tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                             @forelse ($corrections as $correction)
                                 <tr class="text-gray-700 dark:text-gray-200">
                                     <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $correction->employee_name ?: 'PIN '.$correction->pin }}</td>
                                     <td class="whitespace-nowrap px-4 py-3">{{ \Illuminate\Support\Carbon::parse($correction->date)->format('d/m/Y') }}</td>
-                                    <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ substr($correction->time, 0, 5) }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ $correction->check_in ? substr($correction->check_in, 0, 5) : '—' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ $correction->check_out ? substr($correction->check_out, 0, 5) : '—' }}</td>
                                     <td class="px-4 py-3">{{ $correction->reason ?: '—' }}</td>
                                     <td class="px-4 py-3"><div class="flex justify-center gap-3">
-                                        <button type="button" wire:click="editCorrection('{{ $correction->id }}')" title="Ubah"><x-heroicon-m-pencil-square class="h-5 w-5 text-primary-600" /></button>
-                                        <button type="button" wire:click="deleteCorrection('{{ $correction->id }}')" wire:confirm="Hapus koreksi absensi ini?" title="Hapus"><x-heroicon-m-trash class="h-5 w-5 text-danger-600" /></button>
+                                        <button type="button" wire:click="editCorrection({{ $correction->employee_id }}, '{{ $correction->date }}')" title="Ubah"><x-heroicon-m-pencil-square class="h-5 w-5 text-primary-600" /></button>
+                                        <button type="button" wire:click="deleteCorrection({{ $correction->employee_id }}, '{{ $correction->date }}')" wire:confirm="Hapus koreksi absensi ini?" title="Hapus"><x-heroicon-m-trash class="h-5 w-5 text-danger-600" /></button>
                                     </div></td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">Belum ada data koreksi absensi.</td></tr>
+                                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Belum ada data koreksi absensi.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -139,7 +140,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-950/60 p-4 backdrop-blur-[2px]">
                 <div class="my-auto w-full max-w-xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
                     <div class="flex items-start justify-between border-b border-gray-100 px-6 py-5 dark:border-gray-800">
-                        <div><h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ $correctionId ? 'Ubah Koreksi Absensi' : 'Tambah Koreksi Absensi' }}</h2><p class="mt-1 text-xs text-gray-500">Catat jam absensi pengganti berdasarkan bukti koreksi.</p></div>
+                        <div><h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ $correctionId ? 'Ubah Koreksi Absensi' : 'Tambah Koreksi Absensi' }}</h2><p class="mt-1 text-xs text-gray-500">Koreksi jam masuk dan jam pulang. Kosongkan jam yang tidak perlu dikoreksi.</p></div>
                         <button type="button" wire:click="closeCorrectionModal" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800" aria-label="Tutup"><x-heroicon-m-x-mark class="h-5 w-5" /></button>
                     </div>
                     <form wire:submit="saveCorrection" class="space-y-5 px-6 py-5">
@@ -160,8 +161,11 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Absensi
                                 <input type="date" wire:model="correctionDate" class="lc-field mt-1.5">@error('correctionDate')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
                             </label>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jam Koreksi
-                                <input type="time" wire:model="correctionTime" class="lc-field mt-1.5">@error('correctionTime')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jam Masuk
+                                <input type="time" wire:model="correctionCheckIn" class="lc-field mt-1.5">@error('correctionCheckIn')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
+                            </label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jam Pulang
+                                <input type="time" wire:model="correctionCheckOut" class="lc-field mt-1.5">@error('correctionCheckOut')<span class="mt-1 block text-xs text-danger-600">{{ $message }}</span>@enderror
                             </label>
                         </div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Alasan Koreksi
