@@ -50,7 +50,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()->label('Absen'),
-                NavigationGroup::make()->label('Pengelolaan'),
                 NavigationGroup::make()->label('Pengaturan'),
             ])
             ->middleware([
