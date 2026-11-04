@@ -105,7 +105,7 @@
                         <div><span>Pulang</span><strong>{{ $attendanceSummary['pulang'] }}</strong><small>Karyawan</small></div>
                     </div>
                 </div>
-                <p class="mt-4 text-xs text-slate-400">Alpa hanya dihitung untuk hari kerja setelah tanggal mulai kewajiban absensi. Hari libur dan karyawan yang belum wajib absen tidak dihitung sebagai Alpa.</p>
+                <p class="mt-4 text-xs text-slate-400">Alpa hanya dihitung untuk hari lampau jika sudah masuk tanggal mulai kewajiban absensi, merupakan hari kerja, dan tidak ada scan maupun izin. Jika kriteria tersebut tidak terpenuhi dan tidak ada scan, statusnya Belum Absen.</p>
             </section>
         </div>
 
