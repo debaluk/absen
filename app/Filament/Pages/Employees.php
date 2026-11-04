@@ -31,6 +31,10 @@ class Employees extends Page
 
     public bool $isFormModalOpen = false;
 
+    public bool $isGlobalActionModalOpen = false;
+
+    public ?string $globalAttendanceStartDate = null;
+
     public ?string $filterWorkLocationId = null;
 
     public string $filterStatus = '';
@@ -130,6 +134,74 @@ class Employees extends Page
         Notification::make()
             ->title('Download nama karyawan dari mesin selesai.')
             ->body($result['synced'] . ' pengguna berhasil dibaca.')
+            ->success()
+            ->send();
+    }
+
+    public function openGlobalActionModal(): void
+    {
+        $this->globalAttendanceStartDate = today()->toDateString();
+        $this->isGlobalActionModalOpen = true;
+        $this->resetValidation();
+    }
+
+    public function applyGlobalAttendanceStartDate(): void
+    {
+        $validated = Validator::make(
+            ['globalAttendanceStartDate' => $this->globalAttendanceStartDate],
+            ['globalAttendanceStartDate' => ['required', 'date']],
+            [
+                'globalAttendanceStartDate.required' => 'Tanggal mulai wajib absen harus diisi.',
+                'globalAttendanceStartDate.date' => 'Tanggal mulai wajib absen tidak valid.',
+            ],
+        )->validate();
+
+        $date = $validated['globalAttendanceStartDate'];
+
+        $result = DB::transaction(function () use ($date) {
+            $employees = DB::table('employees')
+                ->where('employment_status', 'active')
+                ->whereNull('attendance_start_date');
+
+            $invalidHireDateCount = (clone $employees)
+                ->whereNotNull('hire_date')
+                ->where('hire_date', '>', $date)
+                ->count();
+
+            if ($invalidHireDateCount > 0) {
+                return [
+                    'updated' => 0,
+                    'invalid_hire_date' => $invalidHireDateCount,
+                ];
+            }
+
+            $updated = (clone $employees)->update([
+                'attendance_start_date' => $date,
+                'updated_at' => now(),
+            ]);
+
+            return [
+                'updated' => $updated,
+                'invalid_hire_date' => 0,
+            ];
+        });
+
+        if ($result['invalid_hire_date'] > 0) {
+            Notification::make()
+                ->title('Tanggal tidak dapat diterapkan.')
+                ->body($result['invalid_hire_date'] . ' karyawan aktif memiliki tanggal mulai bekerja setelah tanggal yang dipilih. Tidak ada data yang diubah.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $this->isGlobalActionModalOpen = false;
+        $this->globalAttendanceStartDate = null;
+
+        Notification::make()
+            ->title('Tindakan global selesai.')
+            ->body($result['updated'] . ' karyawan aktif berhasil diisi tanggal mulai wajib absennya. Data yang sudah terisi tidak diubah.')
             ->success()
             ->send();
     }
@@ -410,6 +482,7 @@ class Employees extends Page
             'currentPage' => $this->page,
             'lastPage' => $lastPage,
             'perPage' => $this->perPage,
+            'globalAttendanceStartDateCandidateCount' => DB::table('employees')->where('employment_status', 'active')->whereNull('attendance_start_date')->count(),
         ];
     }
 }
