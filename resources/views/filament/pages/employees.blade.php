@@ -12,9 +12,53 @@
             </svg>
             <span x-text="syncing ? 'Download nama karyawan dari mesin sedang diproses...' : 'Ambil dari Mesin'"></span>
         </button>
+        <button type="button" wire:click="openGlobalActionModal" class="rounded-lg border border-primary-600 px-4 py-2 text-sm font-semibold text-primary-700 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-950">
+            Tindakan Global
+        </button>
         <button type="button" wire:click="createEmployee" class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-500">
             Tambah Karyawan
         </button>
+    </div>
+
+    <div
+        x-data="{ open: @entangle('isGlobalActionModalOpen') }"
+        x-show="open"
+        x-cloak
+        x-on:keydown.escape.window="open = false; $wire.set('isGlobalActionModalOpen', false)"
+        class="fixed inset-0 z-[90] flex items-center justify-center bg-gray-950/60 p-4"
+        style="display: none;"
+    >
+        <div x-show="open" x-transition class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900" @click.outside="open = false; $wire.set('isGlobalActionModalOpen', false)">
+            <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Tindakan Global</h2>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Atur tanggal mulai wajib absen untuk seluruh karyawan aktif yang belum memilikinya.</p>
+                </div>
+                <button type="button" @click="open = false; $wire.set('isGlobalActionModalOpen', false)" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Tutup">✕</button>
+            </div>
+
+            <div class="mb-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Karyawan aktif dengan tanggal mulai absen masih kosong</p>
+                <p class="mt-1 text-2xl font-semibold text-gray-950 dark:text-white">{{ number_format($globalAttendanceStartDateCandidateCount, 0, ',', '.') }} karyawan</p>
+            </div>
+
+            <form wire:submit="applyGlobalAttendanceStartDate" class="space-y-4">
+                <div>
+                    <label for="globalAttendanceStartDate" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Mulai Wajib Absen</label>
+                    <x-filament::input.wrapper class="border" :valid="! $errors->has('globalAttendanceStartDate')">
+                        <x-filament::input id="globalAttendanceStartDate" type="date" wire:model="globalAttendanceStartDate" />
+                    </x-filament::input.wrapper>
+                    @error('globalAttendanceStartDate') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                </div>
+
+                <p class="text-xs text-gray-500 dark:text-gray-400">Hanya karyawan berstatus Aktif dan kolom tanggal mulai absen yang masih kosong yang akan diperbarui. Tanggal yang sudah terisi tidak akan ditimpa. Jika tanggal yang dipilih mendahului tanggal mulai bekerja salah satu karyawan, seluruh proses dibatalkan.</p>
+
+                <div class="flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-gray-800">
+                    <button type="button" @click="open = false; $wire.set('isGlobalActionModalOpen', false)" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">Batal</button>
+                    <button type="submit" wire:confirm="Terapkan tanggal mulai wajib absen kepada seluruh karyawan aktif yang tanggalnya masih kosong?" wire:loading.attr="disabled" class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-500 disabled:opacity-50">Terapkan</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div
