@@ -54,7 +54,6 @@
                 Cari Nama Karyawan
                 <input type="search" wire:model.live.debounce.300ms="filterName" class="ar-filter mt-1 block w-full" placeholder="Ketik nama karyawan...">
             </label>
-            <div class="pb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">{{ $monthLabel }}</div>
         </div>
 
         <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
