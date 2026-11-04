@@ -212,7 +212,7 @@ class Dashboard extends BaseDashboard
                 $join->on('employees.machine_user_cloud_id', '=', 'logs.cloud_id')
                     ->on('employees.machine_user_pin', '=', 'logs.pin');
             })
-            ->whereDate('logs.scan_date', $today)
+            ->whereDate('logs.scan_date', $attendanceDate)
             ->when($this->workLocationId !== '', function ($query) {
                 $query->where('employees.work_location_id', $this->workLocationId);
             });
