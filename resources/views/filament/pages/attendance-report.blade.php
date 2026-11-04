@@ -70,7 +70,9 @@
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Cuti</th>
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Dinas</th>
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Alpa</th>
-                        <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Total</th>
+                        <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Terlambat (Menit)</th>
+                        <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Pulang Cepat (Menit)</th>
+                        <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Kehadiran</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,11 +88,13 @@
                             @foreach (['hadir', 'izin', 'sakit', 'cuti', 'dinas', 'alpa'] as $key)
                                 <td class="px-3 py-2.5 text-center tabular-nums">{{ $row['counts'][$key] }}</td>
                             @endforeach
+                            <td class="px-3 py-2.5 text-center tabular-nums">{{ number_format($row['counts']['late_minutes']) }}</td>
+                            <td class="px-3 py-2.5 text-center tabular-nums">{{ number_format($row['counts']['early_leave_minutes']) }}</td>
                             <td class="px-3 py-2.5 text-center font-semibold tabular-nums">{{ $row['counts']['hadir'] }}/{{ $row['effective_days'] }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="px-6 py-10 text-center text-xs text-gray-500">
+                            <td colspan="13" class="px-6 py-10 text-center text-xs text-gray-500">
                                 Tidak ada karyawan aktif yang sesuai dengan filter.
                             </td>
                         </tr>
