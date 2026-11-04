@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\FreedomFingerDeviceSynchronizer;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -74,8 +73,18 @@ class Devices extends Page
 
     protected function getViewData(): array
     {
-        $sync = app(FreedomFingerDeviceSynchronizer::class)->sync();
-        $engine = $sync['engine'];
+        $settings = DB::table('application_settings')
+            ->whereIn('key', [
+                'freedom_finger_engine_connected',
+                'freedom_finger_engine_checked_at',
+                'freedom_finger_engine_last_success_at',
+                'freedom_finger_engine_info',
+                'freedom_finger_engine_error',
+            ])
+            ->pluck('value', 'key');
+
+        $engine = json_decode((string) ($settings['freedom_finger_engine_info'] ?? ''), true);
+        $engine = is_array($engine) ? $engine : null;
 
         $workLocations = DB::table('work_locations')
             ->where('is_active', true)
@@ -114,13 +123,15 @@ class Devices extends Page
             'totalDevices' => $devices->count(),
             'onlineDevices' => $devices->where('connection_state', 'online')->count(),
             'offlineDevices' => $devices->where('connection_state', 'offline')->count(),
-            'engineConnected' => $sync['success'],
+            'engineConnected' => ($settings['freedom_finger_engine_connected'] ?? null) === '1',
+            'engineCheckedAt' => $settings['freedom_finger_engine_checked_at'] ?? null,
+            'engineLastSuccessAt' => $settings['freedom_finger_engine_last_success_at'] ?? null,
             'engineVersion' => data_get($engine, 'version'),
             'engineServerIp' => data_get($engine, 'server_ip'),
             'enginePort' => data_get($engine, 'port'),
             'logsToday' => data_get($engine, 'logs_today'),
             'logsTotal' => data_get($engine, 'logs_total'),
-            'connectionError' => $sync['message'],
+            'connectionError' => $settings['freedom_finger_engine_error'] ?? null,
         ];
     }
 }
