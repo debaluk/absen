@@ -3,16 +3,21 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-sm text-slate-500">Ringkasan operasional kehadiran</p>
-                <h2 class="mt-1 text-xl font-bold tracking-tight text-slate-800">{{ $todayLabel }}</h2>
+                <h2 class="mt-1 text-xl font-bold tracking-tight text-slate-800">{{ $attendanceDateLabel }}</h2>
             </div>
-            <div class="flex items-center gap-2">
-                <label for="dashboard-location" class="text-sm font-medium text-slate-600">Lokasi kerja</label>
+            <div class="flex flex-wrap items-center gap-3">
+                <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    Tanggal
+                    <input type="date" max="{{ today()->toDateString() }}" wire:model.live="attendanceDate" class="fs-dashboard-select">
+                </label>
+                <label for="dashboard-location" class="flex items-center gap-2 text-sm font-medium text-slate-600">Lokasi kerja
                 <select id="dashboard-location" wire:model.live="workLocationId" class="fs-dashboard-select">
                     <option value="">Semua cabang</option>
                     @foreach ($workLocations as $location)
                         <option value="{{ $location->id }}">{{ $location->name }}</option>
                     @endforeach
                 </select>
+                </label>
             </div>
         </div>
 
@@ -49,47 +54,58 @@
 
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <section class="fs-dashboard-panel">
-                <div class="fs-panel-heading"><div><h3>Status Kehadiran</h3><p>Persentase status kehadiran hari ini</p></div></div>
+                <div class="fs-panel-heading"><div><h3>Status Kehadiran</h3><p>Komposisi status pada {{ $attendanceDateLabel }}</p></div><span class="fs-count-pill">{{ $attendanceStatusTotal }} karyawan</span></div>
                 <div class="fs-attendance-content">
                     <div class="fs-attendance-pie-wrap">
-                        <div class="fs-attendance-pie">
-                            <div><strong>—</strong><span>Belum tersedia</span></div>
+                        <div class="fs-attendance-pie" style="background: {{ $attendancePie }}">
+                            <div><strong>{{ $attendanceStatusTotal }}</strong><span>Karyawan</span></div>
                         </div>
                     </div>
                     <div class="fs-attendance-legend">
-                        <div><span class="fs-attendance-dot fs-dot-present"></span><span>Hadir</span><strong>—%</strong></div>
-                        <div><span class="fs-attendance-dot fs-dot-permission"></span><span>Izin</span><strong>—%</strong></div>
-                        <div><span class="fs-attendance-dot fs-dot-sick"></span><span>Sakit</span><strong>—%</strong></div>
-                        <div><span class="fs-attendance-dot fs-dot-leave"></span><span>Cuti</span><strong>—%</strong></div>
-                        <div><span class="fs-attendance-dot fs-dot-absent"></span><span>Alpa</span><strong>—%</strong></div>
+                        @foreach ([
+                            'hadir' => ['Hadir', '#10b981'],
+                            'terlambat' => ['Terlambat', '#f59e0b'],
+                            'izin' => ['Izin', '#3b82f6'],
+                            'sakit' => ['Sakit', '#f97316'],
+                            'cuti' => ['Cuti', '#8b5cf6'],
+                            'dinas' => ['Dinas', '#06b6d4'],
+                            'alpa' => ['Alpa', '#f43f5e'],
+                            'belum_absen' => ['Belum Absen', '#cbd5e1'],
+                        ] as $key => [$label, $color])
+                            <div>
+                                <span class="fs-attendance-dot" style="background: {{ $color }}"></span>
+                                <span>{{ $label }}</span>
+                                <strong>{{ $attendanceSummary[$key] }}</strong>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </section>
 
             <section class="fs-dashboard-panel">
                 <div class="fs-panel-heading">
-                    <div><h3>Absen Hari Ini</h3><p>Ringkasan aktivitas karyawan hari ini</p></div>
-                    <span class="fs-count-pill">{{ $todayLabel }}</span>
+                    <div><h3>Absen Harian</h3><p>Ringkasan absensi pada {{ $attendanceDateLabel }}</p></div>
+                    <span class="fs-count-pill">{{ count($attendanceRows) }} karyawan</span>
                 </div>
                 <div class="fs-today-attendance-grid">
                     <div class="fs-today-attendance-item fs-today-green">
                         <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-check-circle" class="h-5 w-5" /></div>
-                        <div><span>Sudah Absen</span><strong>—</strong><small>Karyawan</small></div>
+                        <div><span>Sudah Absen</span><strong>{{ $attendanceSummary['sudah_absen'] }}</strong><small>Karyawan</small></div>
                     </div>
                     <div class="fs-today-attendance-item fs-today-amber">
                         <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-user-minus" class="h-5 w-5" /></div>
-                        <div><span>Belum Absen</span><strong>—</strong><small>Karyawan</small></div>
+                        <div><span>Belum Absen</span><strong>{{ $attendanceSummary['belum_absen'] }}</strong><small>Karyawan</small></div>
                     </div>
                     <div class="fs-today-attendance-item fs-today-rose">
                         <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-clock" class="h-5 w-5" /></div>
-                        <div><span>Terlambat</span><strong>—</strong><small>Karyawan</small></div>
+                        <div><span>Terlambat</span><strong>{{ $attendanceSummary['terlambat'] }}</strong><small>Karyawan</small></div>
                     </div>
                     <div class="fs-today-attendance-item fs-today-blue">
                         <div class="fs-today-attendance-icon"><x-filament::icon icon="heroicon-o-arrow-right-on-rectangle" class="h-5 w-5" /></div>
-                        <div><span>Pulang</span><strong>—</strong><small>Karyawan</small></div>
+                        <div><span>Pulang</span><strong>{{ $attendanceSummary['pulang'] }}</strong><small>Karyawan</small></div>
                     </div>
                 </div>
-                <p class="mt-4 text-xs text-slate-400">Jumlah akan ditampilkan setelah perhitungan absensi harian diterapkan.</p>
+                <p class="mt-4 text-xs text-slate-400">Alpa hanya dihitung untuk hari kerja setelah tanggal mulai kewajiban absensi. Hari libur dan karyawan yang belum wajib absen tidak dihitung sebagai Alpa.</p>
             </section>
         </div>
 
