@@ -17,15 +17,6 @@
             <div class="pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">{{ $monthLabel }}</div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-            @foreach (['hadir' => 'Hadir', 'izin' => 'Izin', 'sakit' => 'Sakit', 'cuti' => 'Cuti', 'dinas' => 'Dinas', 'alpa' => 'Alpa'] as $key => $label)
-                <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $label }}</div>
-                    <div class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $totals[$key] }}</div>
-                </div>
-            @endforeach
-        </div>
-
         <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             <table class="w-full min-w-[850px] divide-y divide-gray-200 text-sm dark:divide-gray-700">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-600 dark:bg-gray-800 dark:text-gray-300">
@@ -60,17 +51,6 @@
                         <tr><td colspan="10" class="px-3 py-8 text-center text-gray-500">Tidak ada karyawan aktif.</td></tr>
                     @endforelse
                 </tbody>
-                @if (count($rows))
-                    <tfoot class="bg-gray-50 font-semibold dark:bg-gray-800">
-                        <tr>
-                            <td colspan="3" class="px-3 py-3 text-right">Total</td>
-                            @foreach (['hadir', 'izin', 'sakit', 'cuti', 'dinas', 'alpa'] as $key)
-                                <td class="px-3 py-3 text-center tabular-nums">{{ $totals[$key] }}</td>
-                            @endforeach
-                            <td class="px-3 py-3 text-center tabular-nums">{{ array_sum($totals) }}</td>
-                        </tr>
-                    </tfoot>
-                @endif
             </table>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400">Rekap dihitung dari log mesin, koreksi absensi, data izin, jadwal kerja, hari libur, dan tanggal mulai kewajiban absensi. Hari setelah tanggal hari ini belum dihitung.</p>
