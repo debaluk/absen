@@ -45,10 +45,10 @@
             </div>
             <div class="fs-kpi fs-kpi-violet">
                 <div class="flex items-start justify-between">
-                    <div><p>Scan Hari Ini</p><strong>{{ number_format($todayScans, 0, ',', '.') }}</strong><span>Log scan mentah diterima</span></div>
+                    <div><p>Scan Tanggal Dipilih</p><strong>{{ number_format($todayScans, 0, ',', '.') }}</strong><span>Log scan mentah diterima</span></div>
                     <div class="fs-kpi-icon"><x-filament::icon icon="heroicon-o-finger-print" class="h-6 w-6" /></div>
                 </div>
-                <div class="fs-kpi-bottom"><span>Aktivitas mesin</span><span class="fs-kpi-link">Hari ini</span></div>
+                <div class="fs-kpi-bottom"><span>Aktivitas mesin</span><span class="fs-kpi-link">Tanggal dipilih</span></div>
             </div>
         </div>
 
