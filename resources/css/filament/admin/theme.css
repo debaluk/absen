@@ -587,3 +587,103 @@
 }
 
 
+
+
+/* =========================================================
+   HADIRRA Brand Identity — Royal Blue
+   ========================================================= */
+:root {
+    --hadirra-primary: #2563eb;
+    --hadirra-navy: #1e3a8a;
+    --hadirra-tint: #eff6ff;
+}
+
+.hadirra-brand {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.hadirra-brand-mark {
+    display: inline-flex;
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 2.35rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    background: var(--hadirra-primary);
+    color: #fff;
+    box-shadow: 0 2px 5px rgb(37 99 235 / 18%);
+}
+
+.hadirra-brand-mark svg {
+    display: block;
+    width: 1.65rem;
+    height: 1.65rem;
+}
+
+.hadirra-brand-copy {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+}
+
+.hadirra-brand strong {
+    color: var(--hadirra-navy);
+    font-size: 1.02rem;
+    letter-spacing: 0.075em;
+}
+
+.hadirra-brand em {
+    color: #64748b;
+    font-size: 0.62rem;
+    letter-spacing: 0.035em;
+}
+
+/* Warna navigasi aktif dan interaksi */
+.fi-sidebar-item-active > .fi-sidebar-item-button,
+.fi-sidebar-item-button[aria-current="page"] {
+    background: var(--hadirra-tint) !important;
+    color: var(--hadirra-navy) !important;
+}
+
+.fi-sidebar-item-active .fi-sidebar-item-icon {
+    color: var(--hadirra-primary) !important;
+}
+
+.fi-sidebar-item-button:hover {
+    background: #eaf2ff !important;
+}
+
+.fi-input-wrp:focus-within,
+.fi-simple-main .fi-input-wrp:focus-within {
+    border-color: var(--hadirra-primary) !important;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.fs-work-schedules .fs-time-input:focus,
+.fs-work-schedules .fs-max-input:focus,
+.fs-work-schedules .fs-rule-input:focus {
+    border-color: var(--hadirra-primary);
+    outline: 2px solid rgb(37 99 235 / 12%);
+}
+
+.fs-work-schedules .fs-switch-input:focus-visible + .fs-switch-track {
+    outline-color: var(--hadirra-primary);
+}
+
+.fs-sidebar-logout .fs-logout-button {
+    background: #eff6ff !important;
+    color: var(--hadirra-navy) !important;
+}
+
+.fs-sidebar-logout .fs-logout-button:hover {
+    background: #dbeafe !important;
+    color: var(--hadirra-navy) !important;
+}
+
+.fs-sidebar-logout .fs-logout-button svg {
+    color: var(--hadirra-primary) !important;
+}
