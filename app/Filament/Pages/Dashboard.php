@@ -150,6 +150,23 @@ class Dashboard extends BaseDashboard
 
             if (in_array($leaveKind, ['izin', 'sakit', 'cuti', 'dinas'], true)) {
                 $status = $leaveKind;
+            } elseif ($attendanceDate === $today) {
+                // Untuk tanggal hari ini, seluruh karyawan aktif masuk pemantauan absensi.
+                // Tanggal mulai kewajiban tetap menjadi dasar penentuan ALPA pada tanggal lampau.
+                if ($checkIn || $checkOut) {
+                    $late = false;
+                    if ($checkIn && ! empty($daySchedule['start'])) {
+                        $late = strtotime($attendanceDate . ' ' . $checkIn)
+                            > strtotime($attendanceDate . ' ' . $daySchedule['start']) + ($lateTolerance * 60);
+                    }
+                    $status = $late ? 'terlambat' : 'hadir';
+                    $attendanceSummary['sudah_absen']++;
+                    if ($checkOut) {
+                        $attendanceSummary['pulang']++;
+                    }
+                } else {
+                    $status = 'belum_absen';
+                }
             } elseif (! $hasAttendanceObligation) {
                 $status = 'belum_wajib';
             } elseif (! $isWorkingDay) {
@@ -167,8 +184,6 @@ class Dashboard extends BaseDashboard
                 }
             } elseif ($attendanceDate < $today) {
                 $status = 'alpa';
-            } elseif ($attendanceDate === $today) {
-                $status = 'belum_absen';
             } else {
                 $status = 'belum_waktunya';
             }
