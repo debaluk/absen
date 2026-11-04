@@ -38,11 +38,11 @@ class Dashboard extends BaseDashboard
     public function updatedAttendanceDate(): void
     {
         try {
-            $date = \\Illuminate\\Support\\Carbon::createFromFormat('Y-m-d', $this->attendanceDate);
+            $date = \Illuminate\Support\Carbon::createFromFormat('Y-m-d', $this->attendanceDate);
             if (! $date || $date->format('Y-m-d') !== $this->attendanceDate || $date->greaterThan(today())) {
                 $this->attendanceDate = today()->toDateString();
             }
-        } catch (\\Throwable) {
+        } catch (\Throwable) {
             $this->attendanceDate = today()->toDateString();
         }
     }
@@ -60,7 +60,7 @@ class Dashboard extends BaseDashboard
 
         // Data status dan ringkasan absensi mengikuti tanggal yang dipilih.
         $attendanceDate = $this->attendanceDate ?: $today;
-        $attendanceCarbon = \\Illuminate\\Support\\Carbon::parse($attendanceDate);
+        $attendanceCarbon = \Illuminate\Support\Carbon::parse($attendanceDate);
         $attendanceEmployees = DB::table('employees')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
             ->where('employees.employment_status', 'active')
@@ -125,8 +125,8 @@ class Dashboard extends BaseDashboard
 
         foreach ($attendanceEmployees as $employee) {
             $scans = $attendanceScans->get($employee->id, collect())->pluck('scan_date')->values();
-            $checkIn = $scans->first() ? \\Illuminate\\Support\\Carbon::parse($scans->first())->format('H:i') : null;
-            $checkOut = $scans->count() > 1 ? \\Illuminate\\Support\\Carbon::parse($scans->last())->format('H:i') : null;
+            $checkIn = $scans->first() ? \Illuminate\Support\Carbon::parse($scans->first())->format('H:i') : null;
+            $checkOut = $scans->count() > 1 ? \Illuminate\Support\Carbon::parse($scans->last())->format('H:i') : null;
 
             if ($checkIn && $checkOut
                 && (strtotime($attendanceDate . ' ' . $checkOut) - strtotime($attendanceDate . ' ' . $checkIn)) < $minGap * 60) {
