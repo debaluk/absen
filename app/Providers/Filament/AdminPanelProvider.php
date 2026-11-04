@@ -28,23 +28,40 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(\App\Filament\Pages\Auth\Login::class)
-            ->brandName(new HtmlString('<span class="hadirra-brand"><strong>HADIRRA</strong><em>Smart Attendance</em></span>'))
+            ->brandName(new HtmlString('
+                <span class="hadirra-brand">
+                    <span class="hadirra-brand-mark" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.9 7a8 8 0 0 1 1.1 5v1a6 6 0 0 0 .8 3" />
+                            <path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6" />
+                            <path d="M12 11v2a14 14 0 0 0 2.5 8" />
+                            <path d="M8 15a18 18 0 0 0 1.8 6" />
+                            <path d="M4.9 19a22 22 0 0 1 -.9 -7v-1a8 8 0 0 1 12 -6.95" />
+                        </svg>
+                    </span>
+                    <span class="hadirra-brand-copy">
+                        <strong>HADIRRA</strong>
+                        <em>Smart Attendance</em>
+                    </span>
+                </span>
+            '))
+            ->favicon(asset('favicon.svg'))
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
             ->breadcrumbs(false)
-            ->renderHook(\Filament\View\PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.topbar-breadcrumb'))
-            ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\View\View => view('filament.components.company-name', [
-                'companyName' => \Illuminate\Support\Facades\DB::table('companies')->where('id', 1)->value('name'),
+            ->renderHook(\\Filament\\View\\PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.topbar-breadcrumb'))
+            ->renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_BEFORE, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.company-name', [
+                'companyName' => \\Illuminate\\Support\\Facades\\DB::table('companies')->where('id', 1)->value('name'),
             ]))
-            ->renderHook(\Filament\View\PanelsRenderHook::SIDEBAR_FOOTER, fn (): \Illuminate\Contracts\View\View => view('filament.components.sidebar-logout'))
+            ->renderHook(\\Filament\\View\\PanelsRenderHook::SIDEBAR_FOOTER, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.sidebar-logout'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#2563EB'),
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\\\Filament\\\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\\\Filament\\\\Pages')
             ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\\\Filament\\\\Widgets')
             ->widgets([
                 AccountWidget::class,
             ])
