@@ -124,9 +124,8 @@ class AttendanceReport extends Page
             $firstAttendanceDate = $employee->attendance_start_date;
             $effectiveDays = 0;
 
-            // Hitung hari kerja efektif untuk satu bulan penuh, mulai dari kewajiban absensi karyawan.
-            $effectiveStart = $firstAttendanceDate ? max($start, $firstAttendanceDate) : null;
-            for ($effectiveDate = $effectiveStart; $effectiveDate !== null && $effectiveDate <= $end; $effectiveDate = date('Y-m-d', strtotime($effectiveDate . ' +1 day'))) {
+            // Jumlah hari efektif mengikuti kalender kerja bulanan, bukan tanggal mulai absensi karyawan.
+            for ($effectiveDate = $start; $effectiveDate <= $end; $effectiveDate = date('Y-m-d', strtotime($effectiveDate . ' +1 day'))) {
                 $effectiveWeekday = (int) date('w', strtotime($effectiveDate));
                 $effectiveScheduled = is_array($scheduleDays[$effectiveWeekday] ?? null) && ! empty($scheduleDays[$effectiveWeekday]);
                 $effectiveHolidayScopes = $holidayMap[$effectiveDate] ?? null;
