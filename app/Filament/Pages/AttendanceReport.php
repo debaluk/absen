@@ -100,7 +100,7 @@ class AttendanceReport extends Page
         $scheduleDays = $settings ? json_decode($settings->days, true) : [];
         $minGap = (int) ($settings->min_gap ?? 60);
 
-        $holidays = DB::table('holidays')->whereBetween('date', [$start, $periodEnd])->get(['id', 'date']);
+        $holidays = DB::table('holidays')->whereBetween('date', [$start, $end])->get(['id', 'date']);
         $holidayLocations = DB::table('holiday_work_locations')
             ->get(['holiday_id', 'work_location_id'])
             ->groupBy('holiday_id');
@@ -122,6 +122,23 @@ class AttendanceReport extends Page
                 'alpa' => 0,
             ];
             $firstAttendanceDate = $employee->attendance_start_date;
+            $effectiveDays = 0;
+
+            // Hitung hari kerja efektif untuk satu bulan penuh, mulai dari kewajiban absensi karyawan.
+            $effectiveStart = $firstAttendanceDate ? max($start, $firstAttendanceDate) : $end;
+            for ($effectiveDate = $effectiveStart; $effectiveDate <= $end; $effectiveDate = date('Y-m-d', strtotime($effectiveDate . ' +1 day'))) {
+                $effectiveWeekday = (int) date('w', strtotime($effectiveDate));
+                $effectiveScheduled = is_array($scheduleDays[$effectiveWeekday] ?? null) && ! empty($scheduleDays[$effectiveWeekday]);
+                $effectiveHolidayScopes = $holidayMap[$effectiveDate] ?? null;
+                $effectiveHoliday = $effectiveHolidayScopes !== null && (
+                    count($effectiveHolidayScopes) === 0 ||
+                    in_array((int) $employee->work_location_id, $effectiveHolidayScopes, true)
+                );
+
+                if ($effectiveScheduled && ! $effectiveHoliday) {
+                    $effectiveDays++;
+                }
+            }
 
             for ($date = $start; $date <= $periodEnd; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
                 $weekday = (int) date('w', strtotime($date));
@@ -162,7 +179,7 @@ class AttendanceReport extends Page
             $rows[] = [
                 'employee' => $employee,
                 'counts' => $counts,
-                'total' => array_sum($counts),
+                'effective_days' => $effectiveDays,
             ];
         }
 
