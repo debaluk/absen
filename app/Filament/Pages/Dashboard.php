@@ -148,10 +148,10 @@ class Dashboard extends BaseDashboard
             $leaveKind = strtolower((string) ($attendanceLeaves->get($employee->id)->kind ?? ''));
             $status = 'libur';
 
-            if (! $hasAttendanceObligation) {
-                $status = 'belum_wajib';
-            } elseif (in_array($leaveKind, ['izin', 'sakit', 'cuti', 'dinas'], true)) {
+            if (in_array($leaveKind, ['izin', 'sakit', 'cuti', 'dinas'], true)) {
                 $status = $leaveKind;
+            } elseif (! $hasAttendanceObligation) {
+                $status = 'belum_wajib';
             } elseif (! $isWorkingDay) {
                 $status = 'libur';
             } elseif ($checkIn || $checkOut) {
