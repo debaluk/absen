@@ -15,9 +15,17 @@
             color: rgb(243 244 246);
         }
         .attendance-report .ar-table {
+            width: 100%;
+            min-width: 1180px;
+            table-layout: fixed;
             border-collapse: separate;
             border-spacing: 0;
             font-size: .75rem;
+        }
+        .attendance-report .ar-table thead th {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.25;
         }
         .attendance-report .ar-table th,
         .attendance-report .ar-table td {
@@ -27,10 +35,15 @@
         .dark .attendance-report .ar-table td {
             border-color: rgb(55 65 81);
         }
+        .attendance-report .ar-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
         .attendance-report .ar-table thead th {
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 20;
             background: rgb(249 250 251);
         }
         .dark .attendance-report .ar-table thead th {
@@ -59,11 +72,26 @@
             </label>
         </div>
 
-        <div class="max-h-[calc(100vh-18rem)] overflow-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-            <table class="ar-table min-w-[850px] w-full">
+        <div class="h-[65vh] overflow-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+            <table class="ar-table">
+                <colgroup>
+                    <col style="width: 52px">
+                    <col style="width: 190px">
+                    <col style="width: 150px">
+                    <col style="width: 76px">
+                    <col style="width: 62px">
+                    <col style="width: 62px">
+                    <col style="width: 62px">
+                    <col style="width: 62px">
+                    <col style="width: 62px">
+                    <col style="width: 62px">
+                    <col style="width: 100px">
+                    <col style="width: 110px">
+                    <col style="width: 90px">
+                </colgroup>
                 <thead>
                     <tr>
-                        <th class="px-3 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">No.</th>
+                        <th class="px-2 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">No.</th>
                         <th class="px-3 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Karyawan Aktif</th>
                         <th class="px-3 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Lokasi Kerja</th>
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Jml. Hari</th>
