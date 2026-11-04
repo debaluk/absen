@@ -167,10 +167,6 @@ class Dashboard extends BaseDashboard
                 } else {
                     $status = 'belum_absen';
                 }
-            } elseif (! $hasAttendanceObligation) {
-                $status = 'belum_wajib';
-            } elseif (! $isWorkingDay) {
-                $status = 'libur';
             } elseif ($checkIn || $checkOut) {
                 $late = false;
                 if ($checkIn && ! empty($daySchedule['start'])) {
@@ -182,10 +178,11 @@ class Dashboard extends BaseDashboard
                 if ($checkOut) {
                     $attendanceSummary['pulang']++;
                 }
-            } elseif ($attendanceDate < $today) {
+            } elseif ($attendanceDate < $today && $hasAttendanceObligation && $isWorkingDay) {
                 $status = 'alpa';
             } else {
-                $status = 'belum_waktunya';
+                // Tidak memenuhi seluruh kriteria ALPA, sehingga tetap Belum Absen.
+                $status = 'belum_absen';
             }
 
             if (array_key_exists($status, $attendanceSummary)) {
