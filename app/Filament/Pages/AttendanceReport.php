@@ -108,18 +108,17 @@ class AttendanceReport extends Page
                 ->pluck('work_location_id')->map(fn ($id) => (int) $id)->all();
         }
 
-        $totals = [
-            'hadir' => 0,
-            'izin' => 0,
-            'sakit' => 0,
-            'cuti' => 0,
-            'dinas' => 0,
-            'alpa' => 0,
-        ];
         $rows = [];
 
         foreach ($employees as $employee) {
-            $counts = $totals;
+            $counts = [
+                'hadir' => 0,
+                'izin' => 0,
+                'sakit' => 0,
+                'cuti' => 0,
+                'dinas' => 0,
+                'alpa' => 0,
+            ];
             $firstAttendanceDate = $employee->attendance_start_date;
 
             for ($date = $start; $date <= $periodEnd; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
@@ -163,15 +162,10 @@ class AttendanceReport extends Page
                 'counts' => $counts,
                 'total' => array_sum($counts),
             ];
-
-            foreach ($counts as $key => $value) {
-                $totals[$key] += $value;
-            }
         }
 
         return [
             'rows' => $rows,
-            'totals' => $totals,
             'monthLabel' => \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
             'workLocations' => DB::table('work_locations')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'periodEnd' => $periodEnd,
