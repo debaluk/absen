@@ -64,6 +64,7 @@
                         <th class="px-3 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">No.</th>
                         <th class="px-3 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Karyawan Aktif</th>
                         <th class="px-3 py-3 text-left text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Lokasi Kerja</th>
+                        <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Jml. Hari</th>
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Hadir</th>
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Izin</th>
                         <th class="px-3 py-3 text-center text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-300">Sakit</th>
@@ -82,14 +83,15 @@
                                 <div class="text-[10px] text-gray-500">{{ $row['employee']->employee_no }}</div>
                             </td>
                             <td class="px-3 py-2.5 text-xs text-gray-600 dark:text-gray-300">{{ $row['employee']->work_location_name ?? 'Belum diatur' }}</td>
+                            <td class="px-3 py-2.5 text-center font-medium tabular-nums">{{ $row['effective_days'] }}</td>
                             @foreach (['hadir', 'izin', 'sakit', 'cuti', 'dinas', 'alpa'] as $key)
                                 <td class="px-3 py-2.5 text-center tabular-nums">{{ $row['counts'][$key] }}</td>
                             @endforeach
-                            <td class="px-3 py-2.5 text-center font-semibold tabular-nums">{{ $row['total'] }}</td>
+                            <td class="px-3 py-2.5 text-center font-semibold tabular-nums">{{ $row['counts']['hadir'] }}/{{ $row['effective_days'] }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-6 py-10 text-center text-xs text-gray-500">
+                            <td colspan="11" class="px-6 py-10 text-center text-xs text-gray-500">
                                 Tidak ada karyawan aktif yang sesuai dengan filter.
                             </td>
                         </tr>
