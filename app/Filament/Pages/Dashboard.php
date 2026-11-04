@@ -150,10 +150,10 @@ class Dashboard extends BaseDashboard
 
             if (! $hasAttendanceObligation) {
                 $status = 'belum_wajib';
-            } elseif (! $isWorkingDay) {
-                $status = 'libur';
             } elseif (in_array($leaveKind, ['izin', 'sakit', 'cuti', 'dinas'], true)) {
                 $status = $leaveKind;
+            } elseif (! $isWorkingDay) {
+                $status = 'libur';
             } elseif ($checkIn || $checkOut) {
                 $late = false;
                 if ($checkIn && ! empty($daySchedule['start'])) {
