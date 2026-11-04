@@ -98,6 +98,7 @@ class AttendanceReport extends Page
 
         $settings = DB::table('work_schedule_settings')->where('id', 1)->first();
         $scheduleDays = $settings ? json_decode($settings->days, true) : [];
+        $lateTolerance = (int) ($settings->tolerance ?? 15);
         $minGap = (int) ($settings->min_gap ?? 60);
 
         $holidays = DB::table('holidays')->whereBetween('date', [$start, $end])->get(['id', 'date']);
@@ -120,6 +121,8 @@ class AttendanceReport extends Page
                 'cuti' => 0,
                 'dinas' => 0,
                 'alpa' => 0,
+                'late_minutes' => 0,
+                'early_leave_minutes' => 0,
             ];
             $firstAttendanceDate = $employee->attendance_start_date;
             $effectiveDays = 0;
@@ -127,7 +130,8 @@ class AttendanceReport extends Page
             // Jumlah hari efektif mengikuti kalender kerja bulanan, bukan tanggal mulai absensi karyawan.
             for ($effectiveDate = $start; $effectiveDate <= $end; $effectiveDate = date('Y-m-d', strtotime($effectiveDate . ' +1 day'))) {
                 $effectiveWeekday = (int) date('w', strtotime($effectiveDate));
-                $effectiveScheduled = is_array($scheduleDays[$effectiveWeekday] ?? null) && ! empty($scheduleDays[$effectiveWeekday]);
+                $effectiveSchedule = $scheduleDays[$effectiveWeekday] ?? null;
+                $effectiveScheduled = is_array($effectiveSchedule) && ! empty($effectiveSchedule) && empty($effectiveSchedule['free']);
                 $effectiveHolidayScopes = $holidayMap[$effectiveDate] ?? null;
                 $effectiveHoliday = $effectiveHolidayScopes !== null && (
                     count($effectiveHolidayScopes) === 0 ||
@@ -141,7 +145,8 @@ class AttendanceReport extends Page
 
             for ($date = $start; $date <= $periodEnd; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
                 $weekday = (int) date('w', strtotime($date));
-                $scheduled = is_array($scheduleDays[$weekday] ?? null) && ! empty($scheduleDays[$weekday]);
+                $schedule = $scheduleDays[$weekday] ?? null;
+                $scheduled = is_array($schedule) && ! empty($schedule) && empty($schedule['free']);
                 $holidayScopes = $holidayMap[$date] ?? null;
                 $holiday = $holidayScopes !== null && (
                     count($holidayScopes) === 0 ||
@@ -172,6 +177,16 @@ class AttendanceReport extends Page
 
                 if ($status !== null && array_key_exists($status, $counts)) {
                     $counts[$status]++;
+                }
+
+                // Keterlambatan dihitung setelah toleransi; pulang cepat dihitung dari jam akhir jadwal.
+                if ($scheduled && $checkIn && ! empty($schedule['start'])) {
+                    $lateMinutes = (int) floor((strtotime($date . ' ' . $checkIn) - strtotime($date . ' ' . $schedule['start'])) / 60);
+                    $counts['late_minutes'] += max(0, $lateMinutes - $lateTolerance);
+                }
+                if ($scheduled && $checkOut && ! empty($schedule['end'])) {
+                    $earlyMinutes = (int) floor((strtotime($date . ' ' . $schedule['end']) - strtotime($date . ' ' . $checkOut)) / 60);
+                    $counts['early_leave_minutes'] += max(0, $earlyMinutes);
                 }
             }
 
