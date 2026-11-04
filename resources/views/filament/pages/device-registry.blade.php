@@ -32,12 +32,13 @@
                     <span @class([
                         'h-2.5 w-2.5 rounded-full',
                         'bg-success-500' => $engineConnected,
-                        'bg-danger-500' => ! $engineConnected,
+                        'bg-danger-500' => ! $engineConnected && $engineCheckedAt,
+                        'bg-gray-400' => ! $engineCheckedAt,
                     ])></span>
                     <div>
                         <div class="font-semibold">Freedom Finger</div>
                         <div class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ $engineConnected ? 'Engine terhubung' : 'Engine tidak terhubung' }}
+                            {{ $engineConnected ? 'Engine terhubung' : ($engineCheckedAt ? 'Engine tidak terhubung' : 'Belum diperiksa') }}
                         </div>
                     </div>
                 </div>
@@ -52,6 +53,10 @@
                         <span class="ml-1 font-semibold">{{ $logsTotal ?? '—' }}</span>
                     </div>
                 </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                <span>Pemeriksaan terakhir: {{ $engineCheckedAt ?: '—' }}</span>
+                <span>Terakhir berhasil: {{ $engineLastSuccessAt ?: '—' }}</span>
             </div>
             @if ($connectionError)
                 <p class="mt-3 text-sm text-danger-600">{{ $connectionError }}</p>
