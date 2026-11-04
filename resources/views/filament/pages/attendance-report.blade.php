@@ -35,10 +35,11 @@
         .dark .attendance-report .ar-table td {
             border-color: rgb(55 65 81);
         }
-        .attendance-report .ar-table thead {
-            position: sticky;
-            top: 0;
-            z-index: 20;
+        .attendance-report .ar-scroll {
+            max-height: min(72vh, 52rem);
+            overflow: auto;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
         }
         .attendance-report .ar-table thead th {
             position: sticky;
@@ -72,7 +73,7 @@
             </label>
         </div>
 
-        <div class="h-[65vh] overflow-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div class="ar-scroll rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             <table class="ar-table">
                 <colgroup>
                     <col style="width: 52px">
