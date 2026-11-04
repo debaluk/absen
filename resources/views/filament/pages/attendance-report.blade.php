@@ -28,6 +28,9 @@
             border-color: rgb(55 65 81);
         }
         .attendance-report .ar-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
             background: rgb(249 250 251);
         }
         .dark .attendance-report .ar-table thead th {
@@ -56,7 +59,7 @@
             </label>
         </div>
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div class="max-h-[calc(100vh-18rem)] overflow-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             <table class="ar-table min-w-[850px] w-full">
                 <thead>
                     <tr>
