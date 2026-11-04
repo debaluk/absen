@@ -1,10 +1,10 @@
 <?php
 
-namespace App\\Filament\\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\\Pages\\Page;
-use Illuminate\\Support\\Facades\\DB;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
 class AttendanceReport extends Page
@@ -26,7 +26,7 @@ class AttendanceReport extends Page
 
     protected function getViewData(): array
     {
-        $month = preg_match('/^\\d{4}-\\d{2}$/', $this->filterMonth)
+        $month = preg_match('/^\d{4}-\d{2}$/', $this->filterMonth)
             ? $this->filterMonth
             : now()->format('Y-m');
         $start = $month . '-01';
@@ -172,7 +172,7 @@ class AttendanceReport extends Page
         return [
             'rows' => $rows,
             'totals' => $totals,
-            'monthLabel' => \\Illuminate\\Support\\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
+            'monthLabel' => \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
             'workLocations' => DB::table('work_locations')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'periodEnd' => $periodEnd,
         ];
