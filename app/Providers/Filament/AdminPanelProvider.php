@@ -49,19 +49,19 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
             ->breadcrumbs(false)
-            ->renderHook(\\Filament\\View\\PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.topbar-breadcrumb'))
-            ->renderHook(\\Filament\\View\\PanelsRenderHook::USER_MENU_BEFORE, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.company-name', [
-                'companyName' => \\Illuminate\\Support\\Facades\\DB::table('companies')->where('id', 1)->value('name'),
+            ->renderHook(\Filament\View\\PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): \Illuminate\Contracts\\View\\View => view('filament.components.topbar-breadcrumb'))
+            ->renderHook(\Filament\View\\PanelsRenderHook::USER_MENU_BEFORE, fn (): \Illuminate\Contracts\\View\\View => view('filament.components.company-name', [
+                'companyName' => \Illuminate\Support\\Facades\\DB::table('companies')->where('id', 1)->value('name'),
             ]))
-            ->renderHook(\\Filament\\View\\PanelsRenderHook::SIDEBAR_FOOTER, fn (): \\Illuminate\\Contracts\\View\\View => view('filament.components.sidebar-logout'))
+            ->renderHook(\Filament\View\\PanelsRenderHook::SIDEBAR_FOOTER, fn (): \Illuminate\Contracts\\View\\View => view('filament.components.sidebar-logout'))
             ->colors([
                 'primary' => Color::hex('#2563EB'),
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\\\Filament\\\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\\\Filament\\\\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\\\Filament\\\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 AccountWidget::class,
             ])
