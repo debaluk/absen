@@ -18,6 +18,7 @@ class AttendanceReport extends Page
 
     public string $filterMonth = '';
     public string $filterWorkLocationId = '';
+    public string $filterName = '';
 
     public function mount(): void
     {
@@ -38,6 +39,7 @@ class AttendanceReport extends Page
             ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
             ->where('employees.employment_status', 'active')
             ->when($this->filterWorkLocationId !== '', fn ($query) => $query->where('employees.work_location_id', $this->filterWorkLocationId))
+            ->when(trim($this->filterName) !== '', fn ($query) => $query->where('employees.name', 'like', '%' . trim($this->filterName) . '%'))
             ->orderBy('work_locations.name')
             ->orderBy('employees.name')
             ->get([
