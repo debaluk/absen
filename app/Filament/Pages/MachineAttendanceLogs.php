@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\FreedomFingerAttendanceLogSynchronizer;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -46,6 +47,33 @@ class MachineAttendanceLogs extends Page
         $this->autoSyncEnabled = DB::table('application_settings')
             ->where('key', 'freedom_finger_auto_sync')
             ->value('value') === '1';
+    }
+
+    public function downloadLogs(FreedomFingerAttendanceLogSynchronizer $synchronizer): void
+    {
+        set_time_limit(0);
+
+        $result = $synchronizer->sync(7);
+
+        if (! $result['success']) {
+            Notification::make()
+                ->title('Download log mesin gagal.')
+                ->body($result['message'] ?? 'Terjadi kesalahan saat mengambil log dari mesin.')
+                ->danger()
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
+        $this->resetPage();
+
+        Notification::make()
+            ->title('Download log mesin selesai.')
+            ->body(number_format((int) ($result['pulled'] ?? 0), 0, ',', '.') . ' log baru ditarik dari mesin; '
+                . number_format((int) ($result['synced'] ?? 0), 0, ',', '.') . ' data log disinkronkan ke database.')
+            ->success()
+            ->send();
     }
 
     public function updatedAutoSyncEnabled(bool $enabled): void
