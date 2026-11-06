@@ -47,7 +47,7 @@
             <div class="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-gray-200 pt-4 dark:border-gray-700">
                 <x-filament::button color="primary" icon="heroicon-o-arrow-down-tray"
                     wire:click="downloadLogs" wire:loading.attr="disabled" wire:target="downloadLogs">
-                    <span wire:loading.remove wire:target="downloadLogs">Download Log Mesin (7 Hari)</span>
+                    <span wire:loading.remove wire:target="downloadLogs">Download Log Mesin (1 Bulan)</span>
                     <span wire:loading wire:target="downloadLogs">Mengambil log mesin...</span>
                 </x-filament::button>
                 <x-filament::button color="gray" outlined icon="heroicon-o-arrow-path" wire:click="resetFilters">
