@@ -53,7 +53,7 @@ class MachineAttendanceLogs extends Page
     {
         set_time_limit(0);
 
-        $result = $synchronizer->sync(7);
+        $result = $synchronizer->sync(30);
 
         if (! $result['success']) {
             Notification::make()
