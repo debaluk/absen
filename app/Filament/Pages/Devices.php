@@ -123,6 +123,14 @@ class Devices extends Page
         $devices = DB::table('devices')
             ->leftJoin('devices_location', 'devices_location.cloud_id', '=', 'devices.cloud_id')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'devices_location.work_location_id')
+            ->select([
+                'devices.cloud_id',
+                'devices.name',
+                'devices.info',
+                'devices.last_activity',
+                'devices_location.work_location_id',
+                'work_locations.name as work_location_name',
+            ])
             ->selectSub(
                 DB::table('machine_users')
                     ->selectRaw('COUNT(*)')
@@ -144,17 +152,7 @@ class Devices extends Page
                 'biometric_pending_count'
             )
             ->orderBy('devices.name')
-            ->get([
-                'devices.cloud_id',
-                'devices.name',
-                'devices.info',
-                'devices.last_activity',
-                'devices_location.work_location_id',
-                'work_locations.name as work_location_name',
-                'machine_users_count',
-                'biometric_checked_count',
-                'biometric_pending_count',
-            ])
+            ->get()
             ->map(function ($device) {
                 return (object) [
                     'id' => $device->cloud_id,
