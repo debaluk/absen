@@ -79,7 +79,7 @@ class FreedomFingerBiometricSynchronizer
     private function pollPendingUser(string $baseUrl, string $token, object $user): array
     {
         if ($user->biometric_requested_at
-            && now()->diffInMinutes($user->biometric_requested_at) >= 10) {
+            && now()->subMinutes(10)->greaterThanOrEqualTo($user->biometric_requested_at)) {
             return $this->markUnavailable($user, 'Mesin tidak menyelesaikan pemeriksaan registrasi dalam batas waktu.');
         }
 
