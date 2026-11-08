@@ -153,18 +153,14 @@ class Devices extends Page
 
         $checked = $this->machineDataSyncChecked;
         $unavailable = $this->machineDataSyncUnavailable;
-        $cloudId = $this->syncingMachineCloudId;
-        $cacheFinalized = $cloudId !== null
-            && app(FreedomFingerBiometricSynchronizer::class)->finalizeMachine($cloudId);
 
         $this->machineDataSyncing = false;
         $this->syncingMachineCloudId = null;
 
         Notification::make()
-            ->title($cacheFinalized ? 'Pengambilan data mesin selesai.' : 'Pemeriksaan biometrik selesai, cache belum diperbarui.')
-            ->body($checked . ' biometrik berhasil diperiksa; ' . $unavailable . ' tidak dapat diperiksa.'
-                . ($cacheFinalized ? '' : ' Pengambilan berikutnya mungkin memeriksa ulang data yang sama.'))
-            ->color($unavailable > 0 || ! $cacheFinalized ? 'warning' : 'success')
+            ->title('Pengambilan data mesin selesai.')
+            ->body($checked . ' biometrik berhasil diperiksa; ' . $unavailable . ' tidak dapat diperiksa.')
+            ->color($unavailable > 0 ? 'warning' : 'success')
             ->send();
 
         return true;
