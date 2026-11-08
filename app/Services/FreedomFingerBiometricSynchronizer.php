@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Services;
+namespace App\\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Facades\\Http;
 use Throwable;
 
 class FreedomFingerBiometricSynchronizer
 {
     /**
-     * Memproses satu perintah per siklus tanpa menahan proses sinkronisasi utama.
+     * Menyiapkan pemeriksaan hanya untuk PIN yang cache mesinnya berubah atau belum pernah diperiksa.
      */
     public function requestForMachine(string $cloudId): array
     {
@@ -30,10 +30,16 @@ class FreedomFingerBiometricSynchronizer
             return ['success' => false, 'message' => 'Belum ada data pengguna untuk mesin ini.'];
         }
 
-        // Tandai seluruh PIN agar diperiksa ulang; perintah ke mesin tetap dikirim satu per satu.
+        // Cache yang belum memiliki patokan, berubah, atau gagal diperiksa perlu diminta ulang.
         $queued = DB::table('machine_users')
             ->where('cloud_id', $cloudId)
             ->whereNull('biometric_trans_id')
+            ->where(function ($query) {
+                $query->whereNull('biometric_source_updated_at')
+                    ->orWhereNull('updated')
+                    ->orWhereColumn('updated', '!=', 'biometric_source_updated_at')
+                    ->orWhereIn('biometric_status', ['unknown', 'unavailable']);
+            })
             ->update([
                 'biometric_status' => 'unknown',
                 'biometric_checked_at' => null,
@@ -52,6 +58,62 @@ class FreedomFingerBiometricSynchronizer
             'pending' => $pending,
             'started_status' => $started['status'] ?? 'idle',
         ];
+    }
+
+    /**
+     * Menyimpan timestamp cache terbaru setelah seluruh pemeriksaan PIN selesai.
+     * get_userinfo juga memperbarui timestamp cache, sehingga patokan harus diambil ulang
+     * setelah batch selesai, bukan memakai timestamp sebelum pemeriksaan.
+     */
+    public function finalizeMachine(string $cloudId): bool
+    {
+        $baseUrl = rtrim((string) config('services.freedom_finger.url'), '/');
+        $token = (string) config('services.freedom_finger.token', '');
+
+        if ($baseUrl === '' || $token === '') {
+            return false;
+        }
+
+        try {
+            $response = Http::withToken($token)->acceptJson()->asJson()
+                ->connectTimeout(3)->timeout(20)
+                ->post($baseUrl . '/api/get_users', ['cloud_id' => $cloudId]);
+
+            if (! $response->successful()) {
+                return false;
+            }
+
+            $result = $response->json();
+            if (! is_array($result) || ($result['success'] ?? false) !== true || ! is_array($result['data'] ?? null)) {
+                return false;
+            }
+
+            DB::transaction(function () use ($result, $cloudId) {
+                foreach ($result['data'] as $user) {
+                    if (! is_array($user)
+                        || (string) ($user['cloud_id'] ?? '') !== $cloudId
+                        || blank($user['pin'] ?? null)
+                        || blank($user['updated'] ?? null)) {
+                        continue;
+                    }
+
+                    DB::table('machine_users')
+                        ->where('cloud_id', $cloudId)
+                        ->where('pin', (string) $user['pin'])
+                        ->where('biometric_status', 'checked')
+                        ->update([
+                            'updated' => $user['updated'],
+                            'biometric_source_updated_at' => $user['updated'],
+                        ]);
+                }
+            });
+
+            return true;
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return false;
+        }
     }
 
     public function syncNext(?string $cloudId = null): array
@@ -75,12 +137,8 @@ class FreedomFingerBiometricSynchronizer
 
         $user = DB::table('machine_users')
             ->when($cloudId !== null, fn ($query) => $query->where('cloud_id', $cloudId))
-            ->where(function ($query) {
-                $query->whereNull('biometric_checked_at')
-                    ->orWhere('biometric_checked_at', '<=', now()->subDay());
-            })
-            ->orderByRaw('biometric_checked_at IS NULL DESC')
-            ->orderBy('biometric_checked_at')
+            ->where('biometric_status', 'unknown')
+            ->orderBy('pin')
             ->first(['cloud_id', 'pin']);
 
         if (! $user) {
