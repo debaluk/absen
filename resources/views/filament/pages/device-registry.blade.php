@@ -126,6 +126,40 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                @if (in_array($device->refresh_status, ['waiting_pin_list', 'processing'], true))
+                                    <span class="font-medium text-primary-600">Sedang memperbarui data pengguna</span>
+                                    @if ($device->refresh_total > 0)
+                                        · {{ $device->refresh_processed }} dari {{ $device->refresh_total }} PIN
+                                    @endif
+                                @elseif (in_array($device->refresh_status, ['completed', 'completed_with_errors'], true))
+                                    <span class="font-medium {{ $device->refresh_errors > 0 ? 'text-warning-600' : 'text-success-600' }}">
+                                        {{ $device->refresh_processed }} dari {{ $device->refresh_total }} PIN diperiksa
+                                    </span>
+                                    @if ($device->refresh_errors > 0)
+                                        · {{ $device->refresh_errors }} gagal
+                                    @endif
+                                    @if ($device->refresh_finished_at)
+                                        · {{ \\Illuminate\\Support\\Carbon::parse($device->refresh_finished_at)->format('d-m-Y H:i') }}
+                                    @endif
+                                @elseif ($device->refresh_status === 'failed')
+                                    <span class="text-danger-600">{{ $device->refresh_message ?: 'Pengambilan data gagal.' }}</span>
+                                @else
+                                    Data pengguna mesin belum pernah diperbarui melalui menu ini.
+                                @endif
+                            </div>
+                            <x-filament::button
+                                size="sm"
+                                color="gray"
+                                icon="heroicon-o-arrow-down-tray"
+                                wire:click="refreshMachineUsers('{{ $device->id }}')"
+                                wire:loading.attr="disabled"
+                                @disabled(in_array($device->refresh_status, ['waiting_pin_list', 'processing'], true))
+                            >
+                                Ambil Data dari Mesin
+                            </x-filament::button>
+                        </div>
                     </div>
                 </x-filament::section>
             @empty
