@@ -21,7 +21,7 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Menyesuaikan Rekap Absensi agar hanya menghitung karyawan Aktif dan Ikut Rekap = Ya.
 
 ### Hasil
-Pengelolaan departemen dan penyaringan karyawan pada rekap absensi sudah diterapkan pada kode aplikasi. Migration dan verifikasi langsung pada aplikasi masih perlu dijalankan.
+Pengelolaan departemen dan penyaringan karyawan pada rekap absensi sudah diterapkan dan diuji langsung, termasuk migration database.
 
 ---
 
