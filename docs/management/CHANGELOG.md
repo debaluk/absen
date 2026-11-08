@@ -29,32 +29,12 @@ Setiap entri memuat:
 ## LOG-002 — 2026-11-09
 
 - **Versi:** 1.2
-- **Area:** Organisasi — Departemen dan Jabatan
-- **Jenis:** Penetapan dan implementasi awal
-- **Perubahan:** Menambahkan master Departemen sebagai pengelompokan Jabatan melalui tabel `departments` dan `department_positions`. Satu Jabatan hanya boleh dipetakan ke satu Departemen. Tabel `positions` dan `employees` tidak ditambahkan kolom `department_id`. Tab Departemen menyediakan CRUD dan mapping Jabatan.
-- **Alasan:** Memisahkan struktur hierarki Jabatan dari pengelompokan departemen serta menjaga agar data karyawan tetap merujuk pada Jabatan.
-- **Status:** Disetujui/final; implementasi awal menunggu verifikasi aplikasi.
-- **Dampak roadmap:** Menambahkan RM-009 — Master departemen dan mapping satu jabatan ke satu departemen.
-
-## LOG-003 — 2026-11-09
-
-- **Versi:** 1.2
-- **Area:** Organisasi — perpindahan tab Jabatan dan Departemen
-- **Jenis:** Koreksi
-- **Perubahan:** Menambahkan identitas DOM `wire:key` yang unik pada konten setiap tab Pengaturan Organisasi agar Livewire tidak menggunakan ulang elemen input antar-tab yang memiliki struktur serupa.
-- **Alasan:** Mencegah nilai input Nama Jabatan dan Kode/Nama Departemen tertukar atau terbawa ketika pengguna berpindah tab.
-- **Status:** Perubahan kode diterapkan; menunggu verifikasi pada aplikasi.
-- **Dampak roadmap:** Tidak mengubah ruang lingkup maupun status roadmap.
-
-## LOG-004 — 2026-11-09
-
-- **Versi:** 1.2
-- **Area:** Karyawan — keikutsertaan dalam rekap
-- **Jenis:** Penetapan dan implementasi
-- **Perubahan:** Menambahkan kolom `include_in_reports` dengan nilai awal `true`. Status Ikut Rekap ditampilkan sebagai Ya/Tidak pada daftar Karyawan dan dapat diubah langsung dengan klik; tidak ditambahkan ke form tambah/edit. Halaman Rekap Absensi hanya menampilkan karyawan aktif dengan `include_in_reports = true`.
-- **Alasan:** HR dapat mengecualikan atau menyertakan karyawan dalam rekap tanpa membuka form data karyawan.
-- **Status:** Kode dan dokumentasi diterapkan; menunggu verifikasi aplikasi dan migration.
-- **Dampak roadmap:** Tidak mengubah ruang lingkup maupun status roadmap.
+- **Area:** Organisasi dan Karyawan — Departemen, Jabatan, serta rekap absensi
+- **Jenis:** Penambahan dan revisi
+- **Perubahan:** Menambahkan master Departemen beserta mapping Jabatan melalui tabel `departments` dan `department_positions`, dengan ketentuan satu Jabatan hanya boleh berada pada satu Departemen. Merevisi daftar Karyawan dengan kolom Ikut Rekap (Ya/Tidak) yang dapat diubah langsung dari daftar, tanpa menambahkannya ke form tambah/edit. Rekap Absensi hanya memasukkan karyawan berstatus Aktif dan Ikut Rekap = Ya.
+- **Alasan:** Melengkapi pengelompokan organisasi dan memberi kendali sederhana untuk menentukan karyawan yang disertakan dalam rekap absensi.
+- **Status:** Kode dan dokumentasi diterapkan; migration serta verifikasi aplikasi masih perlu dijalankan.
+- **Dampak roadmap:** Menambahkan RM-009 — Master departemen dan mapping satu jabatan ke satu departemen. Revisi keikutsertaan rekap tidak mengubah ruang lingkup roadmap.
 
 ## Ketentuan operasional
 
