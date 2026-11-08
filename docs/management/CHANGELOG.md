@@ -12,7 +12,7 @@ Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dic
 ### Hasil
 Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelusuri.
 
-## LOG-002 — Pengembangan Menu Karyawan dan Rekap Absensi
+## LOG-002 — Pengembangan Menu Karyawan, Rekap Absensi, dan Data Mesin
 **Tanggal:** 2026-11-09
 
 ### Resume Pekerjaan
@@ -21,10 +21,13 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Melakukan pemeriksaan biometrik melalui `get_userinfo` Freedom Finger untuk memperoleh jumlah sidik jari tanpa menyimpan template biometrik.
 - Mengaitkan status registrasi biometrik dari data `machine_users` ke data Karyawan melalui relasi PIN dan `cloud_id`, serta menampilkan informasinya pada kolom Reg. Mesin.
 - Menambahkan metadata hasil pemeriksaan dan mekanisme sinkronisasi berkala agar status registrasi biometrik dapat diperbarui.
-- Menetapkan tombol **Ambil Data dari Mesin** pada menu Mesin untuk memperbarui data `machine_users`; tombol ini berbeda tujuan dari **Sinkronisasi** yang sudah tersedia pada log mesin dan tidak menggantikan fungsi tersebut.
+- Menambahkan tombol **Ambil Data dari Mesin** pada setiap kartu mesin di Pengaturan → Mesin, sehingga pembaruan `machine_users` ditujukan berdasarkan `cloud_id` mesin yang dipilih.
+- Mengambil daftar PIN langsung dari mesin melalui `get_all_pin`, kemudian memperbarui identitas dan jumlah sidik jari setiap PIN melalui `get_userinfo` secara bertahap.
+- Menambahkan pencatatan status/progres pembaruan per mesin dan worker terjadwal agar proses asinkron mengikuti siklus komunikasi mesin; template biometrik tidak disimpan.
+- Memisahkan proses ini dari **Sinkronisasi** pada Log Mesin, tanpa mengubah fungsi sinkronisasi log absensi.
 
 ### Hasil
-Pengembangan menu Karyawan dan Rekap Absensi mencakup pengelolaan Departemen/Jabatan, pengaturan Ikut Rekap, pemeriksaan biometrik, serta pengaitan status registrasi biometrik ke data Karyawan; verifikasi penerapan migration dan pengujian pada lingkungan aplikasi tetap mengikuti pelaksanaan aktual.
+Pengelolaan Departemen/Jabatan, Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta diuji termasuk migration; tombol pembaruan data pengguna per mesin beserta proses pemeriksaan PIN sudah ditambahkan ke kode, tetapi migration baru dan pengujian langsung ke mesin masih perlu dijalankan.
 
 ---
 
