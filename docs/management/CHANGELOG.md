@@ -26,6 +26,16 @@ Setiap entri memuat:
 - **Status:** Disetujui
 - **Dampak roadmap:** Seluruh pekerjaan dan perubahan manajemen berikutnya mengikuti tata kelola dokumen ini.
 
+## LOG-002 — 2026-11-09
+
+- **Versi:** 1.2
+- **Area:** Organisasi — Departemen dan Jabatan
+- **Jenis:** Penetapan dan implementasi awal
+- **Perubahan:** Menambahkan master Departemen sebagai pengelompokan Jabatan melalui tabel `departments` dan `department_positions`. Satu Jabatan hanya boleh dipetakan ke satu Departemen. Tabel `positions` dan `employees` tidak ditambahkan kolom `department_id`. Tab Departemen menyediakan CRUD dan mapping Jabatan.
+- **Alasan:** Memisahkan struktur hierarki Jabatan dari pengelompokan departemen serta menjaga agar data karyawan tetap merujuk pada Jabatan.
+- **Status:** Disetujui/final; implementasi awal menunggu verifikasi aplikasi.
+- **Dampak roadmap:** Menambahkan RM-009 — Master departemen dan mapping satu jabatan ke satu departemen.
+
 ## Ketentuan operasional
 
 1. Untuk setiap perubahan yang dikerjakan melalui alur kerja proyek ini, perbarui dokumen induk dan Change Log dalam commit yang sama.

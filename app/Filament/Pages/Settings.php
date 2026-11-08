@@ -48,6 +48,13 @@ class Settings extends Page
     public string $locationAddress = '';
     public bool $locationActive = true;
 
+    public ?int $departmentId = null;
+    public string $departmentCode = '';
+    public string $departmentName = '';
+    public string $departmentDescription = '';
+    public bool $departmentActive = true;
+    public array $departmentPositionIds = [];
+
     public function mount(): void
     {
         $company = DB::table('companies')->first();
@@ -63,7 +70,7 @@ class Settings extends Page
 
     public function setTab(string $tab): void
     {
-        if (in_array($tab, ['umum', 'jabatan', 'lokasi-kerja'], true)) {
+        if (in_array($tab, ['umum', 'jabatan', 'departemen', 'lokasi-kerja'], true)) {
             $this->activeTab = $tab;
             $this->resetValidation();
         }
@@ -213,6 +220,112 @@ class Settings extends Page
         Notification::make()->title('Jabatan berhasil dihapus.')->success()->send();
     }
 
+
+    public function editDepartment(int $id): void
+    {
+        $department = DB::table('departments')->find($id);
+
+        if (! $department) {
+            return;
+        }
+
+        $this->departmentId = $department->id;
+        $this->departmentCode = $department->code;
+        $this->departmentName = $department->name;
+        $this->departmentDescription = $department->description ?? '';
+        $this->departmentActive = (bool) $department->is_active;
+        $this->departmentPositionIds = DB::table('department_positions')
+            ->where('department_id', $id)
+            ->pluck('position_id')
+            ->map(fn ($id) => (string) $id)
+            ->all();
+    }
+
+    public function saveDepartment(): void
+    {
+        $this->validate([
+            'departmentCode' => ['required', 'string', 'max:30', Rule::unique('departments', 'code')->ignore($this->departmentId)],
+            'departmentName' => ['required', 'string', 'max:150'],
+            'departmentDescription' => ['nullable', 'string'],
+            'departmentActive' => ['boolean'],
+            'departmentPositionIds' => ['array'],
+            'departmentPositionIds.*' => ['required', 'integer', 'distinct', Rule::exists('positions', 'id')],
+        ]);
+
+        $positionIds = array_values(array_unique(array_map('intval', $this->departmentPositionIds)));
+
+        $assignedPositions = DB::table('department_positions')
+            ->whereIn('position_id', $positionIds)
+            ->when($this->departmentId, fn ($query) => $query->where('department_id', '!=', $this->departmentId))
+            ->pluck('position_id')
+            ->all();
+
+        if ($assignedPositions !== []) {
+            $this->addError('departmentPositionIds', 'Satu atau lebih jabatan sudah terdaftar pada departemen lain.');
+            return;
+        }
+
+        DB::transaction(function () use ($positionIds) {
+            $data = [
+                'code' => strtoupper(trim($this->departmentCode)),
+                'name' => trim($this->departmentName),
+                'description' => trim($this->departmentDescription) ?: null,
+                'is_active' => $this->departmentActive,
+                'updated_at' => now(),
+            ];
+
+            if ($this->departmentId) {
+                $departmentId = $this->departmentId;
+                DB::table('departments')->where('id', $departmentId)->update($data);
+            } else {
+                $data['created_at'] = now();
+                $departmentId = DB::table('departments')->insertGetId($data);
+            }
+
+            DB::table('department_positions')->where('department_id', $departmentId)->delete();
+
+            if ($positionIds !== []) {
+                $now = now();
+                DB::table('department_positions')->insert(array_map(
+                    fn ($positionId) => [
+                        'department_id' => $departmentId,
+                        'position_id' => $positionId,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ],
+                    $positionIds,
+                ));
+            }
+        });
+
+        $this->resetDepartmentForm();
+        Notification::make()->title('Departemen dan mapping jabatan berhasil disimpan.')->success()->send();
+    }
+
+    public function deleteDepartment(int $id): void
+    {
+        DB::table('departments')->where('id', $id)->delete();
+
+        if ($this->departmentId === $id) {
+            $this->resetDepartmentForm();
+        }
+
+        Notification::make()->title('Departemen berhasil dihapus.')->success()->send();
+    }
+
+    public function resetDepartmentForm(): void
+    {
+        $this->reset([
+            'departmentId',
+            'departmentCode',
+            'departmentName',
+            'departmentDescription',
+            'departmentPositionIds',
+        ]);
+        $this->departmentActive = true;
+        $this->resetValidation();
+    }
+
     public function resetPositionForm(): void
     {
         $this->reset(['positionId', 'positionName', 'positionParentId']);
@@ -292,6 +405,14 @@ class Settings extends Page
         return [
             'positions' => DB::table('positions')->orderBy('level')->orderBy('name')->get(),
             'locations' => DB::table('work_locations')->orderBy('name')->get(),
+            'departments' => DB::table('departments')->orderBy('name')->get(),
+            'departmentMappings' => DB::table('department_positions')
+                ->join('positions', 'positions.id', '=', 'department_positions.position_id')
+                ->orderBy('positions.level')
+                ->orderBy('positions.name')
+                ->get(['department_positions.department_id', 'positions.name'])
+                ->groupBy('department_id')
+                ->map(fn ($rows) => $rows->pluck('name')->implode(', ')),
         ];
     }
 }

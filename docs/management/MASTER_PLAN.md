@@ -1,8 +1,8 @@
 # HADIRRA — Dokumen Induk & Roadmap Manajemen
 
 > **Status:** Dokumen acuan proyek  
-> **Versi:** 1.1  
-> **Tanggal penetapan:** 2026-10-25  
+> **Versi:** 1.2  
+> **Tanggal penetapan:** 2026-11-09  
 > **Ruang lingkup:** Manajemen SDM dan administrasi kehadiran
 
 Dokumen ini adalah **Single Source of Truth** untuk konsep, aturan bisnis, keputusan desain, dan roadmap HADIRRA pada sisi manajemen. Perubahan yang disepakati wajib diperbarui di sini dan dicatat pada [CHANGELOG.md](./CHANGELOG.md).
@@ -27,6 +27,8 @@ Dokumen ini **tidak mengatur implementasi teknis engine atau komunikasi perangka
 
 Struktur konseptual: **Perusahaan → Cabang/Lokasi Kerja → Jabatan → Karyawan → Penempatan Karyawan → Jadwal Kerja**.
 
+Departemen merupakan pengelompokan jabatan, bukan pengganti struktur hierarki `positions`. Setiap jabatan hanya dapat dipetakan ke satu departemen melalui tabel relasi `department_positions`; data jabatan dan karyawan tetap tidak menyimpan `department_id`.
+
 Data karyawan/penempatan yang menjadi perhatian:
 
 | Elemen | Makna |
@@ -49,7 +51,8 @@ Ketentuan tanggal:
 1. Dashboard.
 2. Data perusahaan dan cabang/lokasi kerja.
 3. Jabatan.
-4. Karyawan.
+4. Departemen dan mapping jabatan.
+5. Karyawan.
 5. Penempatan kerja dan riwayatnya.
 6. Jadwal kerja.
 7. Kalender dan hari libur.
@@ -159,6 +162,7 @@ Status roadmap berikut adalah urutan rencana, bukan klaim bahwa fitur sudah sele
 | RM-006 | Aturan lembur dan proses verifikasi | Menengah | Belum difinalkan | Algoritma dan kebijakan perlu diputuskan |
 | RM-007 | Formula performa kehadiran dan laporan | Menengah | Belum difinalkan | Bobot dan kategori perlu diputuskan |
 | RM-008 | Audit trail dan pengujian lintas modul | Tinggi | Bertahap | Verifikasi wajib sebelum status selesai |
+| RM-009 | Master departemen dan mapping satu jabatan ke satu departemen | Menengah | Implementasi awal | Mengelompokkan jabatan tanpa mengubah tabel `positions` dan `employees` |
 
 ## 12. Keputusan final dan hal terbuka
 
@@ -167,6 +171,7 @@ Status roadmap berikut adalah urutan rencana, bukan klaim bahwa fitur sudah sele
 - Pengelolaan manajemen terpusat.
 - Lokasi kerja karyawan dibedakan dari lokasi perangkat.
 - Jabatan dan lokasi kerja menjadi bagian dari pengelolaan karyawan.
+- Departemen adalah pengelompokan jabatan; satu jabatan hanya boleh terdaftar pada satu departemen melalui tabel mapping terpisah.
 - Tanggal mulai bekerja, penempatan, dan kewajiban absensi dibedakan.
 - ALPA hanya jika kewajiban absensi aktif, jadwal aktif, tidak ada kehadiran, dan tidak ada cuti/izin yang disetujui.
 - Cuti/izin dan koreksi memerlukan alur persetujuan serta histori.
