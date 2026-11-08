@@ -113,6 +113,8 @@ class FreedomFingerMachineUserRefreshService
         $result = $this->getResult($baseUrl, $token, $refresh->cloud_id, $refresh->trans_id);
 
         if ($result === null || in_array($result['status'] ?? null, ['pending', 'sent'], true)) {
+            $this->touchRefresh($refresh->cloud_id);
+
             return ['status' => 'pending', 'cloud_id' => $refresh->cloud_id];
         }
 
@@ -167,6 +169,8 @@ class FreedomFingerMachineUserRefreshService
             $result = $this->getResult($baseUrl, $token, $refresh->cloud_id, $refresh->trans_id);
 
             if ($result === null || in_array($result['status'] ?? null, ['pending', 'sent'], true)) {
+                $this->touchRefresh($refresh->cloud_id);
+
                 return ['status' => 'pending', 'cloud_id' => $refresh->cloud_id, 'pin' => $refresh->current_pin];
             }
 
@@ -284,6 +288,14 @@ class FreedomFingerMachineUserRefreshService
         ]);
 
         return ['status' => $done ? 'completed' : 'processing', 'cloud_id' => $refresh->cloud_id, 'processed' => $processed, 'total' => $total];
+    }
+
+
+    private function touchRefresh(string $cloudId): void
+    {
+        DB::table('machine_user_refreshes')
+            ->where('cloud_id', $cloudId)
+            ->update(['updated_at' => now()]);
     }
 
     private function getResult(string $baseUrl, string $token, string $cloudId, ?string $transId): ?array
