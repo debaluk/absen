@@ -79,7 +79,8 @@
                     };
                 @endphp
 
-                <div wire:key="device-{{ $device->id }}">\n                    <x-filament::section>
+                <div wire:key="device-{{ $device->id }}">
+                    <x-filament::section>
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <div class="rounded-lg bg-gray-100 p-2.5 dark:bg-gray-800">
@@ -161,7 +162,8 @@
                             </x-filament::button>
                         </div>
                     </div>
-                </x-filament::section>
+                    </x-filament::section>
+                </div>
             @empty
                 <div class="col-span-full">
                     <x-filament::section>
