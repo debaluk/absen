@@ -477,6 +477,9 @@ class Employees extends Page
                 'positions.name as position_name',
                 'work_locations.name as work_location_name',
                 'machine_users.name as machine_user_name',
+                'machine_users.finger_count',
+                'machine_users.biometric_status',
+                'machine_users.biometric_checked_at',
             ])
             ->orderBy('employees.name')
             ->get();
