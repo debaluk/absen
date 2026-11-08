@@ -43,7 +43,7 @@ class FreedomFingerEmployeeSynchronizer
 
             $synced = 0;
 
-            DB::transaction(function () use ($result, &$synced) {
+            DB::transaction(function () use ($result, $cloudId, $syncEmployees, &$synced) {
                 foreach ($result['data'] as $user) {
                     if (! is_array($user) || blank($user['cloud_id'] ?? null) || blank($user['pin'] ?? null)) {
                         continue;
