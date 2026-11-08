@@ -31,31 +31,139 @@ class Devices extends Page
 
     protected ?string $subheading = 'Status koneksi dan informasi seluruh mesin absensi.';
 
+    public ?string $syncingMachineCloudId = null;
+
+    public bool $machineDataSyncing = false;
+
+    public int $machineDataSyncTotal = 0;
+
+    public int $machineDataSyncChecked = 0;
+
+    public int $machineDataSyncUnavailable = 0;
+
+    public int $machineDataSyncPending = 0;
+
     public function refreshMachineUsers(string $cloudId): void
     {
+        if ($this->machineDataSyncing) {
+            return;
+        }
+
         $result = app(FreedomFingerEmployeeSynchronizer::class)->syncMachineUsers($cloudId);
 
-        Notification::make()
-            ->title($result['success'] ? 'Data pengguna mesin diperbarui.' : 'Pengambilan data mesin gagal.')
-            ->body($result['success']
-                ? $result['synced'] . ' pengguna berhasil dibaca dari mesin ini.'
-                : ($result['message'] ?? 'Periksa koneksi Freedom Finger.'))
-            ->color($result['success'] ? 'success' : 'danger')
-            ->send();
+        if (! $result['success']) {
+            Notification::make()
+                ->title('Pengambilan data mesin gagal.')
+                ->body($result['message'] ?? 'Periksa koneksi Freedom Finger.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $this->syncingMachineCloudId = $cloudId;
+        $this->machineDataSyncTotal = DB::table('machine_users')
+            ->where('cloud_id', $cloudId)
+            ->count();
+
+        if ($this->machineDataSyncTotal === 0) {
+            $this->syncingMachineCloudId = null;
+
+            Notification::make()
+                ->title('Data mesin diperbarui.')
+                ->body('Tidak ada pengguna yang terdaftar pada mesin ini.')
+                ->success()
+                ->send();
+
+            return;
+        }
+
+        $biometricResult = app(FreedomFingerBiometricSynchronizer::class)
+            ->requestForMachine($cloudId);
+
+        if (! $biometricResult['success']) {
+            $this->syncingMachineCloudId = null;
+
+            Notification::make()
+                ->title('Data pengguna berhasil diambil, tetapi biometrik gagal dimulai.')
+                ->body($biometricResult['message'] ?? 'Periksa koneksi Freedom Finger.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->machineDataSyncing = true;
+        $this->refreshMachineDataProgress();
+        $this->finishMachineDataSyncIfComplete();
     }
 
-    public function refreshMachineBiometrics(string $cloudId): void
+    public function continueMachineDataSync(): void
     {
-        $result = app(FreedomFingerBiometricSynchronizer::class)->requestForMachine($cloudId);
+        if (! $this->machineDataSyncing || blank($this->syncingMachineCloudId)) {
+            return;
+        }
+
+        $result = app(FreedomFingerBiometricSynchronizer::class)
+            ->syncNext($this->syncingMachineCloudId);
+
+        $this->refreshMachineDataProgress();
+
+        if ($this->finishMachineDataSyncIfComplete()) {
+            return;
+        }
+
+        if (($result['status'] ?? null) === 'idle' && $this->machineDataSyncPending === 0) {
+            $this->machineDataSyncing = false;
+            $this->syncingMachineCloudId = null;
+
+            Notification::make()
+                ->title('Pemeriksaan biometrik belum selesai.')
+                ->body('Sebagian pengguna belum mendapatkan hasil pemeriksaan. Silakan periksa status mesin.')
+                ->warning()
+                ->send();
+        }
+    }
+
+    private function refreshMachineDataProgress(): void
+    {
+        $query = DB::table('machine_users')
+            ->where('cloud_id', $this->syncingMachineCloudId);
+
+        $this->machineDataSyncChecked = (clone $query)
+            ->where('biometric_status', 'checked')
+            ->count();
+
+        $this->machineDataSyncUnavailable = (clone $query)
+            ->where('biometric_status', 'unavailable')
+            ->count();
+
+        $this->machineDataSyncPending = (clone $query)
+            ->where('biometric_status', 'pending')
+            ->count();
+    }
+
+    private function finishMachineDataSyncIfComplete(): bool
+    {
+        $processed = $this->machineDataSyncChecked + $this->machineDataSyncUnavailable;
+
+        if ($processed < $this->machineDataSyncTotal) {
+            return false;
+        }
+
+        $checked = $this->machineDataSyncChecked;
+        $unavailable = $this->machineDataSyncUnavailable;
+
+        $this->machineDataSyncing = false;
+        $this->syncingMachineCloudId = null;
 
         Notification::make()
-            ->title($result['success'] ? 'Pemeriksaan biometrik dikirim.' : 'Pemeriksaan biometrik gagal.')
-            ->body($result['success']
-                ? $result['queued'] . ' PIN masuk antrean pemeriksaan; ' . $result['pending']
-                    . ' PIN sudah menunggu respons mesin. Pemeriksaan diproses satu per satu.'
-                : ($result['message'] ?? 'Periksa koneksi Freedom Finger.'))
-            ->color($result['success'] ? 'success' : 'danger')
+            ->title('Pengambilan data mesin selesai.')
+            ->body($checked . ' biometrik berhasil diperiksa; ' . $unavailable . ' tidak dapat diperiksa.')
+            ->color($unavailable > 0 ? 'warning' : 'success')
             ->send();
+
+        return true;
     }
 
     public function assignWorkLocation(string $cloudId, ?string $workLocationId): void
