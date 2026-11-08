@@ -63,7 +63,7 @@
             @endif
         </x-filament::section>
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2"> wire:poll.15s
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" wire:poll.15s>
             @forelse ($devices as $device)
                 @php
                     $status = $device->connection_state;
@@ -79,7 +79,7 @@
                     };
                 @endphp
 
-                <x-filament::section :key="'device-' . $device->id">
+                <div wire:key="device-{{ $device->id }}">\n                    <x-filament::section>
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <div class="rounded-lg bg-gray-100 p-2.5 dark:bg-gray-800">
