@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\FreedomFingerAttendanceLogSynchronizer;
+use App\Services\FreedomFingerBiometricSynchronizer;
 use App\Services\FreedomFingerDeviceSynchronizer;
 use App\Services\FreedomFingerEmployeeSynchronizer;
 use Illuminate\Console\Command;
