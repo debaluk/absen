@@ -122,6 +122,7 @@
                         <th class="px-4 py-3">Lokasi</th>
                         <th class="px-4 py-3">PIN</th>
                         <th class="px-4 py-3">ID Mesin</th>
+                        <th class="px-4 py-3 text-center">Ikut Rekap</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="w-24 px-4 py-3 text-center">Aksi</th>
                     </tr>
@@ -136,6 +137,18 @@
                             <td class="px-4 py-3">{{ $employee->work_location_name ?: '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $employee->machine_user_pin ?: '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-mono text-xs">{{ $employee->machine_user_cloud_id ?: '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
+                                <button
+                                    type="button"
+                                    wire:click="toggleReportInclusion({{ $employee->id }})"
+                                    wire:loading.attr="disabled"
+                                    aria-label="{{ $employee->include_in_reports ? 'Keluarkan dari rekap' : 'Sertakan dalam rekap' }}"
+                                    title="Klik untuk mengubah status Ikut Rekap"
+                                    class="rounded-full px-3 py-1 text-xs font-semibold {{ $employee->include_in_reports ? 'bg-success-50 text-success-700 dark:bg-success-950 dark:text-success-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' }}"
+                                >
+                                    {{ $employee->include_in_reports ? 'Ya' : 'Tidak' }}
+                                </button>
+                            </td>
                             <td class="whitespace-nowrap px-4 py-3">
                                 @if ($employee->employment_status === 'active')
                                     <span class="rounded-full bg-success-50 px-2 py-1 text-xs font-medium text-success-700 dark:bg-success-950 dark:text-success-300">Aktif</span>
@@ -152,7 +165,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Data karyawan tidak ditemukan.</td>
+                            <td colspan="10" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Data karyawan tidak ditemukan.</td>
                         </tr>
                     @endforelse
                 </tbody>

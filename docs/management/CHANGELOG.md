@@ -46,6 +46,16 @@ Setiap entri memuat:
 - **Status:** Perubahan kode diterapkan; menunggu verifikasi pada aplikasi.
 - **Dampak roadmap:** Tidak mengubah ruang lingkup maupun status roadmap.
 
+## LOG-004 — 2026-11-09
+
+- **Versi:** 1.2
+- **Area:** Karyawan — keikutsertaan dalam rekap
+- **Jenis:** Penetapan dan implementasi
+- **Perubahan:** Menambahkan kolom `include_in_reports` dengan nilai awal `true`. Status Ikut Rekap ditampilkan sebagai Ya/Tidak pada daftar Karyawan dan dapat diubah langsung dengan klik; tidak ditambahkan ke form tambah/edit.
+- **Alasan:** HR dapat mengecualikan atau menyertakan karyawan dalam rekap tanpa membuka form data karyawan.
+- **Status:** Kode dan dokumentasi diterapkan; menunggu verifikasi aplikasi dan migration.
+- **Dampak roadmap:** Tidak mengubah ruang lingkup maupun status roadmap.
+
 ## Ketentuan operasional
 
 1. Untuk setiap perubahan yang dikerjakan melalui alur kerja proyek ini, perbarui dokumen induk dan Change Log dalam commit yang sama.

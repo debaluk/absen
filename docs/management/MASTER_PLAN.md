@@ -40,6 +40,7 @@ Data karyawan/penempatan yang menjadi perhatian:
 | `attendance_start_date` | Tanggal mulai kewajiban absensi pada penempatan |
 | `end_date` | Tanggal akhir penempatan, jika ada |
 | `PIN` dan `cloud_id` | Identitas referensi yang dipilih untuk mengaitkan karyawan dengan catatan kehadiran |
+| `include_in_reports` | Menentukan apakah karyawan disertakan dalam rekap; default karyawan baru adalah `true` dan status diubah langsung dari daftar Karyawan |
 
 Ketentuan tanggal:
 - `attendance_start_date` tidak boleh mendahului `start_date`.
@@ -171,6 +172,7 @@ Status roadmap berikut adalah urutan rencana, bukan klaim bahwa fitur sudah sele
 - Pengelolaan manajemen terpusat.
 - Lokasi kerja karyawan dibedakan dari lokasi perangkat.
 - Jabatan dan lokasi kerja menjadi bagian dari pengelolaan karyawan.
+- Keikutsertaan karyawan dalam rekap diatur melalui kolom `include_in_reports` dari daftar Karyawan, bukan dari form tambah/edit; nilai awal karyawan baru adalah `true`.
 - Departemen adalah pengelompokan jabatan; satu jabatan hanya boleh terdaftar pada satu departemen melalui tabel mapping terpisah.
 - Tanggal mulai bekerja, penempatan, dan kewajiban absensi dibedakan.
 - ALPA hanya jika kewajiban absensi aktif, jadwal aktif, tidak ada kehadiran, dan tidak ada cuti/izin yang disetujui.

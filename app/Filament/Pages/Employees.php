@@ -358,6 +358,35 @@ class Employees extends Page
         $this->isFormModalOpen = true;
     }
 
+    public function toggleReportInclusion(int $employeeId): void
+    {
+        $includeInReports = DB::transaction(function () use ($employeeId) {
+            $employee = DB::table('employees')
+                ->where('id', $employeeId)
+                ->lockForUpdate()
+                ->first();
+
+            abort_unless($employee, 404);
+
+            $includeInReports = ! (bool) $employee->include_in_reports;
+
+            DB::table('employees')
+                ->where('id', $employeeId)
+                ->update([
+                    'include_in_reports' => $includeInReports,
+                    'updated_at' => now(),
+                ]);
+
+            return $includeInReports;
+        });
+
+        Notification::make()
+            ->title('Status Ikut Rekap diperbarui.')
+            ->body($includeInReports ? 'Karyawan akan disertakan dalam rekap.' : 'Karyawan tidak disertakan dalam rekap.')
+            ->success()
+            ->send();
+    }
+
     public function deleteEmployee(int $employeeId): void
     {
         $employee = DB::table('employees')->where('id', $employeeId)->first();
@@ -440,6 +469,7 @@ class Employees extends Page
                 'employees.hire_date',
                 'employees.attendance_start_date',
                 'employees.employment_status',
+                'employees.include_in_reports',
                 'employees.position_id',
                 'employees.work_location_id',
                 'employees.machine_user_cloud_id',
