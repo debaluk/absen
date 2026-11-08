@@ -15,6 +15,10 @@ class FreedomFingerEmployeeSynchronizer
 
     public function syncMachineUsers(string $cloudId): array
     {
+        if (! DB::table('devices')->where('cloud_id', $cloudId)->exists()) {
+            return ['success' => false, 'message' => 'Mesin tidak ditemukan.', 'synced' => 0];
+        }
+
         return $this->syncUsers($cloudId, false);
     }
 
