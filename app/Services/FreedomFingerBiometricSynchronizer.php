@@ -13,97 +13,41 @@ class FreedomFingerBiometricSynchronizer
      */
     public function requestForMachine(string $cloudId): array
     {
-        $baseUrl = rtrim((string) config('services.freedom_finger.url'), '/');
-        $token = (string) config('services.freedom_finger.token', '');
-
-        if ($baseUrl === '' || $token === '') {
-            return ['success' => false, 'message' => 'URL dan token layanan mesin belum dikonfigurasi.'];
-        }
-
         if (! DB::table('devices')->where('cloud_id', $cloudId)->exists()) {
             return ['success' => false, 'message' => 'Mesin tidak ditemukan.'];
         }
 
-        $users = DB::table('machine_users')
-            ->where('cloud_id', $cloudId)
-            ->get(['pin', 'biometric_trans_id']);
+        $userCount = DB::table('machine_users')->where('cloud_id', $cloudId)->count();
 
-        if ($users->isEmpty()) {
+        if ($userCount === 0) {
             return ['success' => false, 'message' => 'Belum ada data pengguna untuk mesin ini.'];
         }
 
-        $requested = 0;
-        $failed = 0;
-        $skipped = 0;
+        // Tandai seluruh PIN agar diperiksa ulang; perintah ke mesin tetap dikirim satu per satu.
+        $queued = DB::table('machine_users')
+            ->where('cloud_id', $cloudId)
+            ->whereNull('biometric_trans_id')
+            ->update([
+                'biometric_status' => 'unknown',
+                'biometric_checked_at' => null,
+            ]);
 
-        foreach ($users as $user) {
-            if (filled($user->biometric_trans_id)) {
-                $skipped++;
-                continue;
-            }
+        $pending = DB::table('machine_users')
+            ->where('cloud_id', $cloudId)
+            ->whereNotNull('biometric_trans_id')
+            ->count();
 
-            try {
-                $response = Http::withToken($token)->acceptJson()->asJson()
-                    ->connectTimeout(3)->timeout(10)
-                    ->post($baseUrl . '/api/get_userinfo', [
-                        'cloud_id' => $cloudId,
-                        'pin' => $user->pin,
-                    ]);
-
-                $command = $response->json();
-
-                if (! $response->successful()
-                    || ! is_array($command)
-                    || ($command['success'] ?? false) !== true
-                    || blank($command['trans_id'] ?? null)) {
-                    DB::table('machine_users')
-                        ->where('cloud_id', $cloudId)
-                        ->where('pin', $user->pin)
-                        ->update([
-                            'biometric_status' => 'unavailable',
-                            'biometric_trans_id' => null,
-                            'biometric_requested_at' => null,
-                            'biometric_checked_at' => now(),
-                        ]);
-                    $failed++;
-                    continue;
-                }
-
-                DB::table('machine_users')
-                    ->where('cloud_id', $cloudId)
-                    ->where('pin', $user->pin)
-                    ->update([
-                        'biometric_status' => 'pending',
-                        'biometric_trans_id' => (string) $command['trans_id'],
-                        'biometric_requested_at' => now(),
-                    ]);
-
-                $requested++;
-            } catch (Throwable $exception) {
-                report($exception);
-
-                DB::table('machine_users')
-                    ->where('cloud_id', $cloudId)
-                    ->where('pin', $user->pin)
-                    ->update([
-                        'biometric_status' => 'unavailable',
-                        'biometric_trans_id' => null,
-                        'biometric_requested_at' => null,
-                        'biometric_checked_at' => now(),
-                    ]);
-                $failed++;
-            }
-        }
+        $started = $this->syncNext($cloudId);
 
         return [
             'success' => true,
-            'requested' => $requested,
-            'failed' => $failed,
-            'skipped' => $skipped,
+            'queued' => $queued,
+            'pending' => $pending,
+            'started_status' => $started['status'] ?? 'idle',
         ];
     }
 
-    public function syncNext(): array
+    public function syncNext(?string $cloudId = null): array
     {
         $baseUrl = rtrim((string) config('services.freedom_finger.url'), '/');
         $token = (string) config('services.freedom_finger.token', '');
@@ -113,6 +57,7 @@ class FreedomFingerBiometricSynchronizer
         }
 
         $pendingUser = DB::table('machine_users')
+            ->when($cloudId !== null, fn ($query) => $query->where('cloud_id', $cloudId))
             ->whereNotNull('biometric_trans_id')
             ->orderBy('biometric_requested_at')
             ->first(['cloud_id', 'pin', 'biometric_trans_id', 'biometric_requested_at']);
@@ -122,6 +67,7 @@ class FreedomFingerBiometricSynchronizer
         }
 
         $user = DB::table('machine_users')
+            ->when($cloudId !== null, fn ($query) => $query->where('cloud_id', $cloudId))
             ->where(function ($query) {
                 $query->whereNull('biometric_checked_at')
                     ->orWhere('biometric_checked_at', '<=', now()->subDay());

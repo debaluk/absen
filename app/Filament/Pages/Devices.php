@@ -51,8 +51,8 @@ class Devices extends Page
         Notification::make()
             ->title($result['success'] ? 'Pemeriksaan biometrik dikirim.' : 'Pemeriksaan biometrik gagal.')
             ->body($result['success']
-                ? $result['requested'] . ' PIN diminta, ' . $result['skipped'] . ' masih diproses, '
-                    . $result['failed'] . ' gagal meminta data. Hasil diperbarui saat mesin menjawab.'
+                ? $result['queued'] . ' PIN masuk antrean pemeriksaan; ' . $result['pending']
+                    . ' PIN sudah menunggu respons mesin. Pemeriksaan diproses satu per satu.'
                 : ($result['message'] ?? 'Periksa koneksi Freedom Finger.'))
             ->color($result['success'] ? 'success' : 'danger')
             ->send();
