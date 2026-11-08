@@ -22,6 +22,12 @@ class FreedomFingerBiometricSynchronizer
 
         $pendingUser = DB::table('machine_users')
             ->whereNotNull('biometric_trans_id')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('machine_user_refreshes')
+                    ->whereColumn('machine_user_refreshes.cloud_id', 'machine_users.cloud_id')
+                    ->whereIn('machine_user_refreshes.status', ['waiting_pin_list', 'processing']);
+            })
             ->orderBy('biometric_requested_at')
             ->first(['cloud_id', 'pin', 'biometric_trans_id', 'biometric_requested_at']);
 
@@ -30,6 +36,12 @@ class FreedomFingerBiometricSynchronizer
         }
 
         $user = DB::table('machine_users')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('machine_user_refreshes')
+                    ->whereColumn('machine_user_refreshes.cloud_id', 'machine_users.cloud_id')
+                    ->whereIn('machine_user_refreshes.status', ['waiting_pin_list', 'processing']);
+            })
             ->where(function ($query) {
                 $query->whereNull('biometric_checked_at')
                     ->orWhere('biometric_checked_at', '<=', now()->subDay());
