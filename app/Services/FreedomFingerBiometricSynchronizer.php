@@ -30,7 +30,7 @@ class FreedomFingerBiometricSynchronizer
             return ['success' => false, 'message' => 'Belum ada data pengguna untuk mesin ini.'];
         }
 
-        // Cache yang belum memiliki patokan, berubah, atau gagal diperiksa perlu diminta ulang.
+        // Pemeriksaan ulang hanya diperlukan bila patokan cache belum ada atau timestamp berubah.
         $queued = DB::table('machine_users')
             ->where('cloud_id', $cloudId)
             ->whereNull('biometric_trans_id')
