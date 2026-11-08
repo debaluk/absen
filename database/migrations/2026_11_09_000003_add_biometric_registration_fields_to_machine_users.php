@@ -12,9 +12,11 @@ return new class extends Migration
             $table->unsignedTinyInteger('finger_count')->nullable()->after('updated')
                 ->comment('Jumlah sidik jari; null jika belum diketahui');
             $table->string('biometric_status', 20)->default('unknown')->after('finger_count')
-                ->comment('unknown, checked, unavailable');
-            $table->dateTime('biometric_checked_at')->nullable()->after('biometric_status')
-                ->comment('Waktu pemeriksaan registrasi biometrik terakhir');
+                ->comment('unknown, pending, checked, unavailable');
+            $table->string('biometric_trans_id', 32)->nullable()->after('biometric_status');
+            $table->dateTime('biometric_requested_at')->nullable()->after('biometric_trans_id');
+            $table->dateTime('biometric_checked_at')->nullable()->after('biometric_requested_at')
+                ->comment('Waktu hasil pemeriksaan registrasi biometrik terakhir');
         });
     }
 
@@ -24,6 +26,8 @@ return new class extends Migration
             $table->dropColumn([
                 'finger_count',
                 'biometric_status',
+                'biometric_trans_id',
+                'biometric_requested_at',
                 'biometric_checked_at',
             ]);
         });
