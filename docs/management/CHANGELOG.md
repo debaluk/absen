@@ -21,11 +21,13 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Menyesuaikan Rekap Absensi agar hanya menghitung karyawan Aktif dan Ikut Rekap = Ya.
 
 ### Hasil
-Pengelolaan departemen dan penyaringan karyawan pada rekap absensi sudah tersedia.
+Pengelolaan departemen dan penyaringan karyawan pada rekap absensi sudah diterapkan pada kode aplikasi. Migration dan verifikasi langsung pada aplikasi masih perlu dijalankan.
 
 ---
 
 ## Pedoman Penulisan
 - Satu rangkaian pekerjaan dicatat dalam satu log.
 - Gunakan poin singkat pada Resume Pekerjaan dan satu kalimat pada Hasil.
+- Perubahan struktur database melalui migration dan perubahan logika aplikasi dicatat sebagai bagian dari pekerjaan terkait, bukan log terpisah.
 - Gabungkan perbaikan kecil yang masih termasuk dalam pekerjaan yang sama.
+- Catat hasil pengujian hanya jika benar-benar sudah dijalankan.
