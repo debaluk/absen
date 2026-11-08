@@ -13,6 +13,13 @@ class FreedomFingerBiometricSynchronizer
      */
     public function requestForMachine(string $cloudId): array
     {
+        $baseUrl = rtrim((string) config('services.freedom_finger.url'), '/');
+        $token = (string) config('services.freedom_finger.token', '');
+
+        if ($baseUrl === '' || $token === '') {
+            return ['success' => false, 'message' => 'URL dan token layanan mesin belum dikonfigurasi.'];
+        }
+
         if (! DB::table('devices')->where('cloud_id', $cloudId)->exists()) {
             return ['success' => false, 'message' => 'Mesin tidak ditemukan.'];
         }
