@@ -17,6 +17,7 @@ class SyncFreedomFinger extends Command
     public function handle(
         FreedomFingerDeviceSynchronizer $devices,
         FreedomFingerEmployeeSynchronizer $users,
+        FreedomFingerBiometricSynchronizer $biometrics,
         FreedomFingerAttendanceLogSynchronizer $logs,
     ): int {
         if (! $this->option('manual')) {
@@ -42,6 +43,8 @@ class SyncFreedomFinger extends Command
             return self::FAILURE;
         }
 
+        $biometricResult = $biometrics->syncNext();
+
         $logResult = $logs->sync(max(1, (int) $this->option('days')));
         if (! $logResult['success']) {
             $this->error('Log: ' . $logResult['message']);
@@ -50,7 +53,12 @@ class SyncFreedomFinger extends Command
 
         $this->info('Sinkronisasi selesai: ' . $deviceResult['synced'] . ' mesin, '
             . $userResult['synced'] . ' pengguna, ' . $logResult['synced'] . ' log diproses, '
-            . ($logResult['pulled'] ?? 0) . ' log baru ditarik dari mesin.');
+            . ($logResult['pulled'] ?? 0) . ' log baru ditarik dari mesin. '
+            . 'Status registrasi mesin: ' . match ($biometricResult['status'] ?? 'idle') {
+                'checked' => '1 PIN diperbarui',
+                'unavailable' => 'belum diketahui',
+                default => 'tidak ada pemeriksaan yang jatuh tempo',
+            } . '.');
 
         return self::SUCCESS;
     }
