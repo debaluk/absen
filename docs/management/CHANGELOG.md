@@ -23,6 +23,19 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 ### Hasil
 Pengelolaan departemen dan penyaringan karyawan pada rekap absensi sudah diterapkan dan diuji langsung, termasuk migration database.
 
+## LOG-003 — Status Registrasi Mesin pada Daftar Karyawan
+**Tanggal:** 2026-11-09
+
+### Resume Pekerjaan
+- Menambahkan metadata jumlah sidik jari dan status pemeriksaannya pada `machine_users`.
+- Menambahkan sinkronisasi berkala melalui perintah `get_userinfo` Freedom Finger tanpa menyimpan template biometrik.
+- Menampilkan kolom Reg. Mesin pada daftar Karyawan dengan status belum diketahui jika data belum berhasil diperiksa.
+
+### Hasil
+Daftar Karyawan dapat menampilkan jumlah sidik jari berdasarkan hasil pemeriksaan mesin.
+
+---
+
 ---
 
 ## Pedoman Penulisan
