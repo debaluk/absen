@@ -139,8 +139,6 @@ class FreedomFingerMachineUserRefreshService
                 DB::table('machine_users')->insertOrIgnore([
                     'cloud_id' => $refresh->cloud_id,
                     'pin' => $pin,
-                    'created_at' => $now,
-                    'updated_at' => $now,
                 ]);
             }
 
