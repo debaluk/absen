@@ -2,7 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\FreedomFingerMachineUserRefreshService;
+use App\Services\FreedomFingerBiometricSynchronizer;
+use App\Services\FreedomFingerEmployeeSynchronizer;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -32,11 +33,27 @@ class Devices extends Page
 
     public function refreshMachineUsers(string $cloudId): void
     {
-        $result = app(FreedomFingerMachineUserRefreshService::class)->start($cloudId);
+        $result = app(FreedomFingerEmployeeSynchronizer::class)->syncMachineUsers($cloudId);
 
         Notification::make()
-            ->title($result['success'] ? 'Pengambilan data mesin dimulai.' : 'Pengambilan data mesin tidak dapat dimulai.')
-            ->body($result['message'] ?? null)
+            ->title($result['success'] ? 'Data pengguna mesin diperbarui.' : 'Pengambilan data mesin gagal.')
+            ->body($result['success']
+                ? $result['synced'] . ' pengguna berhasil dibaca dari mesin ini.'
+                : ($result['message'] ?? 'Periksa koneksi Freedom Finger.'))
+            ->color($result['success'] ? 'success' : 'danger')
+            ->send();
+    }
+
+    public function refreshMachineBiometrics(string $cloudId): void
+    {
+        $result = app(FreedomFingerBiometricSynchronizer::class)->requestForMachine($cloudId);
+
+        Notification::make()
+            ->title($result['success'] ? 'Pemeriksaan biometrik dikirim.' : 'Pemeriksaan biometrik gagal.')
+            ->body($result['success']
+                ? $result['requested'] . ' PIN diminta, ' . $result['skipped'] . ' masih diproses, '
+                    . $result['failed'] . ' gagal meminta data. Hasil diperbarui saat mesin menjawab.'
+                : ($result['message'] ?? 'Periksa koneksi Freedom Finger.'))
             ->color($result['success'] ? 'success' : 'danger')
             ->send();
     }
@@ -106,7 +123,26 @@ class Devices extends Page
         $devices = DB::table('devices')
             ->leftJoin('devices_location', 'devices_location.cloud_id', '=', 'devices.cloud_id')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'devices_location.work_location_id')
-            ->leftJoin('machine_user_refreshes', 'machine_user_refreshes.cloud_id', '=', 'devices.cloud_id')
+            ->selectSub(
+                DB::table('machine_users')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('machine_users.cloud_id', 'devices.cloud_id'),
+                'machine_users_count'
+            )
+            ->selectSub(
+                DB::table('machine_users')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('machine_users.cloud_id', 'devices.cloud_id')
+                    ->where('biometric_status', 'checked'),
+                'biometric_checked_count'
+            )
+            ->selectSub(
+                DB::table('machine_users')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('machine_users.cloud_id', 'devices.cloud_id')
+                    ->where('biometric_status', 'pending'),
+                'biometric_pending_count'
+            )
             ->orderBy('devices.name')
             ->get([
                 'devices.cloud_id',
@@ -115,12 +151,9 @@ class Devices extends Page
                 'devices.last_activity',
                 'devices_location.work_location_id',
                 'work_locations.name as work_location_name',
-                'machine_user_refreshes.status as refresh_status',
-                'machine_user_refreshes.total_pins as refresh_total',
-                'machine_user_refreshes.processed_pins as refresh_processed',
-                'machine_user_refreshes.error_count as refresh_errors',
-                'machine_user_refreshes.message as refresh_message',
-                'machine_user_refreshes.finished_at as refresh_finished_at',
+                'machine_users_count',
+                'biometric_checked_count',
+                'biometric_pending_count',
             ])
             ->map(function ($device) {
                 return (object) [
@@ -133,12 +166,9 @@ class Devices extends Page
                     'connection_state' => data_get(json_decode($device->info, true), 'connected') ? 'online' : 'offline',
                     'work_location_id' => $device->work_location_id,
                     'work_location_name' => $device->work_location_name,
-                    'refresh_status' => $device->refresh_status,
-                    'refresh_total' => (int) ($device->refresh_total ?? 0),
-                    'refresh_processed' => (int) ($device->refresh_processed ?? 0),
-                    'refresh_errors' => (int) ($device->refresh_errors ?? 0),
-                    'refresh_message' => $device->refresh_message,
-                    'refresh_finished_at' => $device->refresh_finished_at,
+                    'machine_users_count' => (int) $device->machine_users_count,
+                    'biometric_checked_count' => (int) $device->biometric_checked_count,
+                    'biometric_pending_count' => (int) $device->biometric_pending_count,
                 ];
             });
 

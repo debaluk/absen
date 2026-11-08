@@ -10,6 +10,16 @@ class FreedomFingerEmployeeSynchronizer
 {
     public function sync(): array
     {
+        return $this->syncUsers(null, true);
+    }
+
+    public function syncMachineUsers(string $cloudId): array
+    {
+        return $this->syncUsers($cloudId, false);
+    }
+
+    private function syncUsers(?string $cloudId, bool $syncEmployees): array
+    {
         $baseUrl = rtrim((string) config('services.freedom_finger.url'), '/');
         $token = (string) config('services.freedom_finger.token', '');
 
@@ -20,7 +30,7 @@ class FreedomFingerEmployeeSynchronizer
         try {
             $response = Http::withToken($token)->acceptJson()->asJson()
                 ->connectTimeout(3)->timeout(20)
-                ->post($baseUrl . '/api/get_users', (object) []);
+                ->post($baseUrl . '/api/get_users', $cloudId !== null ? ['cloud_id' => $cloudId] : (object) []);
 
             if (! $response->successful()) {
                 return ['success' => false, 'message' => 'Layanan mesin merespons HTTP ' . $response->status() . '.', 'synced' => 0];
@@ -39,13 +49,17 @@ class FreedomFingerEmployeeSynchronizer
                         continue;
                     }
 
-                    $cloudId = (string) $user['cloud_id'];
+                    $userCloudId = (string) $user['cloud_id'];
+                    if ($cloudId !== null && $userCloudId !== $cloudId) {
+                        continue;
+                    }
+
                     $pin = (string) $user['pin'];
                     $machineName = trim((string) ($user['name'] ?? ''));
 
                     // Simpan identitas mesin tanpa mengubah payload biometrik.
                     DB::table('machine_users')->updateOrInsert(
-                        ['cloud_id' => $cloudId, 'pin' => $pin],
+                        ['cloud_id' => $userCloudId, 'pin' => $pin],
                         [
                             'name' => $machineName !== '' ? mb_substr($machineName, 0, 100) : null,
                             'privilege' => isset($user['privilege']) ? (string) $user['privilege'] : null,
@@ -53,13 +67,18 @@ class FreedomFingerEmployeeSynchronizer
                         ],
                     );
 
+                    if (! $syncEmployees) {
+                        $synced++;
+                        continue;
+                    }
+
                     $employee = DB::table('employees')
-                        ->where('machine_user_cloud_id', $cloudId)
+                        ->where('machine_user_cloud_id', $userCloudId)
                         ->where('machine_user_pin', $pin)
                         ->first();
 
                     $locationId = DB::table('devices_location')
-                        ->where('cloud_id', $cloudId)
+                        ->where('cloud_id', $userCloudId)
                         ->value('work_location_id');
 
                     if ($employee) {
@@ -76,7 +95,7 @@ class FreedomFingerEmployeeSynchronizer
                             'name' => $machineName !== '' ? mb_substr($machineName, 0, 15) : 'PIN ' . $pin,
                             'employment_status' => 'active',
                             'work_location_id' => $locationId,
-                            'machine_user_cloud_id' => $cloudId,
+                            'machine_user_cloud_id' => $userCloudId,
                             'machine_user_pin' => $pin,
                             'created_at' => now(),
                             'updated_at' => now(),
