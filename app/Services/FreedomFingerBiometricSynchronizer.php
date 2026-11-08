@@ -37,8 +37,7 @@ class FreedomFingerBiometricSynchronizer
             ->where(function ($query) {
                 $query->whereNull('biometric_source_updated_at')
                     ->orWhereNull('updated')
-                    ->orWhereColumn('updated', '!=', 'biometric_source_updated_at')
-                    ->orWhereIn('biometric_status', ['unknown', 'unavailable']);
+                    ->orWhereColumn('updated', '!=', 'biometric_source_updated_at');
             })
             ->update([
                 'biometric_status' => 'unknown',
@@ -88,9 +87,9 @@ class FreedomFingerBiometricSynchronizer
                 return false;
             }
 
-            $updatedCount = 0;
+            $matchedCount = 0;
 
-            DB::transaction(function () use ($result, $cloudId, &$updatedCount) {
+            DB::transaction(function () use ($result, $cloudId, &$matchedCount) {
                 foreach ($result['data'] as $user) {
                     if (! is_array($user)
                         || (string) ($user['cloud_id'] ?? '') !== $cloudId
@@ -99,23 +98,31 @@ class FreedomFingerBiometricSynchronizer
                         continue;
                     }
 
-                    $updatedCount += DB::table('machine_users')
+                    $machineUser = DB::table('machine_users')
                         ->where('cloud_id', $cloudId)
                         ->where('pin', (string) $user['pin'])
-                        ->where('biometric_status', 'checked')
-                        ->update([
-                            'updated' => $user['updated'],
-                            'biometric_source_updated_at' => $user['updated'],
-                        ]);
+                        ->whereIn('biometric_status', ['checked', 'unavailable']);
+
+                    if (! $machineUser->exists()) {
+                        continue;
+                    }
+
+                    $machineUser->update([
+                        'updated' => $user['updated'],
+                        'biometric_source_updated_at' => $user['updated'],
+                    ]);
+
+                    $matchedCount++;
                 }
             });
 
-            $checkedCount = DB::table('machine_users')
+            $eligibleCount = DB::table('machine_users')
                 ->where('cloud_id', $cloudId)
-                ->where('biometric_status', 'checked')
+                ->whereIn('biometric_status', ['checked', 'unavailable'])
+                ->whereNotNull('updated')
                 ->count();
 
-            return $updatedCount === $checkedCount;
+            return $matchedCount === $eligibleCount;
         } catch (Throwable $exception) {
             report($exception);
 
