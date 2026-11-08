@@ -21,6 +21,7 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Melakukan pemeriksaan biometrik melalui `get_userinfo` Freedom Finger untuk memperoleh jumlah sidik jari tanpa menyimpan template biometrik.
 - Mengaitkan status registrasi biometrik dari data `machine_users` ke data Karyawan melalui relasi PIN dan `cloud_id`, serta menampilkan informasinya pada kolom Reg. Mesin.
 - Menambahkan metadata hasil pemeriksaan dan mekanisme sinkronisasi berkala agar status registrasi biometrik dapat diperbarui.
+- Menetapkan tombol **Ambil Data dari Mesin** pada menu Mesin untuk memperbarui data `machine_users`; tombol ini berbeda tujuan dari **Sinkronisasi** yang sudah tersedia pada log mesin dan tidak menggantikan fungsi tersebut.
 
 ### Hasil
 Pengembangan menu Karyawan dan Rekap Absensi mencakup pengelolaan Departemen/Jabatan, pengaturan Ikut Rekap, pemeriksaan biometrik, serta pengaitan status registrasi biometrik ke data Karyawan; verifikasi penerapan migration dan pengujian pada lingkungan aplikasi tetap mengikuti pelaksanaan aktual.
