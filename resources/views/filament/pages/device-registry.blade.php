@@ -156,7 +156,7 @@
                                 icon="heroicon-o-arrow-down-tray"
                                 wire:click="refreshMachineUsers('{{ $device->id }}')"
                                 wire:loading.attr="disabled"
-                                @disabled(in_array($device->refresh_status, ['waiting_pin_list', 'processing'], true))
+                                :disabled="in_array($device->refresh_status, ['waiting_pin_list', 'processing'], true)"
                             >
                                 Ambil Data dari Mesin
                             </x-filament::button>
