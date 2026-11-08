@@ -36,8 +36,6 @@ Daftar Karyawan dapat menampilkan jumlah sidik jari berdasarkan hasil pemeriksaa
 
 ---
 
----
-
 ## Pedoman Penulisan
 - Satu rangkaian pekerjaan dicatat dalam satu log.
 - Gunakan poin singkat pada Resume Pekerjaan dan satu kalimat pada Hasil.
