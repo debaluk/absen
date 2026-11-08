@@ -63,7 +63,7 @@
             @endif
         </x-filament::section>
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2"> wire:poll.15s
             @forelse ($devices as $device)
                 @php
                     $status = $device->connection_state;
