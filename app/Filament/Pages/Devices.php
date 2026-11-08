@@ -107,6 +107,12 @@ class Devices extends Page
         $result = app(FreedomFingerBiometricSynchronizer::class)
             ->syncNext($this->syncingMachineCloudId);
 
+        // Setelah satu PIN selesai, langsung mulai PIN berikutnya tanpa menunggu polling berikut.
+        if (in_array($result['status'] ?? null, ['checked', 'unavailable'], true)) {
+            $result = app(FreedomFingerBiometricSynchronizer::class)
+                ->syncNext($this->syncingMachineCloudId);
+        }
+
         $this->refreshMachineDataProgress();
 
         if ($this->finishMachineDataSyncIfComplete()) {
