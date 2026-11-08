@@ -18,11 +18,12 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 ### Resume Pekerjaan
 - Menambahkan pengelolaan Departemen dan pemetaan Jabatan serta pengaturan Ikut Rekap pada daftar Karyawan.
 - Menyesuaikan Rekap Absensi agar hanya menghitung karyawan Aktif dan Ikut Rekap = Ya, serta mencatat kebutuhan filter Departemen, import/export, dan optimalisasi data absensi dalam rangkaian pengembangan ini.
-- Menambahkan metadata jumlah sidik jari dan status pemeriksaannya pada `machine_users`, beserta sinkronisasi berkala melalui perintah `get_userinfo` Freedom Finger tanpa menyimpan template biometrik.
-- Menampilkan kolom Reg. Mesin pada daftar Karyawan; mencatat rencana tombol **Perbarui Reg. Mesin** agar pemeriksaan dapat dipicu manual tanpa menunggu sinkronisasi berkala. Tombol belum diimplementasikan.
+- Melakukan pemeriksaan biometrik melalui `get_userinfo` Freedom Finger untuk memperoleh jumlah sidik jari tanpa menyimpan template biometrik.
+- Mengaitkan status registrasi biometrik dari data `machine_users` ke data Karyawan melalui relasi PIN dan `cloud_id`, serta menampilkan informasinya pada kolom Reg. Mesin.
+- Menambahkan metadata hasil pemeriksaan dan mekanisme sinkronisasi berkala agar status registrasi biometrik dapat diperbarui.
 
 ### Hasil
-Pengelolaan Departemen/Jabatan, pengaturan Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta diuji langsung termasuk migration database; perubahan metadata dan tampilan Reg. Mesin sudah dicatat dalam kode, tetapi masih memerlukan penerapan migration dan verifikasi pada lingkungan aplikasi.
+Pengembangan menu Karyawan dan Rekap Absensi mencakup pengelolaan Departemen/Jabatan, pengaturan Ikut Rekap, pemeriksaan biometrik, serta pengaitan status registrasi biometrik ke data Karyawan; verifikasi penerapan migration dan pengujian pada lingkungan aplikasi tetap mengikuti pelaksanaan aktual.
 
 ---
 
