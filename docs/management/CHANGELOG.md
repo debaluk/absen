@@ -36,6 +36,16 @@ Setiap entri memuat:
 - **Status:** Disetujui/final; implementasi awal menunggu verifikasi aplikasi.
 - **Dampak roadmap:** Menambahkan RM-009 — Master departemen dan mapping satu jabatan ke satu departemen.
 
+## LOG-003 — 2026-11-09
+
+- **Versi:** 1.2
+- **Area:** Organisasi — perpindahan tab Jabatan dan Departemen
+- **Jenis:** Koreksi
+- **Perubahan:** Menambahkan identitas DOM `wire:key` yang unik pada konten setiap tab Pengaturan Organisasi agar Livewire tidak menggunakan ulang elemen input antar-tab yang memiliki struktur serupa.
+- **Alasan:** Mencegah nilai input Nama Jabatan dan Kode/Nama Departemen tertukar atau terbawa ketika pengguna berpindah tab.
+- **Status:** Perubahan kode diterapkan; menunggu verifikasi pada aplikasi.
+- **Dampak roadmap:** Tidak mengubah ruang lingkup maupun status roadmap.
+
 ## Ketentuan operasional
 
 1. Untuk setiap perubahan yang dikerjakan melalui alur kerja proyek ini, perbarui dokumen induk dan Change Log dalam commit yang sama.

@@ -8,7 +8,7 @@
         </div>
 
     @if ($activeTab === 'umum')
-        <form wire:submit="saveCompany" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <form wire:key="tab-umum" wire:submit="saveCompany" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
             <div>
                 <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Informasi Perusahaan</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Identitas umum perusahaan.</p>
@@ -45,7 +45,7 @@
             </div>
         </form>
     @elseif ($activeTab === 'jabatan')
-        <div class="grid gap-6 xl:grid-cols-3">
+        <div wire:key="tab-jabatan" class="grid gap-6 xl:grid-cols-3">
             <form wire:submit="savePosition" class="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <div>
                     <h2 class="text-lg font-semibold">{{ $positionId ? 'Ubah Jabatan' : 'Tambah Jabatan' }}</h2>
@@ -110,7 +110,7 @@
             </div>
         </div>
     @elseif ($activeTab === 'departemen')
-        <div class="grid gap-6 xl:grid-cols-3">
+        <div wire:key="tab-departemen" class="grid gap-6 xl:grid-cols-3">
             <form wire:submit="saveDepartment" class="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <div>
                     <h2 class="text-lg font-semibold">{{ $departmentId ? 'Ubah Departemen' : 'Tambah Departemen' }}</h2>
@@ -189,7 +189,7 @@
             </div>
         </div>
     @elseif ($activeTab === 'lokasi-kerja')
-        <div class="grid gap-6 xl:grid-cols-3">
+        <div wire:key="tab-lokasi-kerja" class="grid gap-6 xl:grid-cols-3">
             <form wire:submit="saveLocation" class="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <div>
                     <h2 class="text-lg font-semibold">{{ $locationId ? 'Ubah Lokasi Kerja' : 'Tambah Lokasi Kerja' }}</h2>
