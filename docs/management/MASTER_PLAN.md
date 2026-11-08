@@ -2,7 +2,7 @@
 
 > **Status:** Dokumen acuan proyek  
 > **Versi:** 1.1  
-> **Tanggal penetapan:** 2026-11-08  
+> **Tanggal penetapan:** 2026-10-25  
 > **Ruang lingkup:** Manajemen SDM dan administrasi kehadiran
 
 Dokumen ini adalah **Single Source of Truth** untuk konsep, aturan bisnis, keputusan desain, dan roadmap HADIRRA pada sisi manajemen. Perubahan yang disepakati wajib diperbarui di sini dan dicatat pada [CHANGELOG.md](./CHANGELOG.md).
