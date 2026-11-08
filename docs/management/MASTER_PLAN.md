@@ -53,14 +53,14 @@ Ketentuan tanggal:
 3. Jabatan.
 4. Departemen dan mapping jabatan.
 5. Karyawan.
-5. Penempatan kerja dan riwayatnya.
-6. Jadwal kerja.
-7. Kalender dan hari libur.
-8. Cuti dan izin.
-9. Lembur.
-10. Kehadiran dan koreksi.
-11. Laporan dan performa kehadiran.
-12. Pengguna dan hak akses.
+6. Penempatan kerja dan riwayatnya.
+7. Jadwal kerja.
+8. Kalender dan hari libur.
+9. Cuti dan izin.
+10. Lembur.
+11. Kehadiran dan koreksi.
+12. Laporan dan performa kehadiran.
+13. Pengguna dan hak akses.
 
 ## 5. Alur utama
 
