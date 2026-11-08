@@ -57,6 +57,7 @@ class SyncFreedomFinger extends Command
             . ($logResult['pulled'] ?? 0) . ' log baru ditarik dari mesin. '
             . 'Status registrasi mesin: ' . match ($biometricResult['status'] ?? 'idle') {
                 'checked' => '1 PIN diperbarui',
+                'pending' => 'pemeriksaan menunggu mesin',
                 'unavailable' => 'belum diketahui',
                 default => 'tidak ada pemeriksaan yang jatuh tempo',
             } . '.');
