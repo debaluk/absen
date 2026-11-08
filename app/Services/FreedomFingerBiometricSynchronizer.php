@@ -88,7 +88,9 @@ class FreedomFingerBiometricSynchronizer
                 return false;
             }
 
-            DB::transaction(function () use ($result, $cloudId) {
+            $updatedCount = 0;
+
+            DB::transaction(function () use ($result, $cloudId, &$updatedCount) {
                 foreach ($result['data'] as $user) {
                     if (! is_array($user)
                         || (string) ($user['cloud_id'] ?? '') !== $cloudId
@@ -97,7 +99,7 @@ class FreedomFingerBiometricSynchronizer
                         continue;
                     }
 
-                    DB::table('machine_users')
+                    $updatedCount += DB::table('machine_users')
                         ->where('cloud_id', $cloudId)
                         ->where('pin', (string) $user['pin'])
                         ->where('biometric_status', 'checked')
@@ -108,7 +110,12 @@ class FreedomFingerBiometricSynchronizer
                 }
             });
 
-            return true;
+            $checkedCount = DB::table('machine_users')
+                ->where('cloud_id', $cloudId)
+                ->where('biometric_status', 'checked')
+                ->count();
+
+            return $updatedCount === $checkedCount;
         } catch (Throwable $exception) {
             report($exception);
 
