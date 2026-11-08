@@ -30,9 +30,10 @@ Pengelolaan departemen dan penyaringan karyawan pada rekap absensi sudah diterap
 - Menambahkan metadata jumlah sidik jari dan status pemeriksaannya pada `machine_users`.
 - Menambahkan sinkronisasi berkala melalui perintah `get_userinfo` Freedom Finger tanpa menyimpan template biometrik.
 - Menampilkan kolom Reg. Mesin pada daftar Karyawan dengan status belum diketahui jika data belum berhasil diperiksa.
+- Mencatat rencana penambahan tombol **Perbarui Reg. Mesin** pada menu Karyawan agar pemeriksaan biometrik dapat dipicu secara manual tanpa menunggu sinkronisasi berkala; fitur ini belum diimplementasikan.
 
 ### Hasil
-Daftar Karyawan dapat menampilkan jumlah sidik jari berdasarkan hasil pemeriksaan mesin.
+Daftar Karyawan dapat menampilkan jumlah sidik jari berdasarkan hasil pemeriksaan mesin, dan kebutuhan pemicu pemeriksaan manual tercatat sebagai tindak lanjut.
 
 ---
 
