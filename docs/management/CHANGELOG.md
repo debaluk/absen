@@ -51,7 +51,7 @@ Setiap entri memuat:
 - **Versi:** 1.2
 - **Area:** Karyawan — keikutsertaan dalam rekap
 - **Jenis:** Penetapan dan implementasi
-- **Perubahan:** Menambahkan kolom `include_in_reports` dengan nilai awal `true`. Status Ikut Rekap ditampilkan sebagai Ya/Tidak pada daftar Karyawan dan dapat diubah langsung dengan klik; tidak ditambahkan ke form tambah/edit.
+- **Perubahan:** Menambahkan kolom `include_in_reports` dengan nilai awal `true`. Status Ikut Rekap ditampilkan sebagai Ya/Tidak pada daftar Karyawan dan dapat diubah langsung dengan klik; tidak ditambahkan ke form tambah/edit. Halaman Rekap Absensi hanya menampilkan karyawan aktif dengan `include_in_reports = true`.
 - **Alasan:** HR dapat mengecualikan atau menyertakan karyawan dalam rekap tanpa membuka form data karyawan.
 - **Status:** Kode dan dokumentasi diterapkan; menunggu verifikasi aplikasi dan migration.
 - **Dampak roadmap:** Tidak mengubah ruang lingkup maupun status roadmap.

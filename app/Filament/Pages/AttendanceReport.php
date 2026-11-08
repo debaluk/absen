@@ -38,6 +38,7 @@ class AttendanceReport extends Page
         $employees = DB::table('employees')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
             ->where('employees.employment_status', 'active')
+            ->where('employees.include_in_reports', true)
             ->when($this->filterWorkLocationId !== '', fn ($query) => $query->where('employees.work_location_id', $this->filterWorkLocationId))
             ->when(trim($this->filterName) !== '', fn ($query) => $query->where('employees.name', 'like', '%' . trim($this->filterName) . '%'))
             ->orderBy('work_locations.name')
