@@ -23,11 +23,23 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Menambahkan metadata hasil pemeriksaan dan mekanisme sinkronisasi berkala agar status registrasi biometrik dapat diperbarui.
 - Menambahkan tombol **Ambil Data dari Mesin** pada setiap kartu mesin di Pengaturan → Mesin, sehingga pembaruan `machine_users` ditujukan berdasarkan `cloud_id` mesin yang dipilih.
 - Mengambil daftar PIN langsung dari mesin melalui `get_all_pin`, kemudian memperbarui identitas dan jumlah sidik jari setiap PIN melalui `get_userinfo` secara bertahap.
-- Menambahkan pencatatan status/progres pembaruan per mesin dan worker terjadwal agar proses asinkron mengikuti siklus komunikasi mesin; template biometrik tidak disimpan.
+- Menambahkan pencatatan status/progres pembaruan per mesin agar proses asinkron mengikuti siklus komunikasi mesin; template biometrik tidak disimpan.
+- Mempercepat pemeriksaan biometrik dengan memanfaatkan cache SQLite yang sudah dikelola Freedom Finger. Aplikasi hanya menyimpan jumlah sidik jari (finger_count) dan timestamp versi cache, bukan template biometrik.
+- Menambahkan kolom biometric_source_updated_at melalui Laravel migration sebagai patokan versi cache mesin yang sudah diperiksa.
+- Setelah pemeriksaan satu batch selesai, aplikasi mengambil ulang daftar pengguna dari mesin untuk menyamakan timestamp cache terbaru. Ini diperlukan karena permintaan get_userinfo sendiri dapat memperbarui timestamp cache.
 - Memisahkan proses ini dari **Sinkronisasi** pada Log Mesin, tanpa mengubah fungsi sinkronisasi log absensi.
 
+### Alur Pengambilan Data dan Pemeriksaan Biometrik
+1. Admin menekan **Ambil Data dari Mesin** pada kartu mesin yang dipilih.
+2. Aplikasi mengambil daftar pengguna mesin dan memperbarui machine_users berdasarkan cloud_id mesin tersebut.
+3. Untuk setiap PIN, aplikasi membandingkan timestamp cache mesin (updated) dengan patokan terakhir (biometric_source_updated_at).
+4. Jika timestamp sama dan status sebelumnya sudah diperiksa, aplikasi mempertahankan finger_count tanpa mengirim permintaan biometrik lagi.
+5. Jika timestamp berbeda, belum ada patokan, atau pemeriksaan sebelumnya belum berhasil, aplikasi meminta get_userinfo untuk PIN tersebut dan memperbarui finger_count.
+6. Setelah seluruh PIN selesai diproses, aplikasi mengambil ulang daftar pengguna mesin untuk menyimpan timestamp cache terbaru sebagai patokan pemeriksaan berikutnya.
+7. Seluruh pembacaan dan pembaruan dibatasi pada cloud_id mesin yang dipilih; data biometrik mentah tetap berada di cache engine Freedom Finger.
+
 ### Hasil
-Pengelolaan Departemen/Jabatan, Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta diuji termasuk migration; tombol pembaruan data pengguna per mesin beserta proses pemeriksaan PIN sudah ditambahkan ke kode, tetapi migration baru dan pengujian langsung ke mesin masih perlu dijalankan.
+Pengelolaan Departemen/Jabatan, Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta diuji termasuk migration. Optimasi cache biometrik sudah dicatat di kode pada branch main beserta migration baru; belum diuji melalui CI maupun pengujian langsung ke mesin dan belum dinyatakan terverifikasi di produksi.
 
 ---
 
