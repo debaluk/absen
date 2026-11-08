@@ -141,7 +141,7 @@
                                         · {{ $device->refresh_errors }} gagal
                                     @endif
                                     @if ($device->refresh_finished_at)
-                                        · {{ \\Illuminate\\Support\\Carbon::parse($device->refresh_finished_at)->format('d-m-Y H:i') }}
+                                        · {{ \Illuminate\Support\Carbon::parse($device->refresh_finished_at)->format('d-m-Y H:i') }}
                                     @endif
                                 @elseif ($device->refresh_status === 'failed')
                                     <span class="text-danger-600">{{ $device->refresh_message ?: 'Pengambilan data gagal.' }}</span>
