@@ -138,16 +138,6 @@
                             <div class="flex flex-wrap gap-2">
                                 <x-filament::button
                                     size="sm"
-                                    color="gray"
-                                    icon="heroicon-o-finger-print"
-                                    wire:click="refreshMachineBiometrics('{{ $device->id }}')"
-                                    wire:loading.attr="disabled"
-                                    :disabled="$device->machine_users_count === 0"
-                                >
-                                    Ambil Biometrik
-                                </x-filament::button>
-                                <x-filament::button
-                                    size="sm"
                                     color="primary"
                                     icon="heroicon-o-arrow-down-tray"
                                     wire:click="refreshMachineUsers('{{ $device->id }}')"
@@ -173,5 +163,51 @@
                 </div>
             @endforelse
         </div>
+
+        @if ($machineDataSyncing)
+            @php
+                $biometricProcessed = $machineDataSyncChecked + $machineDataSyncUnavailable;
+                $biometricProgress = $machineDataSyncTotal > 0
+                    ? min(100, (int) round(($biometricProcessed / $machineDataSyncTotal) * 100))
+                    : 0;
+            @endphp
+            <div
+                wire:key="machine-data-sync-overlay"
+                wire:poll.2s="continueMachineDataSync"
+                class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/60 p-4"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="machine-data-sync-title"
+            >
+                <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
+                    <div class="flex items-center gap-3">
+                        <x-filament::icon icon="heroicon-o-arrow-path" class="h-6 w-6 animate-spin text-primary-600" />
+                        <h2 id="machine-data-sync-title" class="text-base font-semibold">
+                            Mengambil data mesin
+                        </h2>
+                    </div>
+                    <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                        Sedang memeriksa dan menyimpan biometrik seluruh pengguna. Jangan tutup halaman.
+                    </p>
+                    <div class="mt-5 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                        <div
+                            class="h-full rounded-full bg-primary-600 transition-all duration-300"
+                            style="width: {{ $biometricProgress }}%"
+                        ></div>
+                    </div>
+                    <div class="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{{ $biometricProcessed }} / {{ $machineDataSyncTotal }} selesai</span>
+                        <span>{{ $biometricProgress }}%</span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        {{ $machineDataSyncChecked }} berhasil
+                        · {{ $machineDataSyncPending }} menunggu mesin
+                        @if ($machineDataSyncUnavailable > 0)
+                            · {{ $machineDataSyncUnavailable }} tidak tersedia
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </x-filament-panels::page>
