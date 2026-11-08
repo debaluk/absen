@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\FreedomFingerMachineUserRefreshService;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -28,6 +29,17 @@ class Devices extends Page
     protected static ?int $navigationSort = 4;
 
     protected ?string $subheading = 'Status koneksi dan informasi seluruh mesin absensi.';
+
+    public function refreshMachineUsers(string $cloudId): void
+    {
+        $result = app(FreedomFingerMachineUserRefreshService::class)->start($cloudId);
+
+        Notification::make()
+            ->title($result['success'] ? 'Pengambilan data mesin dimulai.' : 'Pengambilan data mesin tidak dapat dimulai.')
+            ->body($result['message'] ?? null)
+            ->color($result['success'] ? 'success' : 'danger')
+            ->send();
+    }
 
     public function assignWorkLocation(string $cloudId, ?string $workLocationId): void
     {
@@ -94,6 +106,7 @@ class Devices extends Page
         $devices = DB::table('devices')
             ->leftJoin('devices_location', 'devices_location.cloud_id', '=', 'devices.cloud_id')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'devices_location.work_location_id')
+            ->leftJoin('machine_user_refreshes', 'machine_user_refreshes.cloud_id', '=', 'devices.cloud_id')
             ->orderBy('devices.name')
             ->get([
                 'devices.cloud_id',
@@ -102,6 +115,12 @@ class Devices extends Page
                 'devices.last_activity',
                 'devices_location.work_location_id',
                 'work_locations.name as work_location_name',
+                'machine_user_refreshes.status as refresh_status',
+                'machine_user_refreshes.total_pins as refresh_total',
+                'machine_user_refreshes.processed_pins as refresh_processed',
+                'machine_user_refreshes.error_count as refresh_errors',
+                'machine_user_refreshes.message as refresh_message',
+                'machine_user_refreshes.finished_at as refresh_finished_at',
             ])
             ->map(function ($device) {
                 return (object) [
@@ -114,6 +133,12 @@ class Devices extends Page
                     'connection_state' => data_get(json_decode($device->info, true), 'connected') ? 'online' : 'offline',
                     'work_location_id' => $device->work_location_id,
                     'work_location_name' => $device->work_location_name,
+                    'refresh_status' => $device->refresh_status,
+                    'refresh_total' => (int) ($device->refresh_total ?? 0),
+                    'refresh_processed' => (int) ($device->refresh_processed ?? 0),
+                    'refresh_errors' => (int) ($device->refresh_errors ?? 0),
+                    'refresh_message' => $device->refresh_message,
+                    'refresh_finished_at' => $device->refresh_finished_at,
                 ];
             });
 
