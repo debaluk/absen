@@ -12,3 +12,9 @@ Schedule::command('freedom-finger:sync --days=7')
     ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();
+
+
+Schedule::command('freedom-finger:refresh-machine-users')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground();
