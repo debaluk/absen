@@ -9,7 +9,7 @@ use Throwable;
 class FreedomFingerBiometricSynchronizer
 {
     /**
-     * Menyiapkan pemeriksaan hanya untuk PIN yang cache mesinnya berubah atau belum pernah diperiksa.
+     * Memulai pengambilan jumlah sidik jari untuk seluruh PIN pada mesin terpilih.
      */
     public function requestForMachine(string $cloudId): array
     {
@@ -30,104 +30,22 @@ class FreedomFingerBiometricSynchronizer
             return ['success' => false, 'message' => 'Belum ada data pengguna untuk mesin ini.'];
         }
 
-        // Pemeriksaan ulang hanya diperlukan bila patokan cache belum ada atau timestamp berubah.
-        $queued = DB::table('machine_users')
+        // Mulai ulang pengambilan untuk semua PIN pada mesin yang dipilih.
+        DB::table('machine_users')
             ->where('cloud_id', $cloudId)
-            ->whereNull('biometric_trans_id')
-            ->where(function ($query) {
-                $query->whereNull('biometric_source_updated_at')
-                    ->orWhereNull('updated')
-                    ->orWhereColumn('updated', '!=', 'biometric_source_updated_at');
-            })
             ->update([
                 'biometric_status' => 'unknown',
+                'biometric_trans_id' => null,
+                'biometric_requested_at' => null,
                 'biometric_checked_at' => null,
             ]);
-
-        $pending = DB::table('machine_users')
-            ->where('cloud_id', $cloudId)
-            ->whereNotNull('biometric_trans_id')
-            ->count();
 
         $started = $this->syncNext($cloudId);
 
         return [
             'success' => true,
-            'queued' => $queued,
-            'pending' => $pending,
             'started_status' => $started['status'] ?? 'idle',
         ];
-    }
-
-    /**
-     * Menyimpan timestamp cache terbaru setelah seluruh pemeriksaan PIN selesai.
-     * get_userinfo juga memperbarui timestamp cache, sehingga patokan harus diambil ulang
-     * setelah batch selesai, bukan memakai timestamp sebelum pemeriksaan.
-     */
-    public function finalizeMachine(string $cloudId): bool
-    {
-        $baseUrl = rtrim((string) config('services.freedom_finger.url'), '/');
-        $token = (string) config('services.freedom_finger.token', '');
-
-        if ($baseUrl === '' || $token === '') {
-            return false;
-        }
-
-        try {
-            $response = Http::withToken($token)->acceptJson()->asJson()
-                ->connectTimeout(3)->timeout(20)
-                ->post($baseUrl . '/api/get_users', ['cloud_id' => $cloudId]);
-
-            if (! $response->successful()) {
-                return false;
-            }
-
-            $result = $response->json();
-            if (! is_array($result) || ($result['success'] ?? false) !== true || ! is_array($result['data'] ?? null)) {
-                return false;
-            }
-
-            $matchedCount = 0;
-
-            DB::transaction(function () use ($result, $cloudId, &$matchedCount) {
-                foreach ($result['data'] as $user) {
-                    if (! is_array($user)
-                        || (string) ($user['cloud_id'] ?? '') !== $cloudId
-                        || blank($user['pin'] ?? null)
-                        || blank($user['updated'] ?? null)) {
-                        continue;
-                    }
-
-                    $machineUser = DB::table('machine_users')
-                        ->where('cloud_id', $cloudId)
-                        ->where('pin', (string) $user['pin'])
-                        ->whereIn('biometric_status', ['checked', 'unavailable']);
-
-                    if (! $machineUser->exists()) {
-                        continue;
-                    }
-
-                    $machineUser->update([
-                        'updated' => $user['updated'],
-                        'biometric_source_updated_at' => $user['updated'],
-                    ]);
-
-                    $matchedCount++;
-                }
-            });
-
-            $eligibleCount = DB::table('machine_users')
-                ->where('cloud_id', $cloudId)
-                ->whereIn('biometric_status', ['checked', 'unavailable'])
-                ->whereNotNull('updated')
-                ->count();
-
-            return $matchedCount === $eligibleCount;
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return false;
-        }
     }
 
     public function syncNext(?string $cloudId = null): array
