@@ -122,6 +122,7 @@
                         <th class="px-4 py-3">Lokasi</th>
                         <th class="px-4 py-3">PIN</th>
                         <th class="px-4 py-3">ID Mesin</th>
+                        <th class="px-4 py-3">Reg. Mesin</th>
                         <th class="px-4 py-3 text-center">Ikut Rekap</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="w-24 px-4 py-3 text-center">Aksi</th>
@@ -137,6 +138,17 @@
                             <td class="px-4 py-3">{{ $employee->work_location_name ?: '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-medium">{{ $employee->machine_user_pin ?: '—' }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-mono text-xs">{{ $employee->machine_user_cloud_id ?: '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
+                                @if ($employee->biometric_status === 'checked' && $employee->finger_count !== null)
+                                    @if ((int) $employee->finger_count === 0)
+                                        <span class="text-gray-500 dark:text-gray-400">Belum ada</span>
+                                    @else
+                                        <span class="font-medium">{{ (int) $employee->finger_count }} Jari</span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-500 dark:text-gray-400">Belum diketahui</span>
+                                @endif
+                            </td>
                             <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <button
                                     type="button"
@@ -165,7 +177,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Data karyawan tidak ditemukan.</td>
+                            <td colspan="11" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Data karyawan tidak ditemukan.</td>
                         </tr>
                     @endforelse
                 </tbody>
