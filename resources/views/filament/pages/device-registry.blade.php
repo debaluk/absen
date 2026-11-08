@@ -179,7 +179,7 @@
                 aria-modal="true"
                 aria-labelledby="machine-data-sync-title"
             >
-                <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
+                <div class="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">
                     <div class="flex items-center gap-3">
                         <x-filament::icon icon="heroicon-o-arrow-path" class="h-6 w-6 animate-spin text-primary-600" />
                         <h2 id="machine-data-sync-title" class="text-base font-semibold">
