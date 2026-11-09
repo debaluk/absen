@@ -1,16 +1,16 @@
 <x-filament-panels::page>
     <div class="space-y-6 fs-dashboard">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div class="shrink-0">
                 <p class="text-sm text-slate-500">Ringkasan operasional kehadiran</p>
                 <h2 class="mt-1 text-xl font-bold tracking-tight text-slate-800">{{ $attendanceDateLabel }}</h2>
             </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
+            <div class="flex flex-wrap items-center gap-3 lg:flex-nowrap">
+                <label class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-600">
                     Tanggal
                     <input type="date" max="{{ today()->toDateString() }}" wire:model.live="attendanceDate" class="fs-dashboard-select">
                 </label>
-                <label for="dashboard-location" class="flex items-center gap-2 text-sm font-medium text-slate-600">Lokasi kerja
+                <label for="dashboard-location" class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-600">Lokasi kerja
                 <select id="dashboard-location" wire:model.live="workLocationId" class="fs-dashboard-select">
                     <option value="">Semua cabang</option>
                     @foreach ($workLocations as $location)
@@ -18,7 +18,7 @@
                     @endforeach
                 </select>
                 </label>
-                <label for="dashboard-department" class="flex items-center gap-2 text-sm font-medium text-slate-600">Departemen
+                <label for="dashboard-department" class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-600">Departemen
                     <select id="dashboard-department" wire:model.live="departmentId" class="fs-dashboard-select">
                         <option value="">Semua departemen</option>
                         @foreach ($departments as $department)
@@ -162,7 +162,7 @@
 
     <style>
         .fs-dashboard { color: #253247; }
-        .fs-dashboard-select { min-width: 12rem; height: 2.55rem; border: 1px solid #d7e0ea; border-radius: .65rem; background: #fff; padding: 0 .8rem; color: #334155; font-size: .85rem; box-shadow: 0 1px 2px rgb(15 23 42 / 4%); }
+        .fs-dashboard-select { min-width: 10.5rem; height: 2.55rem; border: 1px solid #d7e0ea; border-radius: .65rem; background: #fff; padding: 0 .8rem; color: #334155; font-size: .85rem; box-shadow: 0 1px 2px rgb(15 23 42 / 4%); }
         .fs-kpi { position: relative; overflow: hidden; border: 1px solid transparent; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 5px 16px rgb(15 23 42 / 4%); }
         .fs-kpi > div:first-child { min-height: 6.2rem; }
         .fs-kpi p { margin: 0; color: #526176; font-size: .82rem; font-weight: 650; }
