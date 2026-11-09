@@ -952,7 +952,13 @@ class Employees extends Page
             try {
                 $data[$field] = Carbon::parse($data[$field])->toDateString();
             } catch (Throwable) {
-                throw new ImportCancelledException('Format tanggal pada kolom ' . $field . ' tidak valid. Gunakan format YYYY-MM-DD.');
+                $fieldLabel = [
+                    'birth_date' => 'Tanggal Lahir',
+                    'hire_date' => 'Mulai Bekerja',
+                    'attendance_start_date' => 'Mulai Wajib Absensi',
+                ][$field];
+
+                throw new ImportCancelledException('Format tanggal pada kolom ' . $fieldLabel . ' tidak valid. Gunakan format YYYY-MM-DD.');
             }
         }
 
