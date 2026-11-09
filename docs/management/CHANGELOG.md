@@ -2,6 +2,8 @@
 
 Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dicatat dalam satu log.
 
+- Template Import Data Karyawan tidak lagi memuat PIN/ID Mesin. Proses import hanya menyimpan data karyawan dan lokasi kerja; penautan mesin dikelola terpisah.
+
 - Import Data Karyawan mendukung banyak baris dalam satu file Excel. Setiap baris diproses dalam transaksi tersendiri; kegagalan satu baris tidak membatalkan baris lain. Progress menampilkan jumlah baris diproses serta ringkasan berhasil/gagal dan alasan kegagalan.
 
 ## LOG-001 — Tata Kelola Dokumentasi
