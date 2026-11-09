@@ -37,6 +37,10 @@ class Employees extends Page
 
     public ?string $filterWorkLocationId = null;
 
+    public ?string $filterDepartmentId = null;
+
+    public string $filterMachineRegistration = '';
+
     public string $filterStatus = '';
 
     public string $filterName = '';
@@ -46,6 +50,16 @@ class Employees extends Page
     public int $perPage = 15;
 
     public function updatedFilterWorkLocationId(): void
+    {
+        $this->page = 1;
+    }
+
+    public function updatedFilterDepartmentId(): void
+    {
+        $this->page = 1;
+    }
+
+    public function updatedFilterMachineRegistration(): void
     {
         $this->page = 1;
     }
@@ -103,6 +117,8 @@ class Employees extends Page
     public function clearEmployeeFilters(): void
     {
         $this->filterWorkLocationId = null;
+        $this->filterDepartmentId = null;
+        $this->filterMachineRegistration = '';
         $this->filterStatus = '';
         $this->filterName = '';
         $this->page = 1;
@@ -457,6 +473,8 @@ class Employees extends Page
         $employees = DB::table('employees')
             ->leftJoin('positions', 'positions.id', '=', 'employees.position_id')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
+            ->leftJoin('department_positions', 'department_positions.position_id', '=', 'employees.position_id')
+            ->leftJoin('departments', 'departments.id', '=', 'department_positions.department_id')
             ->leftJoin('machine_users', function ($join) {
                 $join->on('machine_users.cloud_id', '=', 'employees.machine_user_cloud_id')
                     ->on('machine_users.pin', '=', 'employees.machine_user_pin');
@@ -472,6 +490,8 @@ class Employees extends Page
                 'employees.include_in_reports',
                 'employees.position_id',
                 'employees.work_location_id',
+                'departments.id as department_id',
+                'departments.name as department_name',
                 'employees.machine_user_cloud_id',
                 'employees.machine_user_pin',
                 'positions.name as position_name',
@@ -486,6 +506,10 @@ class Employees extends Page
 
         $filteredEmployees = $employees
             ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
+            ->when(filled($this->filterDepartmentId), fn ($rows) => $rows->where('department_id', (int) $this->filterDepartmentId))
+            ->when($this->filterMachineRegistration === 'registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0))
+            ->when($this->filterMachineRegistration === 'not_registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status === 'checked' && $employee->finger_count !== null && (int) $employee->finger_count === 0))
+            ->when($this->filterMachineRegistration === 'unknown', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status !== 'checked' || $employee->finger_count === null))
             ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
             ->when(filled($this->filterName), fn ($rows) => $rows->filter(fn ($employee) => str_contains(mb_strtolower($employee->name), mb_strtolower(trim($this->filterName)))))
             ->values();
@@ -506,11 +530,17 @@ class Employees extends Page
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $departments = DB::table('departments')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         return [
             'employees' => $employees,
             'machineUsers' => $machineUsers,
             'positions' => $positions,
             'workLocations' => $workLocations,
+            'departments' => $departments,
             'totalFilteredEmployees' => $totalFilteredEmployees,
             'currentPage' => $this->page,
             'lastPage' => $lastPage,
