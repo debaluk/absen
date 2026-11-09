@@ -23,6 +23,8 @@ class Dashboard extends BaseDashboard
 
     public string $workLocationId = '';
 
+    public string $departmentId = '';
+
     public string $attendanceDate = '';
 
     public function mount(): void
@@ -31,6 +33,11 @@ class Dashboard extends BaseDashboard
     }
 
     public function updatedWorkLocationId(): void
+    {
+        // Filter dashboard langsung diperbarui oleh Livewire.
+    }
+
+    public function updatedDepartmentId(): void
     {
         // Filter dashboard langsung diperbarui oleh Livewire.
     }
@@ -52,7 +59,15 @@ class Dashboard extends BaseDashboard
         $today = now()->toDateString();
 
         $employees = DB::table('employees')
-            ->when($this->workLocationId !== '', fn ($query) => $query->where('work_location_id', $this->workLocationId));
+            ->when($this->workLocationId !== '', fn ($query) => $query->where('work_location_id', $this->workLocationId))
+            ->when($this->departmentId !== '', function ($query) {
+                $query->whereExists(function ($departmentQuery) {
+                    $departmentQuery->selectRaw('1')
+                        ->from('department_positions')
+                        ->whereColumn('department_positions.position_id', 'employees.position_id')
+                        ->where('department_positions.department_id', $this->departmentId);
+                });
+            });
 
         $totalEmployees = (clone $employees)->count();
         $activeEmployees = (clone $employees)->where('employment_status', 'active')->count();
@@ -65,6 +80,14 @@ class Dashboard extends BaseDashboard
             ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
             ->where('employees.employment_status', 'active')
             ->when($this->workLocationId !== '', fn ($query) => $query->where('employees.work_location_id', $this->workLocationId))
+            ->when($this->departmentId !== '', function ($query) {
+                $query->whereExists(function ($departmentQuery) {
+                    $departmentQuery->selectRaw('1')
+                        ->from('department_positions')
+                        ->whereColumn('department_positions.position_id', 'employees.position_id')
+                        ->where('department_positions.department_id', $this->departmentId);
+                });
+            })
             ->orderBy('work_locations.name')
             ->orderBy('employees.name')
             ->get([
@@ -227,6 +250,14 @@ class Dashboard extends BaseDashboard
             ->whereDate('logs.scan_date', $attendanceDate)
             ->when($this->workLocationId !== '', function ($query) {
                 $query->where('employees.work_location_id', $this->workLocationId);
+            })
+            ->when($this->departmentId !== '', function ($query) {
+                $query->whereExists(function ($departmentQuery) {
+                    $departmentQuery->selectRaw('1')
+                        ->from('department_positions')
+                        ->whereColumn('department_positions.position_id', 'employees.position_id')
+                        ->where('department_positions.department_id', $this->departmentId);
+                });
             });
 
         $todayScans = (clone $todayLogsQuery)->count('logs.id');
@@ -244,6 +275,14 @@ class Dashboard extends BaseDashboard
         $locationStats = DB::table('work_locations')
             ->leftJoin('employees', 'employees.work_location_id', '=', 'work_locations.id')
             ->when($this->workLocationId !== '', fn ($query) => $query->where('work_locations.id', $this->workLocationId))
+            ->when($this->departmentId !== '', function ($query) {
+                $query->whereExists(function ($departmentQuery) {
+                    $departmentQuery->selectRaw('1')
+                        ->from('department_positions')
+                        ->whereColumn('department_positions.position_id', 'employees.position_id')
+                        ->where('department_positions.department_id', $this->departmentId);
+                });
+            })
             ->select('work_locations.id', 'work_locations.name')
             ->selectRaw('COUNT(employees.id) as total_employees')
             ->selectRaw("SUM(CASE WHEN employees.employment_status = 'active' THEN 1 ELSE 0 END) as active_employees")
@@ -262,6 +301,14 @@ class Dashboard extends BaseDashboard
                     ->on('employees.machine_user_pin', '=', 'logs.pin');
             })
             ->when($this->workLocationId !== '', fn ($query) => $query->where('employees.work_location_id', $this->workLocationId))
+            ->when($this->departmentId !== '', function ($query) {
+                $query->whereExists(function ($departmentQuery) {
+                    $departmentQuery->selectRaw('1')
+                        ->from('department_positions')
+                        ->whereColumn('department_positions.position_id', 'employees.position_id')
+                        ->where('department_positions.department_id', $this->departmentId);
+                });
+            })
             ->select([
                 'logs.id',
                 'logs.scan_date',
@@ -296,6 +343,7 @@ class Dashboard extends BaseDashboard
 
         return [
             'workLocations' => DB::table('work_locations')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'departments' => DB::table('departments')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'totalEmployees' => $totalEmployees,
             'activeEmployees' => $activeEmployees,
             'inactiveEmployees' => $inactiveEmployees,
