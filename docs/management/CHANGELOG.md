@@ -2,21 +2,6 @@
 
 Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dicatat dalam satu log.
 
-## LOG-003 — Filter Departemen pada Dashboard
-**Tanggal:** 2026-11-09
-
-### Resume Pekerjaan
-- Menambahkan filter Departemen pada header Dashboard.
-- Menerapkan filter ke KPI karyawan, ringkasan kehadiran, jumlah scan, rekap karyawan per lokasi kerja, dan aktivitas scan terbaru.
-- Menggunakan relasi Jabatan–Departemen melalui `department_positions` tanpa menambah join yang dapat menggandakan baris karyawan.
-- Panel mesin tetap menampilkan perangkat berdasarkan filter Lokasi Kerja karena data mesin tidak memiliki pemetaan Departemen.
-
-### Hasil
-Dashboard dapat menampilkan ringkasan karyawan dan aktivitas absensi berdasarkan Departemen yang dipilih tanpa mengubah relasi atau data mesin.
-
-- Template Import Data Karyawan tidak lagi memuat PIN/ID Mesin. Proses import hanya menyimpan data karyawan dan lokasi kerja; penautan mesin dikelola terpisah.
-- Import Data Karyawan mendukung banyak baris dalam satu file Excel. Setiap baris diproses dalam transaksi tersendiri; kegagalan satu baris tidak membatalkan baris lain. Progress menampilkan jumlah baris diproses serta ringkasan berhasil/gagal dan alasan kegagalan.
-
 ## LOG-001 — Tata Kelola Dokumentasi
 **Tanggal:** 2026-11-08
 
@@ -33,10 +18,14 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 ### Resume Pekerjaan
 - Menambahkan pengelolaan Departemen dan pemetaan Jabatan serta pengaturan Ikut Rekap pada daftar Karyawan.
 - Menyesuaikan Rekap Absensi agar hanya menghitung karyawan Aktif dan Ikut Rekap = Ya, serta mencatat kebutuhan optimalisasi data absensi dalam rangkaian pengembangan ini.
+- Menambahkan filter Departemen pada header Dashboard dan menerapkannya ke KPI karyawan, ringkasan kehadiran, jumlah scan, rekap karyawan per lokasi kerja, dan aktivitas scan terbaru.
+- Menggunakan relasi Jabatan–Departemen melalui `department_positions` tanpa menambah join yang dapat menggandakan baris karyawan. Panel mesin tetap menampilkan perangkat berdasarkan filter Lokasi Kerja karena data mesin tidak memiliki pemetaan Departemen.
 - Menambahkan filter Departemen pada Rekap Kehadiran dengan relasi Jabatan–Departemen melalui `department_positions` dan subquery `whereExists`.
 - Menambahkan indikator loading saat filter Rekap Kehadiran diproses, termasuk overlay pada tabel.
 - Menambahkan Export Excel Rekap Kehadiran dalam format `.xls`, berisi kop perusahaan, judul rekap, informasi Bulan, Departemen, dan Lokasi Kerja, serta kolom yang mengikuti tabel.
 - Memperjelas tombol export menjadi **Unduh Excel** dengan background hijau, teks putih, ikon, dan indikator proses export.
+- Template Import Data Karyawan tidak lagi memuat PIN/ID Mesin. Proses import hanya menyimpan data karyawan dan lokasi kerja; penautan mesin dikelola terpisah.
+- Import Data Karyawan mendukung banyak baris dalam satu file Excel. Setiap baris diproses dalam transaksi tersendiri; kegagalan satu baris tidak membatalkan baris lain. Progress menampilkan jumlah baris diproses serta ringkasan berhasil/gagal dan alasan kegagalan.
 - Melakukan pemeriksaan biometrik melalui `get_userinfo` Freedom Finger untuk memperoleh jumlah sidik jari tanpa menyimpan template biometrik.
 - Mengaitkan status registrasi biometrik dari data `machine_users` ke data Karyawan melalui relasi PIN dan `cloud_id`, serta menampilkan informasinya pada kolom Reg. Mesin.
 - Menambahkan metadata hasil pemeriksaan dan mekanisme sinkronisasi berkala agar status registrasi biometrik dapat diperbarui.
@@ -68,7 +57,7 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 6. Job Queue berjalan mandiri per mesin; progres disimpan di database dan ditampilkan inline pada kartu mesin. Browser boleh ditutup tanpa menghentikan pekerjaan selama Queue Worker aktif.
 
 ### Hasil
-Pengelolaan Departemen/Jabatan, Ikut Rekap, penyaringan Rekap Absensi, filter daftar Karyawan, Export Excel, popup Import Karyawan, serta implementasi filter dan Export Excel Rekap Kehadiran telah ditambahkan. Filter Departemen Rekap Kehadiran masih memerlukan verifikasi runtime karena belum terkonfirmasi bekerja pada penggunaan aplikasi; pengujian menyeluruh filter/export juga belum terverifikasi. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai, pengujian CI, serta pengujian operasional Import Karyawan belum terverifikasi.
+Pengelolaan Departemen/Jabatan, Ikut Rekap, filter Dashboard dan Rekap Kehadiran, penyaringan Rekap Absensi, filter daftar Karyawan, Export Excel, popup Import Karyawan, serta pengelolaan data mesin dan pemeriksaan biometrik telah ditambahkan. Filter Departemen Rekap Kehadiran masih memerlukan verifikasi runtime karena belum terkonfirmasi bekerja pada penggunaan aplikasi; pengujian menyeluruh filter/export juga belum terverifikasi. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai, pengujian CI, serta pengujian operasional Import Karyawan belum terverifikasi.
 
 ---
 
