@@ -40,7 +40,7 @@ class AttendancePerformanceReport extends Page
         $periodEnd = min($monthEnd, $today);
 
         $formula = DB::table('attendance_performance_formulas')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'ended'])
             ->whereDate('effective_from', '<=', $periodEnd)
             ->where(function ($query) use ($start) {
                 $query->whereNull('effective_until')
