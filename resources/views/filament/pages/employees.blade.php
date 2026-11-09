@@ -1,6 +1,7 @@
 <x-filament-panels::page>
     <div x-data="{ syncing: false }">
         <div class="flex justify-end gap-2">
+        <livewire:employee-import />
         <button
             type="button"
             x-on:click="syncing = true; $wire.syncMachineUsers().finally(() => syncing = false)"
