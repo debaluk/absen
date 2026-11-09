@@ -235,8 +235,9 @@ class AttendancePerformanceReport extends Page
             $worktimePenalty = $formula
                 ? ($counts['early_leave_minutes'] / max(1, (int) $formula->early_leave_penalty_unit_minutes)) * (float) $formula->early_leave_penalty_points
                 : 0;
-            $punctualityScore = max(0, 100 - $punctualityPenalty);
-            $worktimeScore = max(0, 100 - $worktimePenalty);
+            $hasPresentDays = $counts['hadir'] > 0;
+            $punctualityScore = $hasPresentDays ? max(0, 100 - $punctualityPenalty) : 0;
+            $worktimeScore = $hasPresentDays ? max(0, 100 - $worktimePenalty) : 0;
 
             $finalScore = $formula
                 ? ($attendanceScore * (float) $formula->attendance_weight / 100)
