@@ -61,7 +61,7 @@
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Lokasi Kerja
                 <select wire:model.change="filterWorkLocationId" class="ar-filter mt-1 block min-w-48">
-                    <option value="">Semua Lokasi Kerja</option>
+                    <option value="">Semua Lokasi</option>
                     @foreach ($workLocations as $location)
                         <option value="{{ $location->id }}">{{ $location->name }}</option>
                     @endforeach
