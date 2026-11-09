@@ -399,7 +399,7 @@ class Employees extends Page
     }
 
 
-    public function exportExcel(): \\Symfony\\Component\\HttpFoundation\\StreamedResponse
+    public function exportExcel(): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         $employees = DB::table('employees')
             ->leftJoin('positions', 'positions.id', '=', 'employees.position_id')
@@ -459,9 +459,9 @@ class Employees extends Page
         };
 
         $escape = static fn ($value): string => htmlspecialchars((string) ($value ?? ''), ENT_XML1 | ENT_COMPAT, 'UTF-8');
-        $cell = static fn ($value, string $style = 'Cell'): string =>
+        $cell = fn ($value, string $style = 'Cell'): string =>
             '<Cell ss:StyleID="' . $style . '"><Data ss:Type="String">' . $escape($value) . '</Data></Cell>';
-        $mergedRow = static fn ($value, string $style): string =>
+        $mergedRow = fn ($value, string $style): string =>
             '<Row><Cell ss:StyleID="' . $style . '" ss:MergeAcross="13"><Data ss:Type="String">' . $escape($value) . '</Data></Cell></Row>';
 
         $xmlRows = [];
@@ -479,13 +479,13 @@ class Employees extends Page
         foreach ($employees as $index => $employee) {
             $birth = trim(implode(' / ', array_filter([
                 $employee->birth_place,
-                $employee->birth_date ? \\Illuminate\\Support\\Carbon::parse($employee->birth_date)->format('d-m-Y') : null,
+                $employee->birth_date ? \Illuminate\Support\Carbon::parse($employee->birth_date)->format('d-m-Y') : null,
             ])));
             $registration = $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0
                 ? 'Sudah Terdaftar (' . (int) $employee->finger_count . ' Jari)'
                 : 'Belum Terdaftar';
             $hireDate = $employee->hire_date
-                ? \\Illuminate\\Support\\Carbon::parse($employee->hire_date)->format('d-m-Y')
+                ? \Illuminate\Support\Carbon::parse($employee->hire_date)->format('d-m-Y')
                 : '';
 
             $values = [
