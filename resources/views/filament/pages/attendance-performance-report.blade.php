@@ -75,20 +75,20 @@
                 </div>
                 <span class="text-xs text-gray-500 dark:text-gray-400">Data dihitung sampai {{ \Illuminate\Support\Carbon::parse($periodEnd)->format('d/m/Y') }}</span>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-                    <thead class="bg-gray-50 dark:bg-gray-950">
+            <div class="max-h-[65vh] overflow-auto">
+                <table class="min-w-max w-full border-separate border-spacing-0">
+                    <thead>
                         <tr>
                             @foreach (['No.', 'Karyawan', 'Jabatan', 'Lokasi Kerja', 'Hari Efektif', 'Hadir', 'Izin', 'Sakit', 'Cuti', 'Dinas', 'ALPA', 'Terlambat (Menit)', 'Pulang Cepat (Menit)', 'Nilai Kehadiran', 'Nilai Ketepatan Waktu', 'Nilai Jam Kerja', 'Nilai Akhir', 'Kategori'] as $heading)
-                                <th class="whitespace-nowrap px-3 py-3 text-left text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">{{ $heading }}</th>
+                                <th class="sticky top-0 z-20 whitespace-nowrap border-b border-gray-200 bg-gray-50 px-3 py-3 text-left text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 {{ $loop->first ? 'left-0 z-30 w-12 min-w-12' : ($loop->iteration === 2 ? 'left-12 z-30 min-w-[190px]' : '') }}">{{ $heading }}</th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @forelse ($rows as $index => $row)
                             <tr wire:key="performance-report-{{ $row['employee']->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                                <td class="whitespace-nowrap px-3 py-3 text-xs text-gray-500">{{ $index + 1 }}</td>
-                                <td class="whitespace-nowrap px-3 py-3">
+                                <td class="sticky left-0 z-10 w-12 min-w-12 whitespace-nowrap border-b border-gray-100 bg-white px-3 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900">{{ $index + 1 }}</td>
+                                <td class="sticky left-12 z-10 min-w-[190px] whitespace-nowrap border-b border-gray-100 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-900">
                                     <div class="text-xs font-semibold text-gray-900 dark:text-white">{{ $row['employee']->name }}</div>
                                     <div class="text-[10px] text-gray-500">{{ $row['employee']->employee_no }}</div>
                                 </td>
