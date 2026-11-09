@@ -67,10 +67,23 @@
                     @endforeach
                 </select>
             </label>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
+                Departemen
+                <select wire:model.change="filterDepartmentId" class="ar-filter mt-1 block min-w-48">
+                    <option value="">Semua Departemen</option>
+                    @foreach ($departments as $department)
+                        <option value="{{ $department->id }}">{{ $department->name }}</option>
+                    @endforeach
+                </select>
+            </label>
             <label class="block min-w-56 flex-1 text-xs font-medium text-gray-600 dark:text-gray-300">
                 Cari Nama Karyawan
                 <input type="search" wire:model.live.debounce.300ms="filterName" class="ar-filter mt-1 block w-full" placeholder="Ketik nama karyawan...">
             </label>
+            <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" class="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-success-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-success-500 disabled:cursor-wait disabled:opacity-60">
+                <x-heroicon-o-document-arrow-down class="h-4 w-4" />
+                Export Excel
+            </button>
         </div>
 
         <div class="ar-scroll rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
