@@ -153,7 +153,7 @@ class AttendancePerformanceFormula extends Page
 
                 foreach ($overlapping as $current) {
                     if ($current->effective_from >= $start) {
-                        throw new \\RuntimeException('Tanggal mulai formula baru bertabrakan dengan formula aktif yang sudah terjadwal.');
+                        throw new \RuntimeException('Tanggal mulai formula baru bertabrakan dengan formula aktif yang sudah terjadwal.');
                     }
 
                     DB::table('attendance_performance_formulas')->where('id', $current->id)->update([
