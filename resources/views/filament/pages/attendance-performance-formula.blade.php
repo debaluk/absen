@@ -186,10 +186,17 @@
                                                 'draft' => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200',
                                                 'active' => 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
                                                 'ended' => 'bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-300',
+                                                'scheduled' => 'bg-info-100 text-info-700 dark:bg-info-900/30 dark:text-info-300',
                                             ];
+                                            $displayStatus = $formula->status;
+                                            if ($formula->status === 'active' && $formula->effective_from > today()->toDateString()) {
+                                                $displayStatus = 'scheduled';
+                                            } elseif ($formula->status === 'active' && $formula->effective_until && $formula->effective_until < today()->toDateString()) {
+                                                $displayStatus = 'ended';
+                                            }
                                         @endphp
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium {{ $statusClasses[$formula->status] ?? $statusClasses['draft'] }}">
-                                            {{ ['draft' => 'Draft', 'active' => 'Berlaku', 'ended' => 'Berakhir'][$formula->status] ?? $formula->status }}
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium {{ $statusClasses[$displayStatus] ?? $statusClasses['draft'] }}">
+                                            {{ ['draft' => 'Draft', 'active' => 'Berlaku', 'ended' => 'Berakhir', 'scheduled' => 'Terjadwal'][$displayStatus] ?? $displayStatus }}
                                         </span>
                                     </td>
                                     <td class="px-3 py-3">
@@ -201,8 +208,10 @@
                                                     Disahkan
                                                 </label>
                                                 <x-filament::button size="xs" wire:click="activateFormula({{ $formula->id }})">Aktifkan</x-filament::button>
-                                            @elseif ($formula->status === 'active')
+                                            @elseif ($formula->status === 'active' && $formula->effective_from <= today()->toDateString() && (! $formula->effective_until || $formula->effective_until >= today()->toDateString()))
                                                 <x-filament::button size="xs" color="warning" outlined wire:click="endFormula({{ $formula->id }})" wire:confirm="Akhiri masa berlaku formula ini hari ini?">Akhiri</x-filament::button>
+                                            @elseif ($displayStatus === 'scheduled')
+                                                <span class="text-xs text-gray-400">Menunggu tanggal mulai</span>
                                             @else
                                                 <span class="text-xs text-gray-400">Riwayat</span>
                                             @endif
