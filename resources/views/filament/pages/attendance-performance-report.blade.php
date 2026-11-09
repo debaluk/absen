@@ -1,5 +1,70 @@
 <x-filament-panels::page>
-    <div class="space-y-5">
+    <style>
+        .attendance-performance .apr-scroll {
+            width: 100%;
+            max-width: 100%;
+            max-height: min(65vh, 52rem);
+            overflow: auto;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
+        }
+        .attendance-performance .apr-table {
+            width: max-content;
+            min-width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .attendance-performance .apr-table th,
+        .attendance-performance .apr-table td {
+            border-bottom: 1px solid rgb(229 231 235);
+        }
+        .dark .attendance-performance .apr-table th,
+        .dark .attendance-performance .apr-table td {
+            border-color: rgb(55 65 81);
+        }
+        .attendance-performance .apr-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgb(249 250 251);
+        }
+        .dark .attendance-performance .apr-table thead th {
+            background: rgb(31 41 55);
+        }
+        .attendance-performance .apr-table .apr-no {
+            position: sticky;
+            left: 0;
+            z-index: 30;
+            width: 3rem;
+            min-width: 3rem;
+            background: white;
+        }
+        .attendance-performance .apr-table .apr-employee {
+            position: sticky;
+            left: 3rem;
+            z-index: 30;
+            min-width: 13rem;
+            border-right: 1px solid rgb(229 231 235);
+            background: white;
+        }
+        .attendance-performance .apr-table thead .apr-no,
+        .attendance-performance .apr-table thead .apr-employee {
+            z-index: 40;
+            background: rgb(249 250 251);
+        }
+        .dark .attendance-performance .apr-table .apr-no,
+        .dark .attendance-performance .apr-table .apr-employee {
+            background: rgb(17 24 39);
+        }
+        .dark .attendance-performance .apr-table thead .apr-no,
+        .dark .attendance-performance .apr-table thead .apr-employee {
+            background: rgb(31 41 55);
+        }
+        .dark .attendance-performance .apr-table .apr-employee {
+            border-color: rgb(55 65 81);
+        }
+    </style>
+    <div class="attendance-performance space-y-5">
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                 <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
@@ -75,20 +140,24 @@
                 </div>
                 <span class="text-xs text-gray-500 dark:text-gray-400">Data dihitung sampai {{ \Illuminate\Support\Carbon::parse($periodEnd)->format('d/m/Y') }}</span>
             </div>
-            <div style="display: block; width: 100%; max-width: 100%; max-height: 65vh; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain;">
-                <table style="width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0;">
+            <div class="apr-scroll rounded-b-xl">
+                <table class="apr-table">
                     <thead>
                         <tr>
                             @foreach (['No.', 'Karyawan', 'Jabatan', 'Lokasi Kerja', 'Hari Efektif', 'Hadir', 'Izin', 'Sakit', 'Cuti', 'Dinas', 'ALPA', 'Terlambat (Menit)', 'Pulang Cepat (Menit)', 'Nilai Kehadiran', 'Nilai Ketepatan Waktu', 'Nilai Jam Kerja', 'Nilai Akhir', 'Kategori'] as $heading)
-                                <th class="sticky top-0 z-20 whitespace-nowrap border-b border-gray-200 bg-gray-50 px-3 py-3 text-left text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 {{ $loop->first ? 'left-0 z-30 w-12 min-w-12' : ($loop->iteration === 2 ? 'left-12 z-30 min-w-[190px]' : '') }}">{{ $heading }}</th>
+                                <th @class([
+                                    'whitespace-nowrap px-3 py-3 text-left text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300',
+                                    'apr-no' => $loop->first,
+                                    'apr-employee' => $loop->iteration === 2,
+                                ])>{{ $heading }}</th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @forelse ($rows as $index => $row)
                             <tr wire:key="performance-report-{{ $row['employee']->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                                <td class="sticky left-0 z-10 w-12 min-w-12 whitespace-nowrap border-b border-gray-100 bg-white px-3 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900">{{ $index + 1 }}</td>
-                                <td class="sticky left-12 z-10 min-w-[190px] whitespace-nowrap border-b border-gray-100 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-900">
+                                <td class="apr-no whitespace-nowrap px-3 py-3 text-xs text-gray-500">{{ $index + 1 }}</td>
+                                <td class="apr-employee whitespace-nowrap px-3 py-3">
                                     <div class="text-xs font-semibold text-gray-900 dark:text-white">{{ $row['employee']->name }}</div>
                                     <div class="text-[10px] text-gray-500">{{ $row['employee']->employee_no }}</div>
                                 </td>
