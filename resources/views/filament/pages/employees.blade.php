@@ -84,32 +84,52 @@
         <div class="flex flex-wrap items-end gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
             <div class="min-w-52 flex-1">
                 <label for="filterWorkLocationId" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Lokasi Kerja</label>
-                <x-filament::input.wrapper class="border" :valid="! $errors->has('filterWorkLocationId')">
-                            <x-filament::input.select id="filterWorkLocationId" wire:model.live="filterWorkLocationId">
-
-                    <option value="">Semua Lokasi</option>
-                    @foreach ($workLocations as $location)
-                        <option value="{{ $location->id }}">{{ $location->name }}</option>
-                    @endforeach
-                                            </x-filament::input.select>
-                        </x-filament::input.wrapper>
-            </div>
-            <div class="min-w-56 flex-1">
-                <label for="filterName" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Cari Nama Karyawan</label>
                 <x-filament::input.wrapper class="border">
-                    <x-filament::input id="filterName" type="search" wire:model.live.debounce.300ms="filterName" placeholder="Masukkan nama karyawan..." />
+                    <x-filament::input.select id="filterWorkLocationId" wire:model.live="filterWorkLocationId">
+                        <option value="">Semua Lokasi</option>
+                        @foreach ($workLocations as $location)
+                            <option value="{{ $location->id }}">{{ $location->name }}</option>
+                        @endforeach
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
+            </div>
+            <div class="min-w-52 flex-1">
+                <label for="filterDepartmentId" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Departemen</label>
+                <x-filament::input.wrapper class="border">
+                    <x-filament::input.select id="filterDepartmentId" wire:model.live="filterDepartmentId">
+                        <option value="">Semua Departemen</option>
+                        @foreach ($departments as $department)
+                            <option value="{{ $department->id }}">{{ $department->name }}</option>
+                        @endforeach
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
+            </div>
+            <div class="min-w-52 flex-1">
+                <label for="filterMachineRegistration" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Reg Mesin</label>
+                <x-filament::input.wrapper class="border">
+                    <x-filament::input.select id="filterMachineRegistration" wire:model.live="filterMachineRegistration">
+                        <option value="">Semua Registrasi</option>
+                        <option value="registered">Sudah Terdaftar</option>
+                        <option value="not_registered">Belum Terdaftar</option>
+                        <option value="unknown">Belum Diketahui</option>
+                    </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
             <div class="min-w-44 flex-1">
-                <label for="filterStatus" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
-                <x-filament::input.wrapper class="border" :valid="! $errors->has('filterStatus')">
-                            <x-filament::input.select id="filterStatus" wire:model.live="filterStatus">
-
-                    <option value="">Semua Status</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Tidak Aktif</option>
-                                            </x-filament::input.select>
-                        </x-filament::input.wrapper>
+                <label for="filterStatus" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Status Aktif</label>
+                <x-filament::input.wrapper class="border">
+                    <x-filament::input.select id="filterStatus" wire:model.live="filterStatus">
+                        <option value="">Semua Status</option>
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Tidak Aktif</option>
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
+            </div>
+            <div class="min-w-56 flex-1">
+                <label for="filterName" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Cari Karyawan</label>
+                <x-filament::input.wrapper class="border">
+                    <x-filament::input id="filterName" type="search" wire:model.live.debounce.300ms="filterName" placeholder="Masukkan nama karyawan..." />
+                </x-filament::input.wrapper>
             </div>
         </div>
 
