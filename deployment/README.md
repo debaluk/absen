@@ -62,7 +62,7 @@ journalctl -u hadirra-queue-worker.service -f
 sudo bash deployment/uninstall-freedom-sync.sh
 ```
 
-Uninstaller hanya menghapus unit systemd HADIRRA; tidak menghapus aplikasi atau database.
+Uninstaller menghapus unit systemd scheduler dan queue worker HADIRRA; tidak menghapus aplikasi atau database.
 
 ## Catatan deployment
 

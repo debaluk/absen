@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-UNIT_NAME="hadirra-scheduler"
+SCHEDULER_UNIT="hadirra-scheduler"
+QUEUE_UNIT="hadirra-queue-worker"
 
 if [[ "${EUID}" -ne 0 ]]; then
     echo "Jalankan dengan sudo: sudo bash deployment/uninstall-freedom-sync.sh" >&2
     exit 1
 fi
 
-systemctl disable --now "${UNIT_NAME}.timer" 2>/dev/null || true
-rm -f "/etc/systemd/system/${UNIT_NAME}.timer" "/etc/systemd/system/${UNIT_NAME}.service"
+systemctl disable --now "${SCHEDULER_UNIT}.timer" 2>/dev/null || true
+systemctl disable --now "${QUEUE_UNIT}.service" 2>/dev/null || true
+rm -f "/etc/systemd/system/${SCHEDULER_UNIT}.timer" "/etc/systemd/system/${SCHEDULER_UNIT}.service" "/etc/systemd/system/${QUEUE_UNIT}.service"
 systemctl daemon-reload
-systemctl reset-failed "${UNIT_NAME}.service" 2>/dev/null || true
+systemctl reset-failed "${SCHEDULER_UNIT}.service" "${QUEUE_UNIT}.service" 2>/dev/null || true
 
-echo "Service scheduler HADIRRA berhasil dilepas."
+echo "Service scheduler dan queue worker HADIRRA berhasil dilepas."
