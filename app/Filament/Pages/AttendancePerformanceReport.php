@@ -204,7 +204,7 @@ class AttendancePerformanceReport extends Page
                     default => $hasAttendance ? 'hadir' : null,
                 };
 
-                if ($status === null && $scheduled && ! $holiday && $date < $today) {
+                if ($status === null && $scheduled && ! $holiday && $attendanceStart && $attendanceStart <= $date && $date < $today) {
                     $status = 'alpa';
                 }
 
