@@ -46,9 +46,9 @@
                     <div>
                         <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $formula->name }}</h2>
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Formula {{ $formula->code }} · Berlaku {{ IlluminateSupportCarbon::parse($formula->effective_from)->format('d/m/Y') }}
+                            Formula {{ $formula->code }} · Berlaku {{ \Illuminate\Support\Carbon::parse($formula->effective_from)->format('d/m/Y') }}
                             @if ($formula->effective_until)
-                                s.d. {{ IlluminateSupportCarbon::parse($formula->effective_until)->format('d/m/Y') }}
+                                s.d. {{ \Illuminate\Support\Carbon::parse($formula->effective_until)->format('d/m/Y') }}
                             @else
                                 · Tanpa batas akhir
                             @endif
@@ -73,7 +73,7 @@
                     <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Rincian Performa Karyawan</h2>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ count($rows) }} karyawan · Periode {{ $monthLabel }}</p>
                 </div>
-                <span class="text-xs text-gray-500 dark:text-gray-400">Data dihitung sampai {{ IlluminateSupportCarbon::parse($periodEnd)->format('d/m/Y') }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">Data dihitung sampai {{ \Illuminate\Support\Carbon::parse($periodEnd)->format('d/m/Y') }}</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
