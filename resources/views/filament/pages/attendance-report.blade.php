@@ -84,7 +84,7 @@
                 Cari Nama Karyawan
                 <input type="search" wire:model.live.debounce.300ms="filterName" class="ar-filter mt-1 block w-full" placeholder="Ketik nama karyawan...">
             </label>
-            <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" wire:target="exportExcel" class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-green-700 bg-green-700 px-4 text-sm font-bold text-white shadow-md transition hover:border-green-800 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-70">
+            <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" wire:target="exportExcel" class="inline-flex h-10 min-w-36 shrink-0 items-center justify-center gap-2 rounded-lg border border-green-700 bg-green-700 px-5 text-sm font-bold text-white shadow-md transition hover:border-green-800 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-70" style="background-color: #15803d; color: #ffffff; border-color: #15803d;">
                 <span wire:loading.remove wire:target="exportExcel" class="inline-flex items-center gap-2">
                     <x-heroicon-o-arrow-down-tray class="h-5 w-5" />
                     Unduh Excel
