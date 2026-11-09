@@ -58,7 +58,7 @@
                         Lokasi Kerja <span class="text-danger-600">*</span>
                     </label>
                     <x-filament::input.wrapper class="border" :valid="! $errors->has('workLocationId')">
-                        <x-filament::input.select id="importWorkLocationId" wire:model="workLocationId">
+                        <x-filament::input.select id="importWorkLocationId" wire:model="workLocationId" :disabled="$importRunning">
                             <option value="">Pilih lokasi kerja</option>
                             @foreach ($workLocations as $location)
                                 <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -76,6 +76,7 @@
                         id="employeeImportFile"
                         type="file"
                         wire:model="file"
+                        @disabled($importRunning)
                         accept=".xls"
                         class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-1.5 file:text-sm file:font-semibold dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:file:bg-gray-700"
                     />
