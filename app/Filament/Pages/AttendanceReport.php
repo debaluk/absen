@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use BackedEnum;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
 class AttendanceReport extends Page
@@ -18,11 +19,106 @@ class AttendanceReport extends Page
 
     public string $filterMonth = '';
     public string $filterWorkLocationId = '';
+    public string $filterDepartmentId = '';
     public string $filterName = '';
 
     public function mount(): void
     {
         $this->filterMonth = now()->format('Y-m');
+    }
+
+    public function exportExcel(): StreamedResponse
+    {
+        $data = $this->getViewData();
+        $company = $data['company'];
+        $headers = [
+            'No.',
+            'Karyawan Aktif',
+            'Lokasi Kerja',
+            'Jml. Hari',
+            'Hadir',
+            'Izin',
+            'Sakit',
+            'Cuti',
+            'Dinas',
+            'Alpa',
+            'Terlambat (Menit)',
+            'Pulang Cepat (Menit)',
+            'Kehadiran',
+        ];
+
+        $escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
+        $mergedRow = static fn (string $value, string $style = 'meta'): string =>
+            '<Row><Cell ss:StyleID="' . $style . '" ss:MergeAcross="12"><Data ss:Type="String">' . $escape($value) . '</Data></Cell></Row>';
+
+        $companyDetails = array_filter([
+            $company->address ?? null,
+            $company->phone ?? null,
+            $company->email ?? null,
+            $company->website ?? null,
+        ], fn ($value) => filled($value));
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<?mso-application progid="Excel.Sheet"?>'
+            . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
+            . '<Styles>'
+            . '<Style ss:ID="company"><Font ss:Bold="1" ss:Size="13"/></Style>'
+            . '<Style ss:ID="title"><Font ss:Bold="1" ss:Size="12"/></Style>'
+            . '<Style ss:ID="meta"><Font ss:Size="10"/></Style>'
+            . '<Style ss:ID="header"><Font ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/></Style>'
+            . '<Style ss:ID="number"><NumberFormat ss:Format="0"/></Style>'
+            . '</Styles><Worksheet ss:Name="Rekap Kehadiran"><Table>'
+            . $mergedRow($company->name ?? config('app.name'), 'company');
+
+        if ($companyDetails !== []) {
+            $xml .= $mergedRow(implode(' | ', $companyDetails));
+        }
+
+        $xml .= $mergedRow('Rekap Kehadiran Karyawan', 'title')
+            . $mergedRow('Bulan : ' . $data['monthLabel'])
+            . $mergedRow('Departemen : ' . ($data['selectedDepartmentName'] ?: 'Semua Departemen'))
+            . $mergedRow('Lokasi Kerja : ' . ($data['selectedWorkLocationName'] ?: 'Semua Lokasi Kerja'))
+            . '<Row/>';
+
+        $xml .= '<Row>' . implode('', array_map(
+            fn (string $header): string => '<Cell ss:StyleID="header"><Data ss:Type="String">' . $escape($header) . '</Data></Cell>',
+            $headers,
+        )) . '</Row>';
+
+        foreach ($data['rows'] as $index => $row) {
+            $employee = $row['employee'];
+            $counts = $row['counts'];
+            $values = [
+                $index + 1,
+                $employee->name . ' (' . $employee->employee_no . ')',
+                $employee->work_location_name ?? 'Belum diatur',
+                $row['effective_days'],
+                $counts['hadir'],
+                $counts['izin'],
+                $counts['sakit'],
+                $counts['cuti'],
+                $counts['dinas'],
+                $counts['alpa'],
+                $counts['late_minutes'],
+                $counts['early_leave_minutes'],
+                $counts['hadir'] . '/' . $row['effective_days'],
+            ];
+
+            $xml .= '<Row>' . implode('', array_map(
+                fn ($value): string => '<Cell' . (is_int($value) ? ' ss:StyleID="number"' : '') . '><Data ss:Type="' . (is_int($value) ? 'Number' : 'String') . '">' . $escape($value) . '</Data></Cell>',
+                $values,
+            )) . '</Row>';
+        }
+
+        $xml .= '</Table></Worksheet></Workbook>';
+
+        return response()->streamDownload(
+            static function () use ($xml): void {
+                echo $xml;
+            },
+            'rekap-kehadiran-' . str_replace('-', '', $this->filterMonth) . '.xls',
+            ['Content-Type' => 'application/vnd.ms-excel; charset=UTF-8'],
+        );
     }
 
     protected function getViewData(): array
@@ -37,9 +133,12 @@ class AttendanceReport extends Page
 
         $employees = DB::table('employees')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
+            ->leftJoin('department_positions', 'department_positions.position_id', '=', 'employees.position_id')
+            ->leftJoin('departments', 'departments.id', '=', 'department_positions.department_id')
             ->where('employees.employment_status', 'active')
             ->where('employees.include_in_reports', true)
             ->when($this->filterWorkLocationId !== '', fn ($query) => $query->where('employees.work_location_id', $this->filterWorkLocationId))
+            ->when($this->filterDepartmentId !== '', fn ($query) => $query->where('departments.id', $this->filterDepartmentId))
             ->when(trim($this->filterName) !== '', fn ($query) => $query->where('employees.name', 'like', '%' . trim($this->filterName) . '%'))
             ->orderBy('work_locations.name')
             ->orderBy('employees.name')
@@ -202,6 +301,10 @@ class AttendanceReport extends Page
             'rows' => $rows,
             'monthLabel' => \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
             'workLocations' => DB::table('work_locations')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'departments' => DB::table('departments')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'selectedDepartmentName' => $this->filterDepartmentId !== '' ? DB::table('departments')->where('id', $this->filterDepartmentId)->value('name') : null,
+            'selectedWorkLocationName' => $this->filterWorkLocationId !== '' ? DB::table('work_locations')->where('id', $this->filterWorkLocationId)->value('name') : null,
+            'company' => DB::table('companies')->first(),
             'periodEnd' => $periodEnd,
         ];
     }
