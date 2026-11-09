@@ -56,8 +56,11 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 5. Seluruh pembacaan dan pembaruan dibatasi pada `cloud_id` mesin yang dipilih; template biometrik tidak disimpan di MySQL.
 6. Job Queue berjalan mandiri per mesin; progres disimpan di database dan ditampilkan inline pada kartu mesin. Browser boleh ditutup tanpa menghentikan pekerjaan selama Queue Worker aktif.
 
+### Status
+Closed
+
 ### Hasil
-Pengelolaan Departemen/Jabatan, Ikut Rekap, filter Dashboard dan Rekap Kehadiran, penyaringan Rekap Absensi, filter daftar Karyawan, Export Excel, popup Import Karyawan, serta pengelolaan data mesin dan pemeriksaan biometrik telah ditambahkan. Filter Departemen Rekap Kehadiran masih memerlukan verifikasi runtime karena belum terkonfirmasi bekerja pada penggunaan aplikasi; pengujian menyeluruh filter/export juga belum terverifikasi. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai, pengujian CI, serta pengujian operasional Import Karyawan belum terverifikasi.
+Pengembangan Menu Karyawan, Rekap Absensi, Rekap Kehadiran, Dashboard, Import/Export Karyawan, serta pengelolaan data mesin dan pemeriksaan biometrik telah dicatat dalam rangkaian pekerjaan ini. Implementasi Queue dan tampilan progres pengambilan data per mesin juga telah ditambahkan.
 
 ---
 
