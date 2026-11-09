@@ -60,11 +60,11 @@
             </div>
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Bulan
-                <input type="month" wire:model.change="filterMonth" class="ar-filter mt-1 block">
+                <input type="month" wire:model.live="filterMonth" class="ar-filter mt-1 block">
             </label>
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Lokasi Kerja
-                <select wire:model.change="filterWorkLocationId" class="ar-filter mt-1 block min-w-48">
+                <select wire:model.live="filterWorkLocationId" class="ar-filter mt-1 block min-w-48">
                     <option value="">Semua Lokasi</option>
                     @foreach ($workLocations as $location)
                         <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -73,7 +73,7 @@
             </label>
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Departemen
-                <select wire:model.change="filterDepartmentId" class="ar-filter mt-1 block min-w-48">
+                <select wire:model.live="filterDepartmentId" class="ar-filter mt-1 block min-w-48">
                     <option value="">Semua Departemen</option>
                     @foreach ($departments as $department)
                         <option value="{{ $department->id }}">{{ $department->name }}</option>
