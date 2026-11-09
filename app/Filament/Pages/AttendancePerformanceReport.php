@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Pages\Page;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
@@ -265,7 +266,7 @@ class AttendancePerformanceReport extends Page
 
         return [
             'month' => $month,
-            'monthLabel' => IlluminateSupportCarbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
+            'monthLabel' => Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
             'employees' => $employees,
             'rows' => $rows,
             'formula' => $formula,
