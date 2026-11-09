@@ -147,7 +147,7 @@
                                 </x-filament::button>
                             </div>
                             @if (in_array($device->sync_status, ['queued', 'running'], true))
-                                <div class="sm:col-span-2">
+                                <div class="w-full">
                                     <div class="mb-1 flex items-center justify-between text-xs">
                                         <span class="font-medium text-primary-600">
                                             {{ $device->sync_status === 'queued' ? 'Menunggu antrean' : 'Memproses data mesin' }}
@@ -163,14 +163,14 @@
                                     </div>
                                 </div>
                             @elseif ($device->sync_status === 'completed')
-                                <div class="sm:col-span-2 text-xs text-success-600">
+                                <div class="w-full text-xs text-success-600">
                                     Selesai: {{ $device->sync_checked }} berhasil · {{ $device->sync_unavailable }} tidak tersedia.
                                     @if ($device->sync_message)
                                         <span class="text-gray-500">{{ $device->sync_message }}</span>
                                     @endif
                                 </div>
                             @elseif ($device->sync_status === 'failed')
-                                <div class="sm:col-span-2 text-xs text-danger-600">
+                                <div class="w-full text-xs text-danger-600">
                                     Gagal: {{ $device->sync_message ?: 'Proses pengambilan data mesin gagal.' }}
                                 </div>
                             @endif

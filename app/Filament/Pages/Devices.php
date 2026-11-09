@@ -66,9 +66,7 @@ class Devices extends Page
         try {
             StartMachineDataSync::dispatch($cloudId);
 
-            Notification::make()->title('Pengambilan data mesin dimasukkan ke antrean.')
-                ->body('Proses berjalan di belakang dan progres tampil pada kartu mesin.')
-                ->success()->send();
+            // Progres antrean langsung ditampilkan pada kartu mesin.
         } catch (Throwable $exception) {
             report($exception);
             DB::table('machine_data_syncs')->where('cloud_id', $cloudId)->update([
