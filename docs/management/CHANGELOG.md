@@ -33,6 +33,10 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Menyederhanakan filter Reg Mesin menjadi **Sudah Terdaftar** dan **Belum Terdaftar**; status belum terdaftar mencakup PIN yang belum diketahui maupun yang belum memiliki sidik jari.
 - Menambahkan Export Excel yang mengikuti seluruh filter aktif, termasuk pencarian karyawan, serta menyertakan informasi perusahaan, metadata filter, dan kolom data karyawan.
 - Menambahkan field opsional Alamat, No. HP/Telp, Tempat Lahir, dan Tanggal Lahir pada data/form Karyawan untuk melengkapi kebutuhan export; field tersebut tidak diwajibkan.
+- Menambahkan popup **Import Karyawan** dengan petunjuk, pilihan Lokasi Kerja, upload file Excel, download template, progress bar, dan informasi hasil **Berhasil** atau **Dibatalkan**.
+- Membatasi satu file untuk satu karyawan; kode karyawan dibuat otomatis dengan melanjutkan pola kode terakhir yang memiliki akhiran angka (menggunakan pola `EMP000001` jika belum ada kode sebelumnya).
+- Memvalidasi NIK dan nama terhadap data yang sudah ada, memastikan PIN dan ID Mesin terdaftar pada `machine_users`, serta membatalkan import jika PIN sudah digunakan pada lokasi mesin yang sama.
+- Memisahkan Lokasi Kerja hasil import dari lokasi mesin; lokasi kerja berasal dari pilihan pada popup, sedangkan lokasi mesin hanya digunakan untuk validasi duplikasi PIN.
 
 ### Alur Pengambilan Data dan Pemeriksaan Biometrik
 1. Admin menekan **Ambil Data dari Mesin** pada kartu mesin yang dipilih.
@@ -43,7 +47,7 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 6. Job Queue berjalan mandiri per mesin; progres disimpan di database dan ditampilkan inline pada kartu mesin. Browser boleh ditutup tanpa menghentikan pekerjaan selama Queue Worker aktif.
 
 ### Hasil
-Pengelolaan Departemen/Jabatan, Ikut Rekap, penyaringan Rekap Absensi, filter daftar Karyawan, dan Export Excel telah diterapkan. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai, pengujian CI, dan pengujian menyeluruh filter/export belum terverifikasi.
+Pengelolaan Departemen/Jabatan, Ikut Rekap, penyaringan Rekap Absensi, filter daftar Karyawan, Export Excel, dan popup Import Karyawan telah diterapkan. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai, pengujian CI, pengujian menyeluruh filter/export, serta pengujian operasional Import Karyawan belum terverifikasi.
 
 ---
 
