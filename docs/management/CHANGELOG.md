@@ -2,6 +2,19 @@
 
 Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dicatat dalam satu log.
 
+## LOG-004 — Filter Departemen dan Export Excel Rekap Kehadiran
+**Tanggal:** 2026-11-09
+
+### Resume Pekerjaan
+- Menambahkan filter Departemen pada Rekap Kehadiran melalui relasi Jabatan–Departemen.
+- Menambahkan Export Excel dengan kop perusahaan, judul rekap, bulan, Departemen, dan Lokasi Kerja.
+- Menyamakan kolom export dengan seluruh kolom yang tampil pada tabel Rekap Kehadiran.
+
+### Hasil
+Filter Departemen menyaring data rekap, sedangkan Export Excel menghasilkan file .xls sesuai filter aktif dan susunan kolom tabel; pengujian aplikasi belum dilakukan.
+
+---
+
 ## LOG-003 — Filter Departemen pada Dashboard
 **Tanggal:** 2026-11-09
 
