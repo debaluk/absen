@@ -116,7 +116,7 @@ class AttendanceReport extends Page
             static function () use ($xml): void {
                 echo $xml;
             },
-            'rekap-kehadiran-' . str_replace('-', '', $this->filterMonth) . '.xls',
+            'rekap-kehadiran-' . str_replace('-', '', $data['month']) . '.xls',
             ['Content-Type' => 'application/vnd.ms-excel; charset=UTF-8'],
         );
     }
@@ -299,6 +299,7 @@ class AttendanceReport extends Page
 
         return [
             'rows' => $rows,
+            'month' => $month,
             'monthLabel' => \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y'),
             'workLocations' => DB::table('work_locations')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'departments' => DB::table('departments')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
