@@ -667,8 +667,6 @@ class Employees extends Page
             'Mulai Bekerja',
             'Mulai Wajib Absensi',
             'Jabatan',
-            'PIN',
-            'ID Mesin',
         ];
 
         $escape = static fn (string $value): string => htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
@@ -819,8 +817,6 @@ class Employees extends Page
             'Mulai Bekerja' => 'hire_date',
             'Mulai Wajib Absensi' => 'attendance_start_date',
             'Jabatan' => 'position',
-            'PIN' => 'pin',
-            'ID Mesin' => 'cloud_id',
         ];
 
         $columnIndexes = [];
@@ -856,7 +852,6 @@ class Employees extends Page
     {
         DB::transaction(function () use ($employeeData): void {
             $this->assertNoDuplicateEmployee($employeeData);
-            $machineIdentity = $this->resolveMachineIdentity($employeeData);
 
             $positionId = null;
             if (filled($employeeData['position'])) {
@@ -886,8 +881,6 @@ class Employees extends Page
                 'employment_status' => 'active',
                 'position_id' => $positionId,
                 'work_location_id' => $this->importWorkLocationId,
-                'machine_user_cloud_id' => $machineIdentity['cloud_id'],
-                'machine_user_pin' => $machineIdentity['pin'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -980,8 +973,6 @@ class Employees extends Page
                 },
             ],
             'position' => ['nullable', 'string', 'max:100'],
-            'pin' => ['nullable', 'string', 'max:32'],
-            'cloud_id' => ['nullable', 'string', 'max:32'],
         ], [
             'name.required' => 'Nama Karyawan wajib diisi.',
         ]);
@@ -990,9 +981,6 @@ class Employees extends Page
             throw new ImportCancelledException($validator->errors()->first());
         }
 
-        if (filled($data['pin']) xor filled($data['cloud_id'])) {
-            throw new ImportCancelledException('PIN dan ID Mesin harus diisi bersama. Keduanya boleh dikosongkan jika karyawan tidak ditautkan ke mesin.');
-        }
     }
 
     private function assertNoDuplicateEmployee(array $data): void
@@ -1011,43 +999,6 @@ class Employees extends Page
                 throw new ImportCancelledException('NIK sudah digunakan oleh karyawan dengan nama berbeda. Data baris ini tidak diimport karena NIK harus unik.');
             }
         }
-    }
-
-    private function resolveMachineIdentity(array $data): array
-    {
-        if (blank($data['pin']) && blank($data['cloud_id'])) {
-            return ['cloud_id' => null, 'pin' => null];
-        }
-
-        $machineUserExists = DB::table('machine_users')
-            ->where('cloud_id', $data['cloud_id'])
-            ->where('pin', $data['pin'])
-            ->exists();
-
-        if (! $machineUserExists) {
-            throw new ImportCancelledException('Kombinasi PIN dan ID Mesin tidak ditemukan pada data machine_users. Data baris ini tidak diimport.');
-        }
-
-        $machineLocationId = DB::table('devices_location')
-            ->where('cloud_id', $data['cloud_id'])
-            ->value('work_location_id');
-
-        if (! $machineLocationId) {
-            throw new ImportCancelledException('Lokasi mesin untuk ID Mesin tersebut belum diatur. Data baris ini tidak diimport.');
-        }
-
-        $duplicateMachineUser = DB::table('employees')
-            ->join('devices_location', 'devices_location.cloud_id', '=', 'employees.machine_user_cloud_id')
-            ->where('employees.machine_user_pin', $data['pin'])
-            ->where('devices_location.work_location_id', $machineLocationId)
-            ->lockForUpdate()
-            ->exists();
-
-        if ($duplicateMachineUser) {
-            throw new ImportCancelledException('PIN tersebut sudah digunakan pada lokasi mesin yang sama. Data baris ini tidak diimport.');
-        }
-
-        return ['cloud_id' => $data['cloud_id'], 'pin' => $data['pin']];
     }
 
     private function nextEmployeeNo(): string
