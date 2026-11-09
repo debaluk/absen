@@ -172,7 +172,7 @@ class AttendancePerformanceFormula extends Page
                     'updated_at' => now(),
                 ]);
             });
-        } catch (\\RuntimeException $exception) {
+        } catch (\RuntimeException $exception) {
             Notification::make()->title($exception->getMessage())->danger()->send();
             return;
         }
