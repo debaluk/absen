@@ -3,9 +3,6 @@
 namespace App\Livewire;
 
 use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMNode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -175,29 +172,19 @@ class EmployeeImport extends Component
 
     private function readEmployeeFromSpreadsheet(string $contents): array
     {
-        $document = new DOMDocument();
-        $previous = libxml_use_internal_errors(true);
-
-        try {
-            if (! $document->loadXML($contents, LIBXML_NONET | LIBXML_NOBLANKS)) {
-                throw new ImportCancelledException('File Excel tidak dapat dibaca. Gunakan template yang disediakan.');
-            }
-        } finally {
-            libxml_clear_errors();
-            libxml_use_internal_errors($previous);
+        if (! preg_match('/<(?:[a-zA-Z0-9_]+:)?Workbook\\b/i', $contents)) {
+            throw new ImportCancelledException('File Excel tidak dapat dibaca. Gunakan template yang disediakan.');
         }
 
-        if ($document->documentElement?->localName !== 'Workbook') {
-            throw new ImportCancelledException('Format file tidak sesuai template Import Karyawan.');
-        }
+        preg_match_all('/<(?:[a-zA-Z0-9_]+:)?Row\\b[^>]*>(.*?)<\\/(?:[a-zA-Z0-9_]+:)?Row>/is', $contents, $rowMatches);
+        $rows = $rowMatches[1] ?? [];
 
-        $rows = $document->getElementsByTagName('Row');
-        if ($rows->length < 2) {
+        if (count($rows) < 2) {
             throw new ImportCancelledException('Template harus berisi satu baris judul dan satu baris data karyawan.');
         }
 
-        $headers = $this->readSpreadsheetRow($rows->item(0));
-        $values = $this->readSpreadsheetRow($rows->item(1));
+        $headers = $this->readSpreadsheetRow($rows[0]);
+        $values = $this->readSpreadsheetRow($rows[1]);
 
         $columnMap = [
             'NIK' => 'nik',
@@ -226,8 +213,8 @@ class EmployeeImport extends Component
         }
 
         $hasAdditionalData = false;
-        for ($index = 2; $index < $rows->length; $index++) {
-            if (collect($this->readSpreadsheetRow($rows->item($index)))->contains(fn ($value) => filled($value))) {
+        for ($index = 2; $index < count($rows); $index++) {
+            if (collect($this->readSpreadsheetRow($rows[$index]))->contains(fn ($value) => filled($value))) {
                 $hasAdditionalData = true;
                 break;
             }
@@ -240,41 +227,27 @@ class EmployeeImport extends Component
         return $mapped;
     }
 
-    private function readSpreadsheetRow(?DOMNode $row): array
+    private function readSpreadsheetRow(string $rowContent): array
     {
-        if (! $row instanceof DOMElement) {
-            return [];
-        }
+        preg_match_all('/<(?:[a-zA-Z0-9_]+:)?Cell\\b([^>]*?)(?:\\/\\s*>|>(.*?)<\\/(?:[a-zA-Z0-9_]+:)?Cell>)/is', $rowContent, $cellMatches, PREG_SET_ORDER);
 
         $values = [];
         $nextIndex = 0;
 
-        foreach ($row->childNodes as $cell) {
-            if (! $cell instanceof DOMElement || $cell->localName !== 'Cell') {
-                continue;
+        foreach ($cellMatches as $cell) {
+            $attributes = $cell[1] ?? '';
+            $cellContent = $cell[2] ?? '';
+
+            if (preg_match('/(?:ss:)?Index\\s*=\\s*["\\'](\\d+)["\\']/i', $attributes, $indexMatch)) {
+                $nextIndex = max(0, (int) $indexMatch[1] - 1);
             }
 
-            $explicitIndex = null;
-            foreach ($cell->attributes ?? [] as $attribute) {
-                if ($attribute->localName === 'Index') {
-                    $explicitIndex = (int) $attribute->value - 1;
-                    break;
-                }
+            $value = '';
+            if (preg_match('/<(?:[a-zA-Z0-9_]+:)?Data\\b[^>]*>(.*?)<\\/(?:[a-zA-Z0-9_]+:)?Data>/is', $cellContent, $dataMatch)) {
+                $value = html_entity_decode(strip_tags($dataMatch[1]), ENT_QUOTES | ENT_XML1, 'UTF-8');
             }
 
-            if ($explicitIndex !== null && $explicitIndex >= 0) {
-                $nextIndex = $explicitIndex;
-            }
-
-            $data = null;
-            foreach ($cell->childNodes as $child) {
-                if ($child instanceof DOMElement && $child->localName === 'Data') {
-                    $data = $child->textContent;
-                    break;
-                }
-            }
-
-            $values[$nextIndex] = trim((string) ($data ?? ''));
+            $values[$nextIndex] = trim($value);
             $nextIndex++;
         }
 
