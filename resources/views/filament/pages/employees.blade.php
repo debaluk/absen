@@ -124,6 +124,12 @@
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
+            <div class="flex items-end">
+                <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" wire:target="exportExcel" class="inline-flex items-center gap-2 rounded-lg border border-success-600 px-4 py-2 text-sm font-semibold text-success-700 hover:bg-success-50 disabled:cursor-wait disabled:opacity-60 dark:text-success-300 dark:hover:bg-success-950">
+                    <x-heroicon-o-document-arrow-down class="h-5 w-5" />
+                    Excel
+                </button>
+            </div>
             <div class="min-w-56 flex-1">
                 <label for="filterName" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Cari Karyawan</label>
                 <x-filament::input.wrapper class="border">
@@ -264,6 +270,34 @@
                             <x-filament::input id="name" type="text" wire:model="name" maxlength="255" />
                         </x-filament::input.wrapper>
                         @error('name') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="address" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Alamat <span class="text-xs font-normal text-gray-400">(opsional)</span></label>
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('address')">
+                            <x-filament::input id="address" type="text" wire:model="address" />
+                        </x-filament::input.wrapper>
+                        @error('address') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="phone" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">No. HP/Telp <span class="text-xs font-normal text-gray-400">(opsional)</span></label>
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('phone')">
+                            <x-filament::input id="phone" type="text" wire:model="phone" maxlength="30" />
+                        </x-filament::input.wrapper>
+                        @error('phone') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="birth_place" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tempat Lahir <span class="text-xs font-normal text-gray-400">(opsional)</span></label>
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('birth_place')">
+                            <x-filament::input id="birth_place" type="text" wire:model="birth_place" maxlength="100" />
+                        </x-filament::input.wrapper>
+                        @error('birth_place') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="birth_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Lahir <span class="text-xs font-normal text-gray-400">(opsional)</span></label>
+                        <x-filament::input.wrapper class="border" :valid="! $errors->has('birth_date')">
+                            <x-filament::input id="birth_date" type="date" wire:model="birth_date" />
+                        </x-filament::input.wrapper>
+                        @error('birth_date') <p class="mt-1 text-xs text-danger-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="hire_date" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Mulai Bekerja</label>
