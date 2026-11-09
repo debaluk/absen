@@ -1,7 +1,8 @@
-- Import Data Karyawan mendukung banyak baris dalam satu file Excel. Setiap baris diproses dalam transaksi tersendiri; kegagalan satu baris tidak membatalkan baris lain. Progress menampilkan jumlah baris diproses serta ringkasan berhasil/gagal dan alasan kegagalan.
 # CHANGELOG — Fingerspot Management
 
 Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dicatat dalam satu log.
+
+- Import Data Karyawan mendukung banyak baris dalam satu file Excel. Setiap baris diproses dalam transaksi tersendiri; kegagalan satu baris tidak membatalkan baris lain. Progress menampilkan jumlah baris diproses serta ringkasan berhasil/gagal dan alasan kegagalan.
 
 ## LOG-001 — Tata Kelola Dokumentasi
 **Tanggal:** 2026-11-08
