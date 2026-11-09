@@ -27,6 +27,13 @@ class Employees extends Page
     public int $progress = 0;
     public ?string $resultStatus = null;
     public ?string $resultMessage = null;
+    public bool $importRunning = false;
+    public array $importRows = [];
+    public array $failedRows = [];
+    public int $totalRows = 0;
+    public int $processedRows = 0;
+    public int $successCount = 0;
+    public int $failedCount = 0;
     protected string $view = 'filament.pages.employees';
 
     protected static ?string $title = 'Karyawan';
@@ -639,6 +646,10 @@ class Employees extends Page
 
     public function closeModal(): void
     {
+        if ($this->importRunning) {
+            return;
+        }
+
         $this->isOpen = false;
         $this->resetImport();
     }
@@ -671,7 +682,7 @@ class Employees extends Page
             . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
             . '<Worksheet ss:Name="Import Karyawan"><Table>'
             . '<Row>' . $headerCells . '</Row>'
-            . '<Row>' . $emptyCells . '</Row>'
+            . str_repeat('<Row>' . $emptyCells . '</Row>', 10)
             . '</Table></Worksheet></Workbook>';
 
         return response()->streamDownload(
@@ -686,12 +697,10 @@ class Employees extends Page
     public function importEmployee(): void
     {
         $this->resetValidation();
-        $this->resultStatus = null;
-        $this->resultMessage = null;
-        $this->progress = 0;
+        $this->resetImportResult();
 
         try {
-            $validated = Validator::make(
+            Validator::make(
                 [
                     'workLocationId' => $this->workLocationId,
                     'file' => $this->file,
@@ -709,72 +718,82 @@ class Employees extends Page
                 ],
             )->validate();
 
-            $employeeData = $this->readEmployeeFromSpreadsheet($this->file->get());
+            $this->importRows = $this->readEmployeesFromSpreadsheet($this->file->get());
+            $this->totalRows = count($this->importRows);
 
-            $this->progress = 35;
+            if ($this->totalRows === 0) {
+                throw new ImportCancelledException('Tidak ada data karyawan yang dapat diimport.');
+            }
 
-            $this->validateEmployeeData($employeeData);
-
-            $employeeNo = DB::transaction(function () use ($employeeData, $validated) {
-                $this->assertNoDuplicateEmployee($employeeData);
-                $machineIdentity = $this->resolveMachineIdentity($employeeData);
-
-                $positionId = null;
-                if (filled($employeeData['position'])) {
-                    $positionId = DB::table('positions')
-                        ->whereRaw('LOWER(name) = ?', [mb_strtolower(trim($employeeData['position']))])
-                        ->value('id');
-
-                    if (! $positionId) {
-                        throw new ImportCancelledException('Jabatan "' . $employeeData['position'] . '" tidak ditemukan. Periksa nama jabatan pada template.');
-                    }
-                }
-
-                $employeeNo = $this->nextEmployeeNo();
-
-                DB::table('employees')->insert([
-                    'employee_no' => $employeeNo,
-                    'nik' => $employeeData['nik'] ?: null,
-                    'name' => $employeeData['name'],
-                    'address' => $employeeData['address'] ?: null,
-                    'phone' => $employeeData['phone'] ?: null,
-                    'birth_place' => $employeeData['birth_place'] ?: null,
-                    'birth_date' => $employeeData['birth_date'] ?: null,
-                    'hire_date' => $employeeData['hire_date'] ?: null,
-                    'attendance_start_date' => $employeeData['attendance_start_date'] ?: null,
-                    'employment_status' => 'active',
-                    'position_id' => $positionId,
-                    'work_location_id' => $validated['workLocationId'],
-                    'machine_user_cloud_id' => $machineIdentity['cloud_id'],
-                    'machine_user_pin' => $machineIdentity['pin'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                return $employeeNo;
-            });
-
-            $this->progress = 100;
-            $this->resultStatus = 'success';
-            $this->resultMessage = 'Karyawan berhasil diimport dengan kode ' . $employeeNo . '.';
+            $this->importRunning = true;
             $this->file = null;
         } catch (ImportCancelledException $exception) {
-            $this->progress = 100;
-            $this->resultStatus = 'cancelled';
+            $this->resultStatus = 'failed';
             $this->resultMessage = $exception->getMessage();
         } catch (ValidationException $exception) {
-            $this->progress = 100;
-            $this->resultStatus = 'cancelled';
-            $this->resultMessage = collect($exception->errors())->flatten()->first() ?: 'Data karyawan tidak valid. Import dibatalkan.';
+            $this->resultStatus = 'failed';
+            $this->resultMessage = collect($exception->errors())->flatten()->first() ?: 'Data import tidak valid.';
         } catch (Throwable $exception) {
             report($exception);
-            $this->progress = 100;
-            $this->resultStatus = 'cancelled';
-            $this->resultMessage = 'Import dibatalkan karena terjadi kesalahan saat memproses data. Periksa kembali file dan data mesin.';
+            $this->resultStatus = 'failed';
+            $this->resultMessage = 'File tidak dapat diproses. Periksa kembali file template Excel.';
         }
     }
 
-    private function readEmployeeFromSpreadsheet(string $contents): array
+    public function processImportBatch(): void
+    {
+        if (! $this->importRunning) {
+            return;
+        }
+
+        $batch = array_splice($this->importRows, 0, 10);
+
+        foreach ($batch as $employeeData) {
+            $rowNumber = (int) ($employeeData['_row'] ?? 0);
+
+            try {
+                $this->validateEmployeeData($employeeData);
+                $this->saveImportedEmployee($employeeData);
+                $this->successCount++;
+            } catch (ImportCancelledException $exception) {
+                $this->failedCount++;
+                $this->failedRows[] = [
+                    'row' => $rowNumber,
+                    'message' => $exception->getMessage(),
+                ];
+            } catch (Throwable $exception) {
+                report($exception);
+                $this->failedCount++;
+                $this->failedRows[] = [
+                    'row' => $rowNumber,
+                    'message' => 'Terjadi kesalahan saat menyimpan data karyawan.',
+                ];
+            }
+
+            $this->processedRows++;
+        }
+
+        $this->progress = $this->totalRows > 0
+            ? (int) floor(($this->processedRows / $this->totalRows) * 100)
+            : 100;
+
+        if ($this->processedRows >= $this->totalRows) {
+            $this->importRunning = false;
+            $this->resultStatus = $this->failedCount === 0
+                ? 'success'
+                : ($this->successCount > 0 ? 'partial' : 'failed');
+            $this->resultMessage = sprintf(
+                'Import selesai: %d berhasil dan %d gagal dari %d data.',
+                $this->successCount,
+                $this->failedCount,
+                $this->totalRows,
+            );
+            $this->importRows = [];
+            $this->progress = 100;
+        }
+    }
+
+    private function readEmployeesFromSpreadsheet(string $contents): array
     {
         if (! preg_match('/<(?:[a-zA-Z0-9_]+:)?Workbook\\b/i', $contents)) {
             throw new ImportCancelledException('File Excel tidak dapat dibaca. Gunakan template yang disediakan.');
@@ -784,12 +803,10 @@ class Employees extends Page
         $rows = $rowMatches[1] ?? [];
 
         if (count($rows) < 2) {
-            throw new ImportCancelledException('Template harus berisi satu baris judul dan satu baris data karyawan.');
+            throw new ImportCancelledException('Template harus berisi judul kolom dan minimal satu baris data karyawan.');
         }
 
         $headers = $this->readSpreadsheetRow($rows[0]);
-        $values = $this->readSpreadsheetRow($rows[1]);
-
         $columnMap = [
             'NIK' => 'nik',
             'Nama Karyawan' => 'name',
@@ -804,31 +821,89 @@ class Employees extends Page
             'ID Mesin' => 'cloud_id',
         ];
 
-        $mapped = [];
+        $columnIndexes = [];
         foreach ($columnMap as $header => $key) {
-            $index = array_search($header, $headers, true);
-            $mapped[$key] = $index === false ? null : trim((string) ($values[$index] ?? ''));
-        }
-
-        foreach ($columnMap as $header => $key) {
-            if (! in_array($header, $headers, true)) {
-                throw new ImportCancelledException('Kolom "' . $header . '" tidak ditemukan. Download ulang template Import Karyawan.');
+            $columnIndex = array_search($header, $headers, true);
+            if ($columnIndex === false) {
+                throw new ImportCancelledException('Kolom "' . $header . '" tidak ditemukan. Download ulang template Import Data Karyawan.');
             }
+            $columnIndexes[$key] = $columnIndex;
         }
 
-        $hasAdditionalData = false;
-        for ($index = 2; $index < count($rows); $index++) {
-            if (collect($this->readSpreadsheetRow($rows[$index]))->contains(fn ($value) => filled($value))) {
-                $hasAdditionalData = true;
-                break;
+        $employees = [];
+        foreach (array_slice($rows, 1) as $rowIndex => $rowContent) {
+            $values = $this->readSpreadsheetRow($rowContent);
+            $mapped = [];
+
+            foreach ($columnIndexes as $key => $columnIndex) {
+                $mapped[$key] = trim((string) ($values[$columnIndex] ?? ''));
             }
+
+            if (collect($mapped)->every(fn ($value) => blank($value))) {
+                continue;
+            }
+
+            $mapped['_row'] = $rowIndex + 2;
+            $employees[] = $mapped;
         }
 
-        if ($hasAdditionalData) {
-            throw new ImportCancelledException('Import hanya menerima satu karyawan dalam satu file. Hapus baris data tambahan.');
-        }
+        return $employees;
+    }
 
-        return $mapped;
+    private function saveImportedEmployee(array $employeeData): void
+    {
+        DB::transaction(function () use ($employeeData): void {
+            $this->assertNoDuplicateEmployee($employeeData);
+            $machineIdentity = $this->resolveMachineIdentity($employeeData);
+
+            $positionId = null;
+            if (filled($employeeData['position'])) {
+                $positionId = DB::table('positions')
+                    ->whereRaw('LOWER(name) = ?', [mb_strtolower(trim($employeeData['position']))])
+                    ->value('id');
+
+                if (! $positionId) {
+                    throw new ImportCancelledException(
+                        'Jabatan "' . $employeeData['position'] . '" tidak ditemukan.'
+                    );
+                }
+            }
+
+            $employeeNo = $this->nextEmployeeNo();
+
+            DB::table('employees')->insert([
+                'employee_no' => $employeeNo,
+                'nik' => $employeeData['nik'] ?: null,
+                'name' => $employeeData['name'],
+                'address' => $employeeData['address'] ?: null,
+                'phone' => $employeeData['phone'] ?: null,
+                'birth_place' => $employeeData['birth_place'] ?: null,
+                'birth_date' => $employeeData['birth_date'] ?: null,
+                'hire_date' => $employeeData['hire_date'] ?: null,
+                'attendance_start_date' => $employeeData['attendance_start_date'] ?: null,
+                'employment_status' => 'active',
+                'position_id' => $positionId,
+                'work_location_id' => $this->workLocationId,
+                'machine_user_cloud_id' => $machineIdentity['cloud_id'],
+                'machine_user_pin' => $machineIdentity['pin'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        });
+    }
+
+    private function resetImportResult(): void
+    {
+        $this->progress = 0;
+        $this->resultStatus = null;
+        $this->resultMessage = null;
+        $this->importRunning = false;
+        $this->importRows = [];
+        $this->failedRows = [];
+        $this->totalRows = 0;
+        $this->processedRows = 0;
+        $this->successCount = 0;
+        $this->failedCount = 0;
     }
 
     private function readSpreadsheetRow(string $rowContent): array
@@ -996,7 +1071,8 @@ class Employees extends Page
 
     private function resetImport(): void
     {
-        $this->reset(['workLocationId', 'file', 'progress', 'resultStatus', 'resultMessage']);
+        $this->reset(['workLocationId', 'file']);
+        $this->resetImportResult();
         $this->resetValidation();
     }
 
