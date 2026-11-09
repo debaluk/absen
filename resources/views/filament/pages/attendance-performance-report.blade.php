@@ -75,8 +75,8 @@
                 </div>
                 <span class="text-xs text-gray-500 dark:text-gray-400">Data dihitung sampai {{ \Illuminate\Support\Carbon::parse($periodEnd)->format('d/m/Y') }}</span>
             </div>
-            <div class="max-h-[65vh] overflow-auto">
-                <table class="min-w-max w-full border-separate border-spacing-0">
+            <div style="display: block; width: 100%; max-width: 100%; max-height: 65vh; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain;">
+                <table style="width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0;">
                     <thead>
                         <tr>
                             @foreach (['No.', 'Karyawan', 'Jabatan', 'Lokasi Kerja', 'Hari Efektif', 'Hadir', 'Izin', 'Sakit', 'Cuti', 'Dinas', 'ALPA', 'Terlambat (Menit)', 'Pulang Cepat (Menit)', 'Nilai Kehadiran', 'Nilai Ketepatan Waktu', 'Nilai Jam Kerja', 'Nilai Akhir', 'Kategori'] as $heading)
