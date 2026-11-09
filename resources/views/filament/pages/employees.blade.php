@@ -111,7 +111,6 @@
                         <option value="">Semua Registrasi</option>
                         <option value="registered">Sudah Terdaftar</option>
                         <option value="not_registered">Belum Terdaftar</option>
-                        <option value="unknown">Belum Diketahui</option>
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
