@@ -54,6 +54,10 @@
 
     <div class="attendance-report space-y-3">
         <div class="flex flex-wrap items-end gap-2">
+            <div wire:loading.flex wire:target="filterMonth,filterWorkLocationId,filterDepartmentId,filterName" class="items-center gap-2 rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-xs font-semibold text-primary-700 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-300">
+                <x-heroicon-o-arrow-path class="h-4 w-4 animate-spin" />
+                Memuat rekap...
+            </div>
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Bulan
                 <input type="month" wire:model.change="filterMonth" class="ar-filter mt-1 block">
@@ -80,13 +84,26 @@
                 Cari Nama Karyawan
                 <input type="search" wire:model.live.debounce.300ms="filterName" class="ar-filter mt-1 block w-full" placeholder="Ketik nama karyawan...">
             </label>
-            <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" class="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-success-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-success-500 disabled:cursor-wait disabled:opacity-60">
-                <x-heroicon-o-document-arrow-down class="h-4 w-4" />
-                Export Excel
+            <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" wire:target="exportExcel" class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-green-700 bg-green-700 px-4 text-sm font-bold text-white shadow-md transition hover:border-green-800 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-70">
+                <span wire:loading.remove wire:target="exportExcel" class="inline-flex items-center gap-2">
+                    <x-heroicon-o-arrow-down-tray class="h-5 w-5" />
+                    Unduh Excel
+                </span>
+                <span wire:loading.flex wire:target="exportExcel" class="items-center gap-2">
+                    <x-heroicon-o-arrow-path class="h-5 w-5 animate-spin" />
+                    Menyiapkan...
+                </span>
             </button>
         </div>
 
-        <div class="ar-scroll rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div class="relative">
+            <div wire:loading.flex wire:target="filterMonth,filterWorkLocationId,filterDepartmentId,filterName" class="absolute inset-0 z-30 items-start justify-center bg-white/60 pt-16 backdrop-blur-[1px] dark:bg-gray-950/60">
+                <div class="inline-flex h-fit items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-xs font-semibold text-gray-700 shadow-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                    <x-heroicon-o-arrow-path class="h-4 w-4 animate-spin text-primary-600" />
+                    Memperbarui data rekap...
+                </div>
+            </div>
+            <div class="ar-scroll rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             <table class="ar-table">
                 <colgroup>
                     <col style="width: 52px">
@@ -146,6 +163,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
         <p class="text-[11px] text-gray-500 dark:text-gray-400">Perhitungan berdasarkan log mesin, koreksi absensi, data izin, jadwal kerja, hari libur, dan tanggal mulai kewajiban absensi. Hari setelah tanggal hari ini belum dihitung.</p>
     </div>
