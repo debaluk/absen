@@ -75,6 +75,25 @@ Pengembangan Menu Karyawan, Rekap Absensi, Rekap Kehadiran, Dashboard, Import/Ex
 ### Hasil
 Rancangan Formula Performa Kehadiran tersedia sebagai dokumen pembahasan dan belum mengubah implementasi aplikasi.
 
+
+## LOG-004 — Implementasi Awal Formula Performa
+**Tanggal:** 2026-11-10
+
+### Resume Pekerjaan
+- Menambahkan migration tabel `attendance_performance_formulas` untuk menyimpan konfigurasi formula, masa berlaku, status, dan riwayat pembuat/perubah.
+- Menambahkan halaman **Formula Performa** pada group **Kelola**.
+- Menyediakan konfigurasi bobot kehadiran, ketepatan waktu, kepatuhan jam kerja, toleransi, pengurangan berbasis menit, dan kategori nilai.
+- Menyediakan status Draft, Berlaku, dan Berakhir. Formula tanpa tanggal akhir tetap berlaku sampai diakhiri atau digantikan oleh versi berikutnya.
+- Saat formula baru diaktifkan, formula aktif sebelumnya yang bertabrakan diakhiri sehari sebelum tanggal mulai formula baru.
+- Menampilkan aturan izin, sakit, dinas luar, ALPA, cakupan perusahaan, dan periode bulanan sebagai ketentuan tetap yang telah disepakati.
+- Menandai nilai awal sebagai contoh dan mensyaratkan konfirmasi sebelum aktivasi.
+
+### Status
+Implementasi awal tersedia di branch `main`. Migration dan halaman belum dijalankan pada lingkungan aplikasi; verifikasi runtime masih diperlukan.
+
+### Hasil
+Halaman pengaturan Formula Performa dan penyimpanan versinya telah ditambahkan. Perhitungan nilai dan laporan performa belum termasuk dalam pekerjaan ini.
+
 ---
 
 ## Pedoman Penulisan
