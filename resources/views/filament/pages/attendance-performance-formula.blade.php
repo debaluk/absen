@@ -1,10 +1,5 @@
 <x-filament-panels::page>
     <div class="space-y-6">
-        <div class="rounded-xl border border-warning-300 bg-warning-50 p-4 text-sm text-warning-900 dark:border-warning-700 dark:bg-warning-950 dark:text-warning-100">
-            <div class="font-semibold">Parameter awal masih contoh</div>
-            <p class="mt-1">Bobot, toleransi, pengurangan menit, dan batas kategori terisi sebagai simulasi dari dokumen rancangan. Formula harus disimpan sebagai Draft dan hanya diaktifkan setelah kebijakannya disahkan.</p>
-        </div>
-
         <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -20,25 +15,25 @@
                 <div class="grid gap-4 md:grid-cols-2">
                     <label class="space-y-1">
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Nama Formula</span>
-                        <input type="text" wire:model="name" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                        <input type="text" wire:model="name" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         @error('name')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
                     </label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="space-y-1">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Mulai Berlaku</span>
-                            <input type="date" wire:model="effectiveFrom" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="date" wire:model="effectiveFrom" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                             @error('effectiveFrom')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Akhir Berlaku</span>
-                            <input type="date" wire:model="effectiveUntil" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="date" wire:model="effectiveUntil" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                             <span class="text-xs text-gray-500">Kosong = tetap berlaku.</span>
                             @error('effectiveUntil')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
                         </label>
                     </div>
                     <label class="space-y-1 md:col-span-2">
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Keterangan</span>
-                        <textarea wire:model="description" rows="2" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"></textarea>
+                        <textarea wire:model="description" rows="2" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"></textarea>
                     </label>
                 </div>
 
@@ -48,15 +43,15 @@
                     <div class="mt-3 grid gap-4 md:grid-cols-3">
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Tingkat Kehadiran (%)</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="attendanceWeight" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="attendanceWeight" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Ketepatan Waktu (%)</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="punctualityWeight" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="punctualityWeight" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Kepatuhan Jam Kerja (%)</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="worktimeWeight" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="worktimeWeight" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                     </div>
                     @error('attendanceWeight')<p class="mt-2 text-xs text-danger-600">{{ $message }}</p>@enderror
@@ -67,15 +62,15 @@
                     <div class="mt-3 grid gap-4 md:grid-cols-3">
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Toleransi (menit)</span>
-                            <input type="number" min="0" max="240" wire:model="lateToleranceMinutes" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="240" wire:model="lateToleranceMinutes" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Satuan Pengurangan (menit)</span>
-                            <input type="number" min="1" wire:model="latePenaltyUnitMinutes" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="1" wire:model="latePenaltyUnitMinutes" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Poin Pengurangan per Satuan</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="latePenaltyPoints" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="latePenaltyPoints" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                     </div>
                 </div>
@@ -85,15 +80,15 @@
                     <div class="mt-3 grid gap-4 md:grid-cols-3">
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Toleransi (menit)</span>
-                            <input type="number" min="0" max="240" wire:model="earlyLeaveToleranceMinutes" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="240" wire:model="earlyLeaveToleranceMinutes" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Satuan Pengurangan (menit)</span>
-                            <input type="number" min="1" wire:model="earlyLeavePenaltyUnitMinutes" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="1" wire:model="earlyLeavePenaltyUnitMinutes" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Poin Pengurangan per Satuan</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="earlyLeavePenaltyPoints" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="earlyLeavePenaltyPoints" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                     </div>
                 </div>
@@ -103,15 +98,15 @@
                     <div class="mt-3 grid gap-4 md:grid-cols-3">
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Sangat Baik · mulai</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="veryGoodMin" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="veryGoodMin" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Baik · mulai</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="goodMin" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="goodMin" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                         <label class="space-y-1">
                             <span class="text-sm text-gray-700 dark:text-gray-200">Cukup · mulai</span>
-                            <input type="number" min="0" max="100" step="0.01" wire:model="fairMin" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                            <input type="number" min="0" max="100" step="0.01" wire:model="fairMin" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                         </label>
                     </div>
                     @error('veryGoodMin')<p class="mt-2 text-xs text-danger-600">{{ $message }}</p>@enderror
@@ -119,7 +114,7 @@
                 </div>
 
                 <div class="rounded-lg bg-gray-50 p-4 text-sm dark:bg-gray-800/60">
-                    <h3 class="font-semibold text-gray-900 dark:text-white">Aturan yang sudah disepakati</h3>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">Aturan :</h3>
                     <ul class="mt-2 list-inside list-disc space-y-1 text-xs text-gray-600 dark:text-gray-300">
                         <li>Izin disetujui: dikecualikan dari hari efektif.</li>
                         <li>Sakit disetujui: dikecualikan dari hari efektif dan dilaporkan terpisah.</li>
