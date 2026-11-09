@@ -2,6 +2,18 @@
 
 Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dicatat dalam satu log.
 
+## LOG-003 — Filter Departemen pada Dashboard
+**Tanggal:** 2026-11-09
+
+### Resume Pekerjaan
+- Menambahkan filter Departemen pada header Dashboard.
+- Menerapkan filter ke KPI karyawan, ringkasan kehadiran, jumlah scan, rekap karyawan per lokasi kerja, dan aktivitas scan terbaru.
+- Menggunakan relasi Jabatan–Departemen melalui `department_positions` tanpa menambah join yang dapat menggandakan baris karyawan.
+- Panel mesin tetap menampilkan perangkat berdasarkan filter Lokasi Kerja karena data mesin tidak memiliki pemetaan Departemen.
+
+### Hasil
+Dashboard dapat menampilkan ringkasan karyawan dan aktivitas absensi berdasarkan Departemen yang dipilih tanpa mengubah relasi atau data mesin.
+
 - Template Import Data Karyawan tidak lagi memuat PIN/ID Mesin. Proses import hanya menyimpan data karyawan dan lokasi kerja; penautan mesin dikelola terpisah.
 
 - Import Data Karyawan mendukung banyak baris dalam satu file Excel. Setiap baris diproses dalam transaksi tersendiri; kegagalan satu baris tidak membatalkan baris lain. Progress menampilkan jumlah baris diproses serta ringkasan berhasil/gagal dan alasan kegagalan.
