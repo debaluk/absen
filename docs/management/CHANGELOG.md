@@ -64,6 +64,19 @@ Pengembangan Menu Karyawan, Rekap Absensi, Rekap Kehadiran, Dashboard, Import/Ex
 
 ---
 
+## LOG-003 — Rancangan Formula Performa Kehadiran
+**Tanggal:** 2026-11-10
+
+### Resume Pekerjaan
+- Menambahkan dokumen rancangan Formula Performa Kehadiran pada `docs/management/RANCANGAN_FORMULA_PERFORMA_KEHADIRAN.md`.
+- Mendokumentasikan indikator, definisi status, rumus dan simulasi perhitungan, input konfigurasi, bobot usulan, kategori hasil, role/permission, rancangan laporan, validasi, kasus khusus, risiko, serta keputusan yang masih terbuka.
+- Menegaskan bahwa bobot dan parameter contoh masih berupa usulan dan belum menjadi keputusan implementasi.
+
+### Hasil
+Rancangan Formula Performa Kehadiran tersedia sebagai dokumen pembahasan dan belum mengubah implementasi aplikasi.
+
+---
+
 ## Pedoman Penulisan
 - Satu rangkaian pekerjaan dicatat dalam satu log.
 - Gunakan poin singkat pada Resume Pekerjaan dan satu kalimat pada Hasil.
