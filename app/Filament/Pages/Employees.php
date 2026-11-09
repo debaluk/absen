@@ -28,6 +28,7 @@ class Employees extends Page
     public ?string $resultStatus = null;
     public ?string $resultMessage = null;
     public bool $importRunning = false;
+    public ?string $importWorkLocationId = null;
     public array $importRows = [];
     public array $failedRows = [];
     public int $totalRows = 0;
@@ -718,6 +719,7 @@ class Employees extends Page
                 ],
             )->validate();
 
+            $this->importWorkLocationId = (string) $this->workLocationId;
             $this->importRows = $this->readEmployeesFromSpreadsheet($this->file->get());
             $this->totalRows = count($this->importRows);
 
@@ -883,7 +885,7 @@ class Employees extends Page
                 'attendance_start_date' => $employeeData['attendance_start_date'] ?: null,
                 'employment_status' => 'active',
                 'position_id' => $positionId,
-                'work_location_id' => $this->workLocationId,
+                'work_location_id' => $this->importWorkLocationId,
                 'machine_user_cloud_id' => $machineIdentity['cloud_id'],
                 'machine_user_pin' => $machineIdentity['pin'],
                 'created_at' => now(),
@@ -898,6 +900,7 @@ class Employees extends Page
         $this->resultStatus = null;
         $this->resultMessage = null;
         $this->importRunning = false;
+        $this->importWorkLocationId = null;
         $this->importRows = [];
         $this->failedRows = [];
         $this->totalRows = 0;
