@@ -63,7 +63,7 @@
             @endif
         </x-filament::section>
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" wire:poll.15s>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" wire:poll.3s>
             @forelse ($devices as $device)
                 @php
                     $status = $device->connection_state;
@@ -128,11 +128,11 @@
                             </select>
                         </div>
                         <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3">
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ $device->machine_users_count }} pengguna tersimpan
-                                · {{ $device->biometric_checked_count }} biometrik diperiksa
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                                <span>{{ $device->machine_users_count }} pengguna tersimpan</span>
+                                <span>{{ $device->biometric_checked_count }} biometrik diperiksa</span>
                                 @if ($device->biometric_pending_count > 0)
-                                    · {{ $device->biometric_pending_count }} menunggu respons mesin
+                                    <span>{{ $device->biometric_pending_count }} menunggu respons mesin</span>
                                 @endif
                             </div>
                             <div class="flex flex-wrap gap-2">
@@ -141,11 +141,39 @@
                                     color="primary"
                                     icon="heroicon-o-arrow-down-tray"
                                     wire:click="refreshMachineUsers('{{ $device->id }}')"
-                                    wire:loading.attr="disabled"
+                                    :disabled="in_array($device->sync_status, ['queued', 'running'], true)"
                                 >
-                                    Ambil Data dari Mesin
+                                    {{ in_array($device->sync_status, ['queued', 'running'], true) ? 'Sedang Diproses' : 'Ambil Data dari Mesin' }}
                                 </x-filament::button>
                             </div>
+                            @if (in_array($device->sync_status, ['queued', 'running'], true))
+                                <div class="sm:col-span-2">
+                                    <div class="mb-1 flex items-center justify-between text-xs">
+                                        <span class="font-medium text-primary-600">
+                                            {{ $device->sync_status === 'queued' ? 'Menunggu antrean' : 'Memproses data mesin' }}
+                                            · {{ $device->sync_processed }} / {{ $device->sync_total }}
+                                        </span>
+                                        <span class="text-gray-500">{{ $device->sync_progress }}%</span>
+                                    </div>
+                                    <div class="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                                        <div class="h-full rounded-full bg-primary-600 transition-all duration-300" style="width: {{ $device->sync_progress }}%"></div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $device->sync_checked }} berhasil · {{ $device->sync_unavailable }} tidak tersedia · {{ $device->sync_pending }} belum selesai
+                                    </div>
+                                </div>
+                            @elseif ($device->sync_status === 'completed')
+                                <div class="sm:col-span-2 text-xs text-success-600">
+                                    Selesai: {{ $device->sync_checked }} berhasil · {{ $device->sync_unavailable }} tidak tersedia.
+                                    @if ($device->sync_message)
+                                        <span class="text-gray-500">{{ $device->sync_message }}</span>
+                                    @endif
+                                </div>
+                            @elseif ($device->sync_status === 'failed')
+                                <div class="sm:col-span-2 text-xs text-danger-600">
+                                    Gagal: {{ $device->sync_message ?: 'Proses pengambilan data mesin gagal.' }}
+                                </div>
+                            @endif
                         </div>
                     </div>
                     </x-filament::section>
@@ -164,50 +192,5 @@
             @endforelse
         </div>
 
-        @if ($machineDataSyncing)
-            @php
-                $biometricProcessed = $machineDataSyncChecked + $machineDataSyncUnavailable;
-                $biometricProgress = $machineDataSyncTotal > 0
-                    ? min(100, (int) round(($biometricProcessed / $machineDataSyncTotal) * 100))
-                    : 0;
-            @endphp
-            <div
-                wire:key="machine-data-sync-overlay"
-                wire:poll.2s="continueMachineDataSync"
-                class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/60 p-4"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="machine-data-sync-title"
-            >
-                <div class="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900">
-                    <div class="flex items-center gap-3">
-                        <x-filament::icon icon="heroicon-o-arrow-path" class="h-6 w-6 animate-spin text-primary-600" />
-                        <h2 id="machine-data-sync-title" class="text-base font-semibold">
-                            Mengambil data mesin
-                        </h2>
-                    </div>
-                    <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                        Sedang memeriksa dan menyimpan biometrik seluruh pengguna. Jangan tutup halaman.
-                    </p>
-                    <div class="mt-5 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                        <div
-                            class="h-full rounded-full bg-primary-600 transition-all duration-300"
-                            style="width: {{ $biometricProgress }}%"
-                        ></div>
-                    </div>
-                    <div class="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{{ $biometricProcessed }} / {{ $machineDataSyncTotal }} selesai</span>
-                        <span>{{ $biometricProgress }}%</span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                        {{ $machineDataSyncChecked }} berhasil
-                        · {{ $machineDataSyncPending }} menunggu mesin
-                        @if ($machineDataSyncUnavailable > 0)
-                            · {{ $machineDataSyncUnavailable }} tidak tersedia
-                        @endif
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
 </x-filament-panels::page>

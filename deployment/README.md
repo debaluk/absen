@@ -18,6 +18,7 @@ Dari root folder repository:
 ```bash
 php artisan migrate --force
 sudo bash deployment/install-freedom-sync.sh
+sudo bash deployment/install-queue-worker.sh
 ```
 
 Installer mendeteksi folder repository, pemilik folder aplikasi, group, dan lokasi PHP CLI. Service dijalankan sebagai pemilik folder aplikasi, bukan root.
@@ -35,10 +36,24 @@ Jangan menonaktifkan timer systemd untuk menghentikan sinkronisasi sehari-hari. 
 ## Pemeriksaan
 
 ```bash
+systemctl status hadirra-queue-worker.service
+journalctl -u hadirra-queue-worker.service -f
+
 systemctl status hadirra-scheduler.timer
 systemctl list-timers hadirra-scheduler.timer
 systemctl status hadirra-scheduler.service
 journalctl -u hadirra-scheduler.service -f
+```
+
+## Queue Worker
+
+Pengambilan data pengguna mesin dijalankan melalui Laravel Queue. Pasang worker satu kali dengan installer di atas. Worker berjalan sebagai user pemilik aplikasi dan otomatis aktif kembali setelah server restart.
+
+Pemeriksaan:
+
+```bash
+systemctl status hadirra-queue-worker.service
+journalctl -u hadirra-queue-worker.service -f
 ```
 
 ## Uninstall

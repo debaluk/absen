@@ -2,12 +2,12 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\FreedomFingerBiometricSynchronizer;
-use App\Services\FreedomFingerEmployeeSynchronizer;
+use App\Jobs\StartMachineDataSync;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 use UnitEnum;
 
 class Devices extends Page
@@ -18,174 +18,77 @@ class Devices extends Page
     }
 
     protected string $view = 'filament.pages.device-registry';
-
     protected static ?string $title = 'Mesin';
-
     protected static ?string $navigationLabel = 'Mesin';
-
     protected static string | UnitEnum | null $navigationGroup = 'Pengaturan';
-
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-cpu-chip';
-
     protected static ?int $navigationSort = 4;
-
     protected ?string $subheading = 'Status koneksi dan informasi seluruh mesin absensi.';
-
-    public ?string $syncingMachineCloudId = null;
-
-    public bool $machineDataSyncing = false;
-
-    public int $machineDataSyncTotal = 0;
-
-    public int $machineDataSyncChecked = 0;
-
-    public int $machineDataSyncUnavailable = 0;
-
-    public int $machineDataSyncPending = 0;
 
     public function refreshMachineUsers(string $cloudId): void
     {
-        if ($this->machineDataSyncing) {
+        if (config('queue.default') === 'sync') {
+            Notification::make()->title('Queue belum aktif.')
+                ->body('Pengambilan data mesin membutuhkan koneksi Queue database.')
+                ->danger()->send();
             return;
         }
 
-        $result = app(FreedomFingerEmployeeSynchronizer::class)->syncMachineUsers($cloudId);
-
-        if (! $result['success']) {
-            Notification::make()
-                ->title('Pengambilan data mesin gagal.')
-                ->body($result['message'] ?? 'Periksa koneksi Freedom Finger.')
-                ->danger()
-                ->send();
-
+        if (! DB::table('devices')->where('cloud_id', $cloudId)->exists()) {
+            Notification::make()->title('Mesin tidak ditemukan.')->danger()->send();
             return;
         }
 
-        $this->syncingMachineCloudId = $cloudId;
-        $this->machineDataSyncTotal = DB::table('machine_users')
-            ->where('cloud_id', $cloudId)
-            ->count();
+        $status = DB::table('machine_data_syncs')->where('cloud_id', $cloudId)->value('status');
 
-        if ($this->machineDataSyncTotal === 0) {
-            $this->syncingMachineCloudId = null;
-
-            Notification::make()
-                ->title('Data mesin diperbarui.')
-                ->body('Tidak ada pengguna yang terdaftar pada mesin ini.')
-                ->success()
-                ->send();
-
+        if (in_array($status, ['queued', 'running'], true)) {
+            Notification::make()->title('Pengambilan data mesin sedang berjalan.')
+                ->body('Pantau progres pada kartu mesin tersebut.')->info()->send();
             return;
         }
 
-        $biometricResult = app(FreedomFingerBiometricSynchronizer::class)
-            ->requestForMachine($cloudId);
+        DB::table('machine_data_syncs')->updateOrInsert(
+            ['cloud_id' => $cloudId],
+            [
+                'status' => 'queued',
+                'total' => 0,
+                'checked' => 0,
+                'unavailable' => 0,
+                'pending' => 0,
+                'message' => null,
+                'started_at' => null,
+                'finished_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
 
-        if (! $biometricResult['success']) {
-            $this->syncingMachineCloudId = null;
+        try {
+            StartMachineDataSync::dispatch($cloudId);
 
-            Notification::make()
-                ->title('Data pengguna berhasil diambil, tetapi biometrik gagal dimulai.')
-                ->body($biometricResult['message'] ?? 'Periksa koneksi Freedom Finger.')
-                ->warning()
-                ->send();
-
-            return;
+            Notification::make()->title('Pengambilan data mesin dimasukkan ke antrean.')
+                ->body('Proses berjalan di belakang dan progres tampil pada kartu mesin.')
+                ->success()->send();
+        } catch (Throwable $exception) {
+            report($exception);
+            DB::table('machine_data_syncs')->where('cloud_id', $cloudId)->update([
+                'status' => 'failed',
+                'message' => 'Gagal memasukkan proses ke antrean.',
+                'finished_at' => now(),
+                'updated_at' => now(),
+            ]);
+            Notification::make()->title('Gagal memulai pengambilan data mesin.')->danger()->send();
         }
-
-        $this->machineDataSyncing = true;
-        $this->refreshMachineDataProgress();
-        $this->finishMachineDataSyncIfComplete();
-    }
-
-    public function continueMachineDataSync(): void
-    {
-        if (! $this->machineDataSyncing || blank($this->syncingMachineCloudId)) {
-            return;
-        }
-
-        $result = app(FreedomFingerBiometricSynchronizer::class)
-            ->syncNext($this->syncingMachineCloudId);
-
-        // Setelah satu PIN selesai, langsung mulai PIN berikutnya tanpa menunggu polling berikut.
-        if (in_array($result['status'] ?? null, ['checked', 'unavailable'], true)) {
-            $result = app(FreedomFingerBiometricSynchronizer::class)
-                ->syncNext($this->syncingMachineCloudId);
-        }
-
-        $this->refreshMachineDataProgress();
-
-        if ($this->finishMachineDataSyncIfComplete()) {
-            return;
-        }
-
-        if (($result['status'] ?? null) === 'idle' && $this->machineDataSyncPending === 0) {
-            $this->machineDataSyncing = false;
-            $this->syncingMachineCloudId = null;
-
-            Notification::make()
-                ->title('Pemeriksaan biometrik belum selesai.')
-                ->body('Sebagian pengguna belum mendapatkan hasil pemeriksaan. Silakan periksa status mesin.')
-                ->warning()
-                ->send();
-        }
-    }
-
-    private function refreshMachineDataProgress(): void
-    {
-        $query = DB::table('machine_users')
-            ->where('cloud_id', $this->syncingMachineCloudId);
-
-        $this->machineDataSyncChecked = (clone $query)
-            ->where('biometric_status', 'checked')
-            ->count();
-
-        $this->machineDataSyncUnavailable = (clone $query)
-            ->where('biometric_status', 'unavailable')
-            ->count();
-
-        $this->machineDataSyncPending = (clone $query)
-            ->where('biometric_status', 'pending')
-            ->count();
-    }
-
-    private function finishMachineDataSyncIfComplete(): bool
-    {
-        $processed = $this->machineDataSyncChecked + $this->machineDataSyncUnavailable;
-
-        if ($processed < $this->machineDataSyncTotal) {
-            return false;
-        }
-
-        $checked = $this->machineDataSyncChecked;
-        $unavailable = $this->machineDataSyncUnavailable;
-
-        $this->machineDataSyncing = false;
-        $this->syncingMachineCloudId = null;
-
-        Notification::make()
-            ->title('Pengambilan data mesin selesai.')
-            ->body($checked . ' biometrik berhasil diperiksa; ' . $unavailable . ' tidak dapat diperiksa.')
-            ->color($unavailable > 0 ? 'warning' : 'success')
-            ->send();
-
-        return true;
     }
 
     public function assignWorkLocation(string $cloudId, ?string $workLocationId): void
     {
         $deviceExists = DB::table('devices')->where('cloud_id', $cloudId)->exists();
-
         abort_unless($deviceExists, 404);
 
         if (blank($workLocationId)) {
             DB::table('devices_location')->where('cloud_id', $cloudId)->delete();
-
-            Notification::make()
-                ->title('Lokasi kerja perangkat dihapus.')
-                ->success()
-                ->send();
-
+            Notification::make()->title('Lokasi kerja perangkat dihapus.')->success()->send();
             return;
         }
 
@@ -195,11 +98,7 @@ class Devices extends Page
             ->exists();
 
         if (! $locationExists) {
-            Notification::make()
-                ->title('Lokasi kerja tidak valid atau tidak aktif.')
-                ->danger()
-                ->send();
-
+            Notification::make()->title('Lokasi kerja tidak valid atau tidak aktif.')->danger()->send();
             return;
         }
 
@@ -208,10 +107,7 @@ class Devices extends Page
             ['work_location_id' => $workLocationId],
         );
 
-        Notification::make()
-            ->title('Lokasi kerja perangkat berhasil disimpan.')
-            ->success()
-            ->send();
+        Notification::make()->title('Lokasi kerja perangkat berhasil disimpan.')->success()->send();
     }
 
     protected function getViewData(): array
@@ -237,6 +133,7 @@ class Devices extends Page
         $devices = DB::table('devices')
             ->leftJoin('devices_location', 'devices_location.cloud_id', '=', 'devices.cloud_id')
             ->leftJoin('work_locations', 'work_locations.id', '=', 'devices_location.work_location_id')
+            ->leftJoin('machine_data_syncs as sync', 'sync.cloud_id', '=', 'devices.cloud_id')
             ->select([
                 'devices.cloud_id',
                 'devices.name',
@@ -244,23 +141,26 @@ class Devices extends Page
                 'devices.last_activity',
                 'devices_location.work_location_id',
                 'work_locations.name as work_location_name',
+                'sync.status as sync_status',
+                'sync.total as sync_total',
+                'sync.checked as sync_checked',
+                'sync.unavailable as sync_unavailable',
+                'sync.pending as sync_pending',
+                'sync.message as sync_message',
             ])
             ->selectSub(
-                DB::table('machine_users')
-                    ->selectRaw('COUNT(*)')
+                DB::table('machine_users')->selectRaw('COUNT(*)')
                     ->whereColumn('machine_users.cloud_id', 'devices.cloud_id'),
                 'machine_users_count'
             )
             ->selectSub(
-                DB::table('machine_users')
-                    ->selectRaw('COUNT(*)')
+                DB::table('machine_users')->selectRaw('COUNT(*)')
                     ->whereColumn('machine_users.cloud_id', 'devices.cloud_id')
                     ->where('biometric_status', 'checked'),
                 'biometric_checked_count'
             )
             ->selectSub(
-                DB::table('machine_users')
-                    ->selectRaw('COUNT(*)')
+                DB::table('machine_users')->selectRaw('COUNT(*)')
                     ->whereColumn('machine_users.cloud_id', 'devices.cloud_id')
                     ->where('biometric_status', 'pending'),
                 'biometric_pending_count'
@@ -268,6 +168,11 @@ class Devices extends Page
             ->orderBy('devices.name')
             ->get()
             ->map(function ($device) {
+                $total = (int) ($device->sync_total ?? 0);
+                $checked = (int) ($device->sync_checked ?? 0);
+                $unavailable = (int) ($device->sync_unavailable ?? 0);
+                $processed = $checked + $unavailable;
+
                 return (object) [
                     'id' => $device->cloud_id,
                     'device_code' => $device->cloud_id,
@@ -281,6 +186,14 @@ class Devices extends Page
                     'machine_users_count' => (int) $device->machine_users_count,
                     'biometric_checked_count' => (int) $device->biometric_checked_count,
                     'biometric_pending_count' => (int) $device->biometric_pending_count,
+                    'sync_status' => $device->sync_status,
+                    'sync_total' => $total,
+                    'sync_checked' => $checked,
+                    'sync_unavailable' => $unavailable,
+                    'sync_pending' => (int) ($device->sync_pending ?? 0),
+                    'sync_processed' => $processed,
+                    'sync_progress' => $total > 0 ? min(100, (int) round(($processed / $total) * 100)) : 0,
+                    'sync_message' => $device->sync_message,
                 ];
             });
 
