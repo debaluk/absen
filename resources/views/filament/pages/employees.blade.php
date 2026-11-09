@@ -99,40 +99,49 @@
 
                 @if ($resultStatus)
                     <div class="space-y-3">
-                        <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                            <div class="h-2 w-full rounded-full {{ $resultStatus === 'success' ? 'bg-success-600' : ($resultStatus === 'partial' ? 'bg-warning-500' : 'bg-danger-600') }}"></div>
-                        </div>
-                        <div class="rounded-lg p-3 {{ $resultStatus === 'success' ? 'bg-success-50 text-success-800 dark:bg-success-950 dark:text-success-200' : ($resultStatus === 'partial' ? 'bg-warning-50 text-warning-800 dark:bg-warning-950 dark:text-warning-200' : 'bg-danger-50 text-danger-800 dark:bg-danger-950 dark:text-danger-200') }}">
-                            <p class="text-sm font-semibold">{{ $resultStatus === 'success' ? 'Import Berhasil' : ($resultStatus === 'partial' ? 'Import Selesai dengan Catatan' : 'Import Gagal') }}</p>
-                            <p class="mt-1 text-sm">{{ $resultMessage }}</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-semibold {{ $resultStatus === 'success' ? 'text-success-700 dark:text-success-300' : ($resultStatus === 'partial' ? 'text-warning-700 dark:text-warning-300' : 'text-danger-700 dark:text-danger-300') }}">
+                                {{ $resultStatus === 'success' ? 'Import Berhasil' : ($resultStatus === 'partial' ? 'Import Selesai' : 'Import Gagal') }}
+                            </p>
+                            @if ($totalRows > 0)
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $totalRows }} data diproses</span>
+                            @endif
                         </div>
 
                         @if ($totalRows > 0)
                             <div class="grid grid-cols-3 gap-2 text-center">
-                                <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                                    <p class="text-xl font-semibold text-gray-950 dark:text-white">{{ $totalRows }}</p>
+                                <div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                                    <p class="text-xl font-semibold text-gray-900 dark:text-white">{{ $totalRows }}</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
                                 </div>
-                                <div class="rounded-lg bg-success-50 p-3 dark:bg-success-950">
+                                <div class="rounded-lg border border-success-200 bg-success-50 p-3 dark:border-success-900 dark:bg-success-950">
                                     <p class="text-xl font-semibold text-success-700 dark:text-success-300">{{ $successCount }}</p>
                                     <p class="text-xs text-success-700 dark:text-success-300">Berhasil</p>
                                 </div>
-                                <div class="rounded-lg bg-danger-50 p-3 dark:bg-danger-950">
+                                <div class="rounded-lg border border-danger-200 bg-danger-50 p-3 dark:border-danger-900 dark:bg-danger-950">
                                     <p class="text-xl font-semibold text-danger-700 dark:text-danger-300">{{ $failedCount }}</p>
                                     <p class="text-xs text-danger-700 dark:text-danger-300">Gagal</p>
                                 </div>
                             </div>
+                        @else
+                            <div class="rounded-lg border border-danger-200 bg-danger-50 p-3 text-sm text-danger-700 dark:border-danger-900 dark:bg-danger-950 dark:text-danger-300">
+                                {{ $resultMessage }}
+                            </div>
                         @endif
 
                         @if (count($failedRows))
-                            <div class="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Detail data gagal</p>
-                                @foreach ($failedRows as $failedRow)
-                                    <div class="text-xs text-danger-700 dark:text-danger-300">
-                                        <span class="font-semibold">Baris {{ $failedRow['row'] }}:</span>
-                                        {{ $failedRow['message'] }}
-                                    </div>
-                                @endforeach
+                            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div class="border-b border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                    Rincian kegagalan
+                                </div>
+                                <div class="max-h-48 divide-y divide-gray-100 overflow-y-auto dark:divide-gray-700">
+                                    @foreach ($failedRows as $failedRow)
+                                        <div class="flex gap-3 px-3 py-2 text-sm">
+                                            <span class="shrink-0 font-medium text-danger-700 dark:text-danger-300">Baris {{ $failedRow['row'] }}</span>
+                                            <span class="text-gray-600 dark:text-gray-300">{{ $failedRow['message'] }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
                     </div>
