@@ -136,41 +136,46 @@ class AttendancePerformanceFormula extends Page
             return;
         }
 
-        DB::transaction(function () use ($formula) {
-            $start = $formula->effective_from;
-            $end = $formula->effective_until ?: '9999-12-31';
+        try {
+            DB::transaction(function () use ($formula) {
+                $start = $formula->effective_from;
+                $end = $formula->effective_until ?: '9999-12-31';
 
-            $overlapping = DB::table('attendance_performance_formulas')
-                ->where('status', 'active')
-                ->whereDate('effective_from', '<=', $end)
-                ->where(function ($query) use ($start) {
-                    $query->whereNull('effective_until')
-                        ->orWhereDate('effective_until', '>=', $start);
-                })
-                ->lockForUpdate()
-                ->get();
+                $overlapping = DB::table('attendance_performance_formulas')
+                    ->where('status', 'active')
+                    ->whereDate('effective_from', '<=', $end)
+                    ->where(function ($query) use ($start) {
+                        $query->whereNull('effective_until')
+                            ->orWhereDate('effective_until', '>=', $start);
+                    })
+                    ->lockForUpdate()
+                    ->get();
 
-            foreach ($overlapping as $current) {
-                if ($current->effective_from >= $start) {
-                    throw new \RuntimeException('Tanggal mulai formula baru bertabrakan dengan formula aktif yang sudah terjadwal.');
+                foreach ($overlapping as $current) {
+                    if ($current->effective_from >= $start) {
+                        throw new \\RuntimeException('Tanggal mulai formula baru bertabrakan dengan formula aktif yang sudah terjadwal.');
+                    }
+
+                    DB::table('attendance_performance_formulas')->where('id', $current->id)->update([
+                        'effective_until' => date('Y-m-d', strtotime($start . ' -1 day')),
+                        'status' => 'ended',
+                        'ended_at' => now(),
+                        'updated_by' => Auth::id(),
+                        'updated_at' => now(),
+                    ]);
                 }
 
-                DB::table('attendance_performance_formulas')->where('id', $current->id)->update([
-                    'effective_until' => date('Y-m-d', strtotime($start . ' -1 day')),
-                    'status' => 'ended',
-                    'ended_at' => now(),
+                DB::table('attendance_performance_formulas')->where('id', $formula->id)->update([
+                    'status' => 'active',
+                    'activated_at' => now(),
                     'updated_by' => Auth::id(),
                     'updated_at' => now(),
                 ]);
-            }
-
-            DB::table('attendance_performance_formulas')->where('id', $formula->id)->update([
-                'status' => 'active',
-                'activated_at' => now(),
-                'updated_by' => Auth::id(),
-                'updated_at' => now(),
-            ]);
-        });
+            });
+        } catch (\\RuntimeException $exception) {
+            Notification::make()->title($exception->getMessage())->danger()->send();
+            return;
+        }
 
         $this->confirmPolicy = false;
         Notification::make()->title('Formula berhasil diaktifkan. Formula sebelumnya diakhiri pada hari sebelum tanggal mulai formula baru.')->success()->send();
