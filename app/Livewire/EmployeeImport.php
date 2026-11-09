@@ -89,25 +89,25 @@ class EmployeeImport extends Component
         $this->resultMessage = null;
         $this->progress = 0;
 
-        $validated = Validator::make(
-            [
-                'workLocationId' => $this->workLocationId,
-                'file' => $this->file,
-            ],
-            [
-                'workLocationId' => ['required', 'integer', 'exists:work_locations,id'],
-                'file' => ['required', 'file', 'extensions:xls', 'max:2048'],
-            ],
-            [
-                'workLocationId.required' => 'Lokasi kerja wajib dipilih.',
-                'workLocationId.exists' => 'Lokasi kerja tidak ditemukan.',
-                'file.required' => 'File Excel wajib dipilih.',
-                'file.extensions' => 'Gunakan file template Excel berformat .xls.',
-                'file.max' => 'Ukuran file maksimal 2 MB.',
-            ],
-        )->validate();
-
         try {
+            $validated = Validator::make(
+                [
+                    'workLocationId' => $this->workLocationId,
+                    'file' => $this->file,
+                ],
+                [
+                    'workLocationId' => ['required', 'integer', 'exists:work_locations,id'],
+                    'file' => ['required', 'file', 'extensions:xls', 'max:2048'],
+                ],
+                [
+                    'workLocationId.required' => 'Lokasi kerja wajib dipilih.',
+                    'workLocationId.exists' => 'Lokasi kerja tidak ditemukan.',
+                    'file.required' => 'File Excel wajib dipilih.',
+                    'file.extensions' => 'Gunakan file template Excel berformat .xls.',
+                    'file.max' => 'Ukuran file maksimal 2 MB.',
+                ],
+            )->validate();
+
             $employeeData = $this->readEmployeeFromSpreadsheet($this->file->get());
 
             $this->progress = 35;
