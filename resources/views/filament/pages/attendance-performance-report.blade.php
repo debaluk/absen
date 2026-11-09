@@ -40,25 +40,40 @@
             </div>
         </section>
 
-        <section class="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
-            <div class="flex gap-3">
-                <x-heroicon-o-information-circle class="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-                <div>
-                    <h2 class="text-sm font-semibold text-blue-900 dark:text-blue-200">Rancangan Laporan Performa — {{ $monthLabel }}</h2>
-                    <p class="mt-1 text-xs leading-5 text-blue-800 dark:text-blue-300">
-                        Tampilan dan filter laporan sudah disiapkan. Nilai performa belum dihitung atau ditampilkan sebagai hasil resmi sampai sumber jadwal kerja per karyawan dan aturan perhitungan periode diselesaikan.
-                    </p>
+        @if ($formula)
+            <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $formula->name }}</h2>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Formula {{ $formula->code }} · Berlaku {{ IlluminateSupportCarbon::parse($formula->effective_from)->format('d/m/Y') }}
+                            @if ($formula->effective_until)
+                                s.d. {{ IlluminateSupportCarbon::parse($formula->effective_until)->format('d/m/Y') }}
+                            @else
+                                · Tanpa batas akhir
+                            @endif
+                        </p>
+                    </div>
+                    <span class="rounded-md bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-950 dark:text-green-300">Formula aktif</span>
                 </div>
-            </div>
-        </section>
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Bobot: Kehadiran {{ number_format($formula->attendance_weight, 2) }}% · Ketepatan waktu {{ number_format($formula->punctuality_weight, 2) }}% · Kepatuhan jam kerja {{ number_format($formula->worktime_weight, 2) }}%.
+                </p>
+            </section>
+        @else
+            <section class="rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+                <p class="text-sm font-semibold text-amber-900 dark:text-amber-200">Belum ada formula aktif untuk periode {{ $monthLabel }}.</p>
+                <p class="mt-1 text-xs text-amber-800 dark:text-amber-300">Data kehadiran tetap dihitung, tetapi nilai akhir dan kategori belum dapat ditentukan sampai formula diaktifkan.</p>
+            </section>
+        @endif
 
         <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
                 <div>
                     <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Rincian Performa Karyawan</h2>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $employees->count() }} karyawan sesuai filter</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ count($rows) }} karyawan · Periode {{ $monthLabel }}</p>
                 </div>
-                <span class="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">Periode Bulanan</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">Data dihitung sampai {{ IlluminateSupportCarbon::parse($periodEnd)->format('d/m/Y') }}</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
@@ -70,18 +85,26 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @forelse ($employees as $index => $employee)
-                            <tr wire:key="performance-report-{{ $employee->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                        @forelse ($rows as $index => $row)
+                            <tr wire:key="performance-report-{{ $row['employee']->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
                                 <td class="whitespace-nowrap px-3 py-3 text-xs text-gray-500">{{ $index + 1 }}</td>
                                 <td class="whitespace-nowrap px-3 py-3">
-                                    <div class="text-xs font-semibold text-gray-900 dark:text-white">{{ $employee->name }}</div>
-                                    <div class="text-[10px] text-gray-500">{{ $employee->employee_no }}</div>
+                                    <div class="text-xs font-semibold text-gray-900 dark:text-white">{{ $row['employee']->name }}</div>
+                                    <div class="text-[10px] text-gray-500">{{ $row['employee']->employee_no }}</div>
                                 </td>
-                                <td class="whitespace-nowrap px-3 py-3 text-xs text-gray-600 dark:text-gray-300">{{ $employee->position_name ?? '—' }}</td>
-                                <td class="whitespace-nowrap px-3 py-3 text-xs text-gray-600 dark:text-gray-300">{{ $employee->work_location_name ?? '—' }}</td>
-                                @for ($column = 0; $column < 14; $column++)
-                                    <td class="px-3 py-3 text-center text-xs text-gray-400">—</td>
-                                @endfor
+                                <td class="whitespace-nowrap px-3 py-3 text-xs text-gray-600 dark:text-gray-300">{{ $row['employee']->position_name ?? '—' }}</td>
+                                <td class="whitespace-nowrap px-3 py-3 text-xs text-gray-600 dark:text-gray-300">{{ $row['employee']->work_location_name ?? '—' }}</td>
+                                <td class="px-3 py-3 text-center text-xs tabular-nums">{{ $row['effective_days'] }}</td>
+                                @foreach (['hadir', 'izin', 'sakit', 'cuti', 'dinas', 'alpa'] as $key)
+                                    <td class="px-3 py-3 text-center text-xs tabular-nums">{{ $row['counts'][$key] }}</td>
+                                @endforeach
+                                <td class="px-3 py-3 text-center text-xs tabular-nums">{{ number_format($row['counts']['late_minutes']) }}</td>
+                                <td class="px-3 py-3 text-center text-xs tabular-nums">{{ number_format($row['counts']['early_leave_minutes']) }}</td>
+                                <td class="px-3 py-3 text-center text-xs tabular-nums">{{ number_format($row['attendance_score'], 2) }}</td>
+                                <td class="px-3 py-3 text-center text-xs tabular-nums">{{ number_format($row['punctuality_score'], 2) }}</td>
+                                <td class="px-3 py-3 text-center text-xs tabular-nums">{{ number_format($row['worktime_score'], 2) }}</td>
+                                <td class="px-3 py-3 text-center text-xs font-bold tabular-nums">{{ $row['final_score'] === null ? '—' : number_format($row['final_score'], 2) }}</td>
+                                <td class="whitespace-nowrap px-3 py-3 text-xs font-semibold">{{ $row['grade'] ?? '—' }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -92,5 +115,8 @@
                 </table>
             </div>
         </section>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400">
+            Cuti dan sakit dikeluarkan dari hari efektif; dinas luar dihitung hadir; izin tetap masuk hari efektif; ALPA tetap masuk hari efektif dan menurunkan nilai kehadiran. Karyawan baru mulai dihitung sejak tanggal mulai kewajiban absensinya.
+        </p>
     </div>
 </x-filament-panels::page>
