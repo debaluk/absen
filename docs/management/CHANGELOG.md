@@ -13,6 +13,8 @@ Catatan ringkas pekerjaan dan hasil penting proyek. Satu rangkaian pekerjaan dic
 ### Hasil
 Filter Departemen menyaring data rekap, sedangkan Export Excel menghasilkan file .xls sesuai filter aktif dan susunan kolom tabel; pengujian aplikasi belum dilakukan.
 
+- Memperbaiki penerapan filter Departemen dengan subquery `whereExists` terhadap pemetaan Jabatan–Departemen, serta menambahkan indikator loading saat filter diproses.
+- Memperjelas tombol export menjadi **Unduh Excel** dengan ikon, kontras visual lebih kuat, dan indikator proses export.
 ---
 
 ## LOG-003 — Filter Departemen pada Dashboard
