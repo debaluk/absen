@@ -391,3 +391,31 @@ php artisan optimize:clear
 Dokumentasi ini diperbarui mengikuti implementasi repository. Modul rekapitulasi dan proses pembentukan hasil kehadiran harian perlu didokumentasikan lebih lanjut setelah desain data dan implementasinya ditetapkan.
 
 Perubahan aturan bisnis, struktur database, integrasi mesin, dan prosedur instalasi harus disertai pembaruan dokumentasi ini agar README tetap menjadi acuan proyek.
+
+## Background Sync dan Queue Worker
+
+Pengambilan data pengguna dari mesin melalui fitur **Ambil Data dari Mesin** diproses di background menggunakan Laravel Queue dengan driver database.
+
+- Browser hanya memulai permintaan dan menampilkan status/progres; browser tidak menjalankan pekerjaan sinkronisasi.
+- Pekerjaan diproses per mesin berdasarkan `cloud_id` yang dipilih.
+- Daftar PIN dan informasi pengguna/biometrik diperiksa secara bertahap melalui job queue.
+- Status dan progres disimpan pada tabel `machine_data_syncs`, sehingga proses tetap berjalan saat halaman browser ditutup atau pengguna logout.
+- Queue Worker dijalankan sebagai systemd service `hadirra-queue-worker.service`, menggunakan user pemilik folder aplikasi dan bukan root.
+- Service diaktifkan saat boot sehingga worker berjalan kembali setelah VPS restart.
+
+Untuk instalasi, pemeriksaan service, pemantauan log, dan troubleshooting, lihat [Panduan Deployment](deployment/README.md).
+
+Pemeriksaan operasional worker di VPS dapat dilakukan dengan:
+
+```bash
+systemctl status hadirra-queue-worker.service
+journalctl -u hadirra-queue-worker.service -f
+```
+
+Progres sinkronisasi per mesin dapat diperiksa melalui Laravel:
+
+```bash
+php artisan tinker --execute="dump(DB::table('machine_data_syncs')->orderByDesc('updated_at')->get()->toArray());"
+```
+
+Proses dianggap selesai setelah seluruh PIN yang tercatat pada `total` telah diperiksa dan status sinkronisasi berubah ke status akhir. Jangan menilai keberhasilan hanya dari browser yang menampilkan proses berjalan.
