@@ -18,6 +18,14 @@
                     @endforeach
                 </select>
                 </label>
+                <label for="dashboard-department" class="flex items-center gap-2 text-sm font-medium text-slate-600">Departemen
+                    <select id="dashboard-department" wire:model.live="departmentId" class="fs-dashboard-select">
+                        <option value="">Semua departemen</option>
+                        @foreach ($departments as $department)
+                            <option value="{{ $department->id }}">{{ $department->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
             </div>
         </div>
 
