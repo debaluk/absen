@@ -508,8 +508,7 @@ class Employees extends Page
             ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
             ->when(filled($this->filterDepartmentId), fn ($rows) => $rows->where('department_id', (int) $this->filterDepartmentId))
             ->when($this->filterMachineRegistration === 'registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0))
-            ->when($this->filterMachineRegistration === 'not_registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status === 'checked' && $employee->finger_count !== null && (int) $employee->finger_count === 0))
-            ->when($this->filterMachineRegistration === 'unknown', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status !== 'checked' || $employee->finger_count === null))
+            ->when($this->filterMachineRegistration === 'not_registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status !== 'checked' || $employee->finger_count === null || (int) $employee->finger_count === 0))
             ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
             ->when(filled($this->filterName), fn ($rows) => $rows->filter(fn ($employee) => str_contains(mb_strtolower($employee->name), mb_strtolower(trim($this->filterName)))))
             ->values();
