@@ -680,7 +680,7 @@ class Employees extends Page
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'
             . '<?mso-application progid="Excel.Sheet"?>'
             . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-            . '<Worksheet ss:Name="Import Karyawan"><Table>'
+            . '<Worksheet ss:Name="Import Data Karyawan"><Table>'
             . '<Row>' . $headerCells . '</Row>'
             . str_repeat('<Row>' . $emptyCells . '</Row>', 10)
             . '</Table></Worksheet></Workbook>';
@@ -996,10 +996,10 @@ class Employees extends Page
 
             if ($existing) {
                 if (mb_strtolower(trim($existing->name)) === mb_strtolower(trim($data['name']))) {
-                    throw new ImportCancelledException('NIK dan nama karyawan sudah terdaftar. Import dibatalkan.');
+                    throw new ImportCancelledException('NIK dan nama karyawan sudah terdaftar. Data baris ini tidak diimport.');
                 }
 
-                throw new ImportCancelledException('NIK sudah digunakan oleh karyawan dengan nama berbeda. Import dibatalkan karena NIK harus unik.');
+                throw new ImportCancelledException('NIK sudah digunakan oleh karyawan dengan nama berbeda. Data baris ini tidak diimport karena NIK harus unik.');
             }
         }
     }
@@ -1016,7 +1016,7 @@ class Employees extends Page
             ->exists();
 
         if (! $machineUserExists) {
-            throw new ImportCancelledException('Kombinasi PIN dan ID Mesin tidak ditemukan pada data machine_users. Import dibatalkan.');
+            throw new ImportCancelledException('Kombinasi PIN dan ID Mesin tidak ditemukan pada data machine_users. Data baris ini tidak diimport.');
         }
 
         $machineLocationId = DB::table('devices_location')
@@ -1024,7 +1024,7 @@ class Employees extends Page
             ->value('work_location_id');
 
         if (! $machineLocationId) {
-            throw new ImportCancelledException('Lokasi mesin untuk ID Mesin tersebut belum diatur. Import dibatalkan.');
+            throw new ImportCancelledException('Lokasi mesin untuk ID Mesin tersebut belum diatur. Data baris ini tidak diimport.');
         }
 
         $duplicateMachineUser = DB::table('employees')
@@ -1035,7 +1035,7 @@ class Employees extends Page
             ->exists();
 
         if ($duplicateMachineUser) {
-            throw new ImportCancelledException('PIN tersebut sudah digunakan pada lokasi mesin yang sama. Import dibatalkan.');
+            throw new ImportCancelledException('PIN tersebut sudah digunakan pada lokasi mesin yang sama. Data baris ini tidak diimport.');
         }
 
         return ['cloud_id' => $data['cloud_id'], 'pin' => $data['pin']];
