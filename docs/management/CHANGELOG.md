@@ -29,6 +29,10 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Menyimpan status dan progres setiap mesin pada tabel `machine_data_syncs`, serta menampilkan progres secara langsung pada kartu mesin tanpa popup.
 - Menambahkan service worker Queue berbasis systemd agar antrean tetap diproses setelah browser ditutup atau server dimulai ulang.
 - Mendokumentasikan instalasi, pemeriksaan service, log worker, dan pemeriksaan progres background sync pada `deployment/README.md`.
+- Menambahkan filter gabungan pada daftar Karyawan dengan urutan Lokasi Kerja, Departemen, Reg Mesin, Status Aktif, dan pencarian nama/kode karyawan.
+- Menyederhanakan filter Reg Mesin menjadi **Sudah Terdaftar** dan **Belum Terdaftar**; status belum terdaftar mencakup PIN yang belum diketahui maupun yang belum memiliki sidik jari.
+- Menambahkan Export Excel yang mengikuti seluruh filter aktif, termasuk pencarian karyawan, serta menyertakan informasi perusahaan, metadata filter, dan kolom data karyawan.
+- Menambahkan field opsional Alamat, No. HP/Telp, Tempat Lahir, dan Tanggal Lahir pada data/form Karyawan untuk melengkapi kebutuhan export; field tersebut tidak diwajibkan.
 
 ### Alur Pengambilan Data dan Pemeriksaan Biometrik
 1. Admin menekan **Ambil Data dari Mesin** pada kartu mesin yang dipilih.
@@ -39,7 +43,7 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 6. Job Queue berjalan mandiri per mesin; progres disimpan di database dan ditampilkan inline pada kartu mesin. Browser boleh ditutup tanpa menghentikan pekerjaan selama Queue Worker aktif.
 
 ### Hasil
-Pengelolaan Departemen/Jabatan, Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta migration terkait telah dijalankan. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai dan pengujian CI belum terverifikasi.
+Pengelolaan Departemen/Jabatan, Ikut Rekap, penyaringan Rekap Absensi, filter daftar Karyawan, dan Export Excel telah diterapkan. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai, pengujian CI, dan pengujian menyeluruh filter/export belum terverifikasi.
 
 ---
 
