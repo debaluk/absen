@@ -77,7 +77,7 @@ class AttendanceReport extends Page
         $xml .= $mergedRow('Rekap Kehadiran Karyawan', 'title')
             . $mergedRow('Bulan : ' . $data['monthLabel'])
             . $mergedRow('Departemen : ' . ($data['selectedDepartmentName'] ?: 'Semua Departemen'))
-            . $mergedRow('Lokasi Kerja : ' . ($data['selectedWorkLocationName'] ?: 'Semua Lokasi Kerja'))
+            . $mergedRow('Lokasi Kerja : ' . ($data['selectedWorkLocationName'] ?: 'Semua Lokasi'))
             . '<Row/>';
 
         $xml .= '<Row>' . implode('', array_map(
