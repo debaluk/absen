@@ -14,7 +14,7 @@
         x-data="{ open: @entangle('isOpen') }"
         x-show="open"
         x-cloak
-        x-on:keydown.escape.window="open = false; $wire.closeModal()"
+        x-on:keydown.escape.window="if (! $wire.importRunning) { open = false; $wire.closeModal() }"
         class="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto bg-gray-950/60 p-4"
         style="display: none;"
     >
@@ -22,16 +22,16 @@
             x-show="open"
             x-transition
             class="my-8 w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-xl dark:bg-gray-900"
-            @click.outside="open = false; $wire.closeModal()"
+            @click.outside="if (! $wire.importRunning) { open = false; $wire.closeModal() }"
         >
             <div class="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-700">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Import Data Karyawan</h2>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Download terlebih dahulu template untuk import data karyawan secara masal. Pilih lokasi karyawan untuk menentukan lokasi karyawan.</p>
                 </div>
                 <button
                     type="button"
                     wire:click="closeModal"
+                    @disabled($importRunning)
                     class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
                     aria-label="Tutup"
                 >✕</button>
