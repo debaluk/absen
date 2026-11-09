@@ -34,6 +34,8 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Menambahkan Export Excel yang mengikuti seluruh filter aktif, termasuk pencarian karyawan, serta menyertakan informasi perusahaan, metadata filter, dan kolom data karyawan.
 - Menambahkan field opsional Alamat, No. HP/Telp, Tempat Lahir, dan Tanggal Lahir pada data/form Karyawan untuk melengkapi kebutuhan export; field tersebut tidak diwajibkan.
 - Menambahkan popup **Import Karyawan** dengan petunjuk, pilihan Lokasi Kerja, upload file Excel, download template, progress bar, dan informasi hasil **Berhasil** atau **Dibatalkan**.
+- Menyatukan logika dan tampilan Import ke `app/Filament/Pages/Employees.php` dan `resources/views/filament/pages/employees.blade.php`; tidak menggunakan komponen Livewire Import terpisah.
+- Memperbaiki sintaks regex pembacaan file Excel yang menyebabkan PHP ParseError pada komponen Import sebelumnya.
 - Membatasi satu file untuk satu karyawan; kode karyawan dibuat otomatis dengan melanjutkan pola kode terakhir yang memiliki akhiran angka (menggunakan pola `EMP000001` jika belum ada kode sebelumnya).
 - Memvalidasi NIK dan nama terhadap data yang sudah ada, memastikan PIN dan ID Mesin terdaftar pada `machine_users`, serta membatalkan import jika PIN sudah digunakan pada lokasi mesin yang sama.
 - Memisahkan Lokasi Kerja hasil import dari lokasi mesin; lokasi kerja berasal dari pilihan pada popup, sedangkan lokasi mesin hanya digunakan untuk validasi duplikasi PIN.
