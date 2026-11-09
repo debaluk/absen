@@ -12,7 +12,7 @@
                 </label>
                 <label for="dashboard-location" class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-600">Lokasi kerja
                 <select id="dashboard-location" wire:model.live="workLocationId" class="fs-dashboard-select">
-                    <option value="">Semua cabang</option>
+                    <option value="">Semua Lokasi</option>
                     @foreach ($workLocations as $location)
                         <option value="{{ $location->id }}">{{ $location->name }}</option>
                     @endforeach
