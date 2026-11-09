@@ -102,6 +102,14 @@ class Employees extends Page
 
     public string $name = '';
 
+    public ?string $address = null;
+
+    public ?string $phone = null;
+
+    public ?string $birth_place = null;
+
+    public ?string $birth_date = null;
+
     public ?string $hire_date = null;
 
     public ?string $attendance_start_date = null;
@@ -235,6 +243,10 @@ class Employees extends Page
                 'employee_no' => $this->employee_no,
                 'nik' => $this->nik,
                 'name' => $this->name,
+                'address' => $this->address,
+                'phone' => $this->phone,
+                'birth_place' => $this->birth_place,
+                'birth_date' => $this->birth_date,
                 'hire_date' => $this->hire_date,
                 'attendance_start_date' => $this->attendance_start_date,
                 'employment_status' => $this->employment_status,
@@ -256,6 +268,10 @@ class Employees extends Page
                     Rule::unique('employees', 'nik')->ignore($this->editingEmployeeId),
                 ],
                 'name' => ['required', 'string', 'max:255'],
+                'address' => ['nullable', 'string', 'max:5000'],
+                'phone' => ['nullable', 'string', 'max:30'],
+                'birth_place' => ['nullable', 'string', 'max:100'],
+                'birth_date' => ['nullable', 'date'],
                 'hire_date' => ['nullable', 'date'],
                 'attendance_start_date' => [
                     'nullable',
@@ -323,6 +339,10 @@ class Employees extends Page
             'employee_no' => $validated['employee_no'],
             'nik' => filled($validated['nik']) ? $validated['nik'] : null,
             'name' => $validated['name'],
+            'address' => filled($validated['address']) ? $validated['address'] : null,
+            'phone' => filled($validated['phone']) ? $validated['phone'] : null,
+            'birth_place' => filled($validated['birth_place']) ? $validated['birth_place'] : null,
+            'birth_date' => $validated['birth_date'] ?: null,
             'hire_date' => $validated['hire_date'] ?: null,
             'attendance_start_date' => $validated['attendance_start_date'] ?: null,
             'employment_status' => $validated['employment_status'],
@@ -361,6 +381,10 @@ class Employees extends Page
         $this->employee_no = $employee->employee_no;
         $this->nik = $employee->nik;
         $this->name = $employee->name;
+        $this->address = $employee->address;
+        $this->phone = $employee->phone;
+        $this->birth_place = $employee->birth_place;
+        $this->birth_date = $employee->birth_date;
         $this->hire_date = $employee->hire_date;
         $this->attendance_start_date = $employee->attendance_start_date;
         $this->employment_status = $employee->employment_status;
@@ -372,6 +396,144 @@ class Employees extends Page
 
         $this->resetValidation();
         $this->isFormModalOpen = true;
+    }
+
+
+    public function exportExcel(): \\Symfony\\Component\\HttpFoundation\\StreamedResponse
+    {
+        $employees = DB::table('employees')
+            ->leftJoin('positions', 'positions.id', '=', 'employees.position_id')
+            ->leftJoin('work_locations', 'work_locations.id', '=', 'employees.work_location_id')
+            ->leftJoin('department_positions', 'department_positions.position_id', '=', 'employees.position_id')
+            ->leftJoin('departments', 'departments.id', '=', 'department_positions.department_id')
+            ->leftJoin('machine_users', function ($join) {
+                $join->on('machine_users.cloud_id', '=', 'employees.machine_user_cloud_id')
+                    ->on('machine_users.pin', '=', 'employees.machine_user_pin');
+            })
+            ->select([
+                'employees.employee_no',
+                'employees.nik',
+                'employees.name',
+                'employees.address',
+                'employees.phone',
+                'employees.birth_place',
+                'employees.birth_date',
+                'employees.hire_date',
+                'employees.machine_user_pin',
+                'employees.machine_user_cloud_id',
+                'employees.employment_status',
+                'employees.work_location_id',
+                'departments.id as department_id',
+                'departments.name as department_name',
+                'positions.name as position_name',
+                'work_locations.name as work_location_name',
+                'machine_users.finger_count',
+                'machine_users.biometric_status',
+            ])
+            ->orderBy('employees.name')
+            ->get()
+            ->when(filled($this->filterWorkLocationId), fn ($rows) => $rows->where('work_location_id', (int) $this->filterWorkLocationId))
+            ->when(filled($this->filterDepartmentId), fn ($rows) => $rows->where('department_id', (int) $this->filterDepartmentId))
+            ->when($this->filterMachineRegistration === 'registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0))
+            ->when($this->filterMachineRegistration === 'not_registered', fn ($rows) => $rows->filter(fn ($employee) => $employee->biometric_status !== 'checked' || $employee->finger_count === null || (int) $employee->finger_count === 0))
+            ->when(filled($this->filterStatus), fn ($rows) => $rows->where('employment_status', $this->filterStatus))
+            ->when(filled($this->filterName), fn ($rows) => $rows->filter(fn ($employee) => str_contains(mb_strtolower($employee->name), mb_strtolower(trim($this->filterName)))))
+            ->values();
+
+        $company = DB::table('companies')->orderBy('id')->first();
+        $locationLabel = filled($this->filterWorkLocationId)
+            ? (DB::table('work_locations')->where('id', $this->filterWorkLocationId)->value('name') ?: '—')
+            : 'Semua Lokasi';
+        $departmentLabel = filled($this->filterDepartmentId)
+            ? (DB::table('departments')->where('id', $this->filterDepartmentId)->value('name') ?: '—')
+            : 'Semua Departemen';
+        $registrationLabel = match ($this->filterMachineRegistration) {
+            'registered' => 'Sudah Terdaftar',
+            'not_registered' => 'Belum Terdaftar',
+            default => 'Semua Registrasi',
+        };
+        $statusLabel = match ($this->filterStatus) {
+            'active' => 'Aktif',
+            'inactive' => 'Tidak Aktif',
+            default => 'Semua Status',
+        };
+
+        $escape = static fn ($value): string => htmlspecialchars((string) ($value ?? ''), ENT_XML1 | ENT_COMPAT, 'UTF-8');
+        $cell = static fn ($value, string $style = 'Cell'): string =>
+            '<Cell ss:StyleID="' . $style . '"><Data ss:Type="String">' . $escape($value) . '</Data></Cell>';
+        $mergedRow = static fn ($value, string $style): string =>
+            '<Row><Cell ss:StyleID="' . $style . '" ss:MergeAcross="13"><Data ss:Type="String">' . $escape($value) . '</Data></Cell></Row>';
+
+        $xmlRows = [];
+        $xmlRows[] = $mergedRow($company->name ?? 'Nama Perusahaan', 'Company');
+        $xmlRows[] = $mergedRow($company->address ?? '', 'CompanyAddress');
+        $xmlRows[] = $mergedRow('DATA KARYAWAN', 'Title');
+        $xmlRows[] = $mergedRow('Lokasi : ' . $locationLabel, 'Filter');
+        $xmlRows[] = $mergedRow('Departemen : ' . $departmentLabel, 'Filter');
+        $xmlRows[] = $mergedRow('Reg. Mesin : ' . $registrationLabel, 'Filter');
+        $xmlRows[] = $mergedRow('Status Aktif : ' . $statusLabel, 'Filter');
+
+        $headers = ['No', 'Kode', 'Nama Karyawan', 'Jabatan', 'Departemen', 'NIK', 'Alamat', 'No. HP/Telp', 'Tempat/Tgl. Lahir', 'PIN', 'ID Mesin', 'Terdaftar', 'Mulai Bekerja', 'Lokasi Kerja'];
+        $xmlRows[] = '<Row>' . implode('', array_map(fn ($header) => $cell($header, 'Header'), $headers)) . '</Row>';
+
+        foreach ($employees as $index => $employee) {
+            $birth = trim(implode(' / ', array_filter([
+                $employee->birth_place,
+                $employee->birth_date ? \\Illuminate\\Support\\Carbon::parse($employee->birth_date)->format('d-m-Y') : null,
+            ])));
+            $registration = $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0
+                ? 'Sudah Terdaftar (' . (int) $employee->finger_count . ' Jari)'
+                : 'Belum Terdaftar';
+            $hireDate = $employee->hire_date
+                ? \\Illuminate\\Support\\Carbon::parse($employee->hire_date)->format('d-m-Y')
+                : '';
+
+            $values = [
+                $index + 1,
+                $employee->employee_no,
+                $employee->name,
+                $employee->position_name,
+                $employee->department_name,
+                $employee->nik,
+                $employee->address,
+                $employee->phone,
+                $birth,
+                $employee->machine_user_pin,
+                $employee->machine_user_cloud_id,
+                $registration,
+                $hireDate,
+                $employee->work_location_name,
+            ];
+            $xmlRows[] = '<Row>' . implode('', array_map(fn ($value) => $cell($value), $values)) . '</Row>';
+        }
+
+        $widths = [40, 80, 160, 120, 120, 110, 180, 110, 140, 65, 110, 130, 100, 120];
+        $xmlColumns = implode('', array_map(
+            fn ($width) => '<Column ss:Width="' . $width . '"/>',
+            $widths,
+        ));
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<?mso-application progid="Excel.Sheet"?>'
+            . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
+            . '<Styles>'
+            . '<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="10"/></Style>'
+            . '<Style ss:ID="Company"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Arial" ss:Size="14" ss:Bold="1"/></Style>'
+            . '<Style ss:ID="CompanyAddress"><Alignment ss:Horizontal="Center" ss:WrapText="1"/><Font ss:FontName="Arial" ss:Size="10"/></Style>'
+            . '<Style ss:ID="Title"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Arial" ss:Size="12" ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/></Style>'
+            . '<Style ss:ID="Filter"><Font ss:FontName="Arial" ss:Size="10"/></Style>'
+            . '<Style ss:ID="Header"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Arial" ss:Size="10" ss:Bold="1"/><Interior ss:Color="#D9E1F2" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'
+            . '<Style ss:ID="Cell"><Alignment ss:Vertical="Top" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D9D9D9"/></Borders></Style>'
+            . '</Styles><Worksheet ss:Name="Data Karyawan"><Table>' . $xmlColumns . implode('', $xmlRows)
+            . '</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>8</SplitHorizontal><TopRowBottomPane>8</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions></Worksheet></Workbook>';
+
+        return response()->streamDownload(
+            static function () use ($xml): void {
+                echo $xml;
+            },
+            'data-karyawan-' . now()->format('Ymd_His') . '.xls',
+            ['Content-Type' => 'application/vnd.ms-excel; charset=UTF-8'],
+        );
     }
 
     public function toggleReportInclusion(int $employeeId): void
@@ -438,6 +600,10 @@ class Employees extends Page
             'employee_no',
             'nik',
             'name',
+            'address',
+            'phone',
+            'birth_place',
+            'birth_date',
             'hire_date',
             'attendance_start_date',
             'employment_status',
