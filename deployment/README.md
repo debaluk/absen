@@ -33,28 +33,54 @@ Buka **Absensi → Log Mesin**, lalu centang **Aktifkan Sync Otomatis**.
 
 Jangan menonaktifkan timer systemd untuk menghentikan sinkronisasi sehari-hari. Gunakan centang di halaman Log Mesin.
 
-## Pemeriksaan
+## Background Sync Data Pengguna Mesin
+
+Fitur **Ambil Data dari Mesin** diproses melalui Laravel Queue dengan queue database.
+
+- Browser hanya mengirim permintaan awal dan menampilkan progres. Browser tidak menjalankan proses sinkronisasi.
+- Setiap pekerjaan dibatasi pada `cloud_id` mesin yang dipilih.
+- Pengambilan daftar PIN dan pemeriksaan informasi pengguna/biometrik berjalan bertahap melalui job queue.
+- Status dan progres disimpan pada tabel `machine_data_syncs`, sehingga halaman dapat ditutup tanpa menghentikan pekerjaan.
+- Queue Worker dijalankan sebagai systemd service dan otomatis aktif kembali setelah VPS restart.
+- Worker dijalankan sebagai pemilik folder aplikasi, bukan sebagai root.
+
+Pasang Queue Worker satu kali menggunakan installer pada bagian Instalasi. Jangan menjalankan `queue:work` secara manual bersamaan dengan service systemd yang sama karena dapat menyebabkan worker ganda.
+
+## Pemeriksaan Service
+
+Queue Worker:
 
 ```bash
 systemctl status hadirra-queue-worker.service
 journalctl -u hadirra-queue-worker.service -f
+```
 
+Scheduler:
+
+```bash
 systemctl status hadirra-scheduler.timer
 systemctl list-timers hadirra-scheduler.timer
 systemctl status hadirra-scheduler.service
 journalctl -u hadirra-scheduler.service -f
 ```
 
-## Queue Worker
-
-Pengambilan data pengguna mesin dijalankan melalui Laravel Queue. Pasang worker satu kali dengan installer di atas. Worker berjalan sebagai user pemilik aplikasi dan otomatis aktif kembali setelah server restart.
-
-Pemeriksaan:
+Untuk memeriksa status dan progres sinkronisasi per mesin melalui Laravel:
 
 ```bash
-systemctl status hadirra-queue-worker.service
-journalctl -u hadirra-queue-worker.service -f
+php artisan tinker --execute="dump(DB::table('machine_data_syncs')->orderByDesc('updated_at')->get()->toArray());"
 ```
+
+Kolom penting:
+- `cloud_id`: identitas mesin yang sedang diproses.
+- `status`: status proses sinkronisasi.
+- `total`: jumlah PIN yang akan diperiksa.
+- `checked`: jumlah PIN yang sudah diperiksa.
+- `unavailable`: jumlah PIN yang tidak tersedia.
+- `pending`: jumlah PIN yang belum selesai diperiksa.
+- `message`: keterangan proses.
+- `started_at` dan `finished_at`: waktu mulai dan selesai.
+
+Jika progres tidak bergerak, periksa status service dan log Queue Worker sebelum mengambil tindakan lain.
 
 ## Uninstall
 
