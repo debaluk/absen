@@ -28,6 +28,7 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 - Memindahkan proses **Ambil Data dari Mesin** ke Laravel Queue per `cloud_id`; tombol pada masing-masing kartu tetap menjadi pemicu proses dan pekerjaan berlanjut di backend sampai selesai tanpa bergantung pada tab browser.
 - Menyimpan status dan progres setiap mesin pada tabel `machine_data_syncs`, serta menampilkan progres secara langsung pada kartu mesin tanpa popup.
 - Menambahkan service worker Queue berbasis systemd agar antrean tetap diproses setelah browser ditutup atau server dimulai ulang.
+- Mendokumentasikan instalasi, pemeriksaan service, log worker, dan pemeriksaan progres background sync pada `deployment/README.md`.
 
 ### Alur Pengambilan Data dan Pemeriksaan Biometrik
 1. Admin menekan **Ambil Data dari Mesin** pada kartu mesin yang dipilih.
@@ -35,10 +36,10 @@ Dokumentasi proyek memiliki acuan utama dan riwayat pekerjaan yang mudah ditelus
 3. Untuk setiap PIN, aplikasi meminta `get_userinfo` dan menyimpan `finger_count` setelah hasil diterima.
 4. Proses berjalan bertahap mengikuti respons asinkron mesin sampai seluruh PIN selesai diproses.
 5. Seluruh pembacaan dan pembaruan dibatasi pada `cloud_id` mesin yang dipilih; template biometrik tidak disimpan di MySQL.
-6. Job Queue berjalan mandiri per mesin; progres disimpan di database dan ditampilkan inline pada kartu mesin.
+6. Job Queue berjalan mandiri per mesin; progres disimpan di database dan ditampilkan inline pada kartu mesin. Browser boleh ditutup tanpa menghentikan pekerjaan selama Queue Worker aktif.
 
 ### Hasil
-Pengelolaan Departemen/Jabatan, Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta diuji termasuk migration. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan; pengujian CI dan pengujian langsung ke mesin belum dilakukan.
+Pengelolaan Departemen/Jabatan, Ikut Rekap, dan penyaringan Rekap Absensi telah diterapkan serta migration terkait telah dijalankan. Alur biometrik disederhanakan dengan menghapus pembandingan timestamp cache dan finalisasi cache. Implementasi Queue dan tampilan progres per mesin telah ditambahkan. Validasi operasional di VPS menunjukkan service `hadirra-queue-worker.service` aktif dan job `ContinueMachineDataSync` diproses; pada pemeriksaan terakhir, progres tercatat 13 dari 99 PIN (status masih berjalan). Sinkronisasi sampai seluruh PIN selesai dan pengujian CI belum terverifikasi.
 
 ---
 
