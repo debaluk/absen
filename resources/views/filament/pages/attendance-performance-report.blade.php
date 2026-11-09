@@ -66,42 +66,54 @@
     </style>
     <div class="attendance-performance space-y-5">
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div class="grid items-end gap-3 sm:grid-cols-[minmax(10rem,0.8fr)_minmax(14rem,1.5fr)_auto]">
                 <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                     Periode
                     <input type="month" wire:model.live="filterMonth" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                 </label>
                 <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
-                    Lokasi Kerja
-                    <select wire:model.live="filterWorkLocationId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
-                        <option value="">Semua Lokasi</option>
-                        @foreach ($workLocations as $location)
-                            <option value="{{ $location->id }}">{{ $location->name }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
-                    Departemen
-                    <select wire:model.live="filterDepartmentId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
-                        <option value="">Semua Departemen</option>
-                        @foreach ($departments as $department)
-                            <option value="{{ $department->id }}">{{ $department->name }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
-                    Jabatan
-                    <select wire:model.live="filterPositionId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
-                        <option value="">Semua Jabatan</option>
-                        @foreach ($positions as $position)
-                            <option value="{{ $position->id }}">{{ $position->name }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
                     Cari Karyawan
                     <input type="search" wire:model.live.debounce.300ms="filterName" placeholder="Nama karyawan..." class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                 </label>
+                <details class="relative justify-self-start sm:justify-self-end">
+                    <summary class="flex min-h-[2.5rem] cursor-pointer list-none items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200 dark:hover:bg-gray-800 [&::-webkit-details-marker]:hidden">
+                        <x-filament::icon icon="heroicon-m-adjustments-horizontal" class="h-4 w-4" />
+                        Filter
+                        @if ($filterWorkLocationId !== '' || $filterDepartmentId !== '' || $filterPositionId !== '')
+                            <span class="rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-semibold text-primary-700 dark:bg-primary-950 dark:text-primary-300">Aktif</span>
+                        @endif
+                        <x-filament::icon icon="heroicon-m-chevron-down" class="h-4 w-4" />
+                    </summary>
+                    <div class="absolute right-0 z-50 mt-2 grid w-[min(34rem,calc(100vw-2.5rem))] gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-900 sm:grid-cols-3">
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
+                            Lokasi Kerja
+                            <select wire:model.live="filterWorkLocationId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                                <option value="">Semua Lokasi</option>
+                                @foreach ($workLocations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
+                            Departemen
+                            <select wire:model.live="filterDepartmentId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                                <option value="">Semua Departemen</option>
+                                @foreach ($departments as $department)
+                                    <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-300">
+                            Jabatan
+                            <select wire:model.live="filterPositionId" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+                                <option value="">Semua Jabatan</option>
+                                @foreach ($positions as $position)
+                                    <option value="{{ $position->id }}">{{ $position->name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                    </div>
+                </details>
             </div>
         </section>
 
