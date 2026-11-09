@@ -26,8 +26,8 @@
         >
             <div class="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-700">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Import Karyawan</h2>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Import satu karyawan dari file Excel.</p>
+                    <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Import Data Karyawan</h2>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Download terlebih dahulu template untuk import data karyawan secara masal. Pilih lokasi karyawan untuk menentukan lokasi karyawan.</p>
                 </div>
                 <button
                     type="button"
@@ -39,15 +39,8 @@
 
             <div class="space-y-4 p-5">
                 <div class="rounded-lg bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                    <p class="font-semibold">Informasi Import</p>
-                    <ul class="mt-2 list-disc space-y-1 pl-5 text-xs text-gray-600 dark:text-gray-300">
-                        <li>Satu file hanya untuk satu karyawan, bukan import massal.</li>
-                        <li>Kode karyawan dibuat otomatis mengikuti urutan kode yang sudah ada.</li>
-                        <li>Import dibatalkan jika NIK dan nama sudah terdaftar.</li>
-                        <li>PIN dan ID Mesin harus cocok dengan data mesin. PIN yang sudah digunakan pada lokasi mesin yang sama akan ditolak.</li>
-                        <li>Lokasi Kerja dipilih di bawah ini dan tidak harus sama dengan lokasi mesin.</li>
-                        <li>Jabatan dicocokkan berdasarkan nama jabatan yang sudah terdaftar. Tanggal gunakan format YYYY-MM-DD.</li>
-                    </ul>
+                    <p class="font-semibold">Informasi</p>
+                    <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">Download terlebih dahulu template untuk import data karyawan secara masal. Pilih lokasi karyawan untuk menentukan lokasi karyawan.</p>
                     <button
                         type="button"
                         wire:click="downloadTemplate"
@@ -90,22 +83,57 @@
                     <div wire:loading wire:target="file" class="mt-2 text-xs text-gray-500 dark:text-gray-400">Mengunggah file...</div>
                 </div>
 
-                <div wire:loading wire:target="importEmployee" class="space-y-2" role="status" aria-live="polite">
-                    <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                        <div class="h-2 w-2/3 animate-pulse rounded-full bg-primary-600"></div>
-                    </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Memeriksa data, validasi PIN mesin, dan menyimpan karyawan...</p>
-                </div>
-
-                @if ($progress === 100 && $resultStatus)
-                    <div class="space-y-2">
-                        <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                            <div class="h-2 w-full rounded-full {{ $resultStatus === 'success' ? 'bg-success-600' : 'bg-danger-600' }}"></div>
+                @if ($importRunning)
+                    <div wire:poll.500ms="processImportBatch" class="space-y-2" role="status" aria-live="polite">
+                        <div class="flex justify-between text-xs text-gray-600 dark:text-gray-300">
+                            <span>Memproses data karyawan...</span>
+                            <span>{{ $processedRows }} / {{ $totalRows }}</span>
                         </div>
-                        <div class="rounded-lg p-3 {{ $resultStatus === 'success' ? 'bg-success-50 text-success-800 dark:bg-success-950 dark:text-success-200' : 'bg-danger-50 text-danger-800 dark:bg-danger-950 dark:text-danger-200' }}">
-                            <p class="text-sm font-semibold">{{ $resultStatus === 'success' ? 'Import Berhasil' : 'Import Dibatalkan' }}</p>
+                        <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                            <div class="h-2 rounded-full bg-primary-600 transition-all duration-300" style="width: {{ $progress }}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Berhasil: {{ $successCount }} · Gagal: {{ $failedCount }}</p>
+                    </div>
+                @endif
+
+                @if ($resultStatus)
+                    <div class="space-y-3">
+                        <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                            <div class="h-2 w-full rounded-full {{ $resultStatus === 'success' ? 'bg-success-600' : ($resultStatus === 'partial' ? 'bg-warning-500' : 'bg-danger-600') }}"></div>
+                        </div>
+                        <div class="rounded-lg p-3 {{ $resultStatus === 'success' ? 'bg-success-50 text-success-800 dark:bg-success-950 dark:text-success-200' : ($resultStatus === 'partial' ? 'bg-warning-50 text-warning-800 dark:bg-warning-950 dark:text-warning-200' : 'bg-danger-50 text-danger-800 dark:bg-danger-950 dark:text-danger-200') }}">
+                            <p class="text-sm font-semibold">{{ $resultStatus === 'success' ? 'Import Berhasil' : ($resultStatus === 'partial' ? 'Import Selesai dengan Catatan' : 'Import Gagal') }}</p>
                             <p class="mt-1 text-sm">{{ $resultMessage }}</p>
                         </div>
+
+                        @if ($totalRows > 0)
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                                    <p class="text-xl font-semibold text-gray-950 dark:text-white">{{ $totalRows }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                                </div>
+                                <div class="rounded-lg bg-success-50 p-3 dark:bg-success-950">
+                                    <p class="text-xl font-semibold text-success-700 dark:text-success-300">{{ $successCount }}</p>
+                                    <p class="text-xs text-success-700 dark:text-success-300">Berhasil</p>
+                                </div>
+                                <div class="rounded-lg bg-danger-50 p-3 dark:bg-danger-950">
+                                    <p class="text-xl font-semibold text-danger-700 dark:text-danger-300">{{ $failedCount }}</p>
+                                    <p class="text-xs text-danger-700 dark:text-danger-300">Gagal</p>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if (count($failedRows))
+                            <div class="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Detail data gagal</p>
+                                @foreach ($failedRows as $failedRow)
+                                    <div class="text-xs text-danger-700 dark:text-danger-300">
+                                        <span class="font-semibold">Baris {{ $failedRow['row'] }}:</span>
+                                        {{ $failedRow['message'] }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -113,9 +141,10 @@
                     <button
                         type="button"
                         wire:click="closeModal"
+                        @disabled($importRunning)
                         class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
-                    >{{ $resultStatus ? 'Tutup' : 'Batal Import' }}</button>
-                    @if (! $resultStatus)
+                    >{{ $importRunning ? 'Import Berjalan...' : ($resultStatus ? 'Tutup' : 'Batal Import') }}</button>
+                    @if (! $resultStatus && ! $importRunning)
                         <button
                             type="button"
                             wire:click="importEmployee"
