@@ -433,23 +433,12 @@ class Employees extends Page
                     ->on('machine_users.pin', '=', 'employees.machine_user_pin');
             })
             ->select([
-                'employees.employee_no',
-                'employees.nik',
-                'employees.name',
-                'employees.address',
-                'employees.phone',
-                'employees.birth_place',
-                'employees.birth_date',
-                'employees.hire_date',
-                'employees.machine_user_pin',
-                'employees.machine_user_cloud_id',
-                'employees.employment_status',
-                'employees.work_location_id',
-                'departments.id as department_id',
-                'departments.name as department_name',
-                'positions.name as position_name',
-                'work_locations.name as work_location_name',
-                'machine_users.finger_count',
+                'employees.employee_no', 'employees.nik', 'employees.name',
+                'employees.machine_user_pin', 'employees.machine_user_cloud_id',
+                'employees.employment_status', 'employees.include_in_reports',
+                'employees.work_location_id', 'departments.id as department_id',
+                'departments.name as department_name', 'positions.name as position_name',
+                'work_locations.name as work_location_name', 'machine_users.finger_count',
                 'machine_users.biometric_status',
             ])
             ->orderBy('employees.name')
@@ -462,102 +451,42 @@ class Employees extends Page
             ->when(filled($this->filterName), fn ($rows) => $rows->filter(fn ($employee) => str_contains(mb_strtolower($employee->name), mb_strtolower(trim($this->filterName)))))
             ->values();
 
-        $company = DB::table('companies')->orderBy('id')->first();
-        $locationLabel = filled($this->filterWorkLocationId)
+        $location = filled($this->filterWorkLocationId)
             ? (DB::table('work_locations')->where('id', $this->filterWorkLocationId)->value('name') ?: '—')
             : 'Semua Lokasi';
-        $departmentLabel = filled($this->filterDepartmentId)
+        $department = filled($this->filterDepartmentId)
             ? (DB::table('departments')->where('id', $this->filterDepartmentId)->value('name') ?: '—')
             : 'Semua Departemen';
-        $registrationLabel = match ($this->filterMachineRegistration) {
-            'registered' => 'Sudah Terdaftar',
-            'not_registered' => 'Belum Terdaftar',
-            default => 'Semua Registrasi',
-        };
-        $statusLabel = match ($this->filterStatus) {
-            'active' => 'Aktif',
-            'inactive' => 'Tidak Aktif',
-            default => 'Semua Status',
-        };
 
-        $escape = static fn ($value): string => htmlspecialchars((string) ($value ?? ''), ENT_XML1 | ENT_COMPAT, 'UTF-8');
-        $cell = fn ($value, string $style = 'Cell'): string =>
-            '<Cell ss:StyleID="' . $style . '"><Data ss:Type="String">' . $escape($value) . '</Data></Cell>';
-        $mergedRow = fn ($value, string $style): string =>
-            '<Row><Cell ss:StyleID="' . $style . '" ss:MergeAcross="13"><Data ss:Type="String">' . $escape($value) . '</Data></Cell></Row>';
-
-        $xmlRows = [];
-        $xmlRows[] = $mergedRow($company->name ?? 'Nama Perusahaan', 'Company');
-        $xmlRows[] = $mergedRow($company->address ?? '', 'CompanyAddress');
-        $xmlRows[] = $mergedRow('DATA KARYAWAN', 'Title');
-        $xmlRows[] = $mergedRow('Lokasi : ' . $locationLabel, 'Filter');
-        $xmlRows[] = $mergedRow('Departemen : ' . $departmentLabel, 'Filter');
-        $xmlRows[] = $mergedRow('Reg. Mesin : ' . $registrationLabel, 'Filter');
-        $xmlRows[] = $mergedRow('Status Aktif : ' . $statusLabel, 'Filter');
-
-        $headers = ['No', 'Kode', 'Nama Karyawan', 'Jabatan', 'Departemen', 'NIK', 'Alamat', 'No. HP/Telp', 'Tempat/Tgl. Lahir', 'PIN', 'ID Mesin', 'Terdaftar', 'Mulai Bekerja', 'Lokasi Kerja'];
-        $xmlRows[] = '<Row>' . implode('', array_map(fn ($header) => $cell($header, 'Header'), $headers)) . '</Row>';
-
-        foreach ($employees as $index => $employee) {
-            $birth = trim(implode(' / ', array_filter([
-                $employee->birth_place,
-                $employee->birth_date ? \Illuminate\Support\Carbon::parse($employee->birth_date)->format('d-m-Y') : null,
-            ])));
-            $registration = $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0
-                ? 'Sudah Terdaftar (' . (int) $employee->finger_count . ' Jari)'
-                : 'Belum Terdaftar';
-            $hireDate = $employee->hire_date
-                ? \Illuminate\Support\Carbon::parse($employee->hire_date)->format('d-m-Y')
-                : '';
-
-            $values = [
+        $rows = $employees->values()->map(function ($employee, $index) {
+            $registered = $employee->biometric_status === 'checked' && (int) $employee->finger_count > 0;
+            return [
                 $index + 1,
-                $employee->employee_no,
                 $employee->name,
-                $employee->position_name,
-                $employee->department_name,
-                $employee->nik,
-                $employee->address,
-                $employee->phone,
-                $birth,
-                $employee->machine_user_pin,
-                $employee->machine_user_cloud_id,
-                $registration,
-                $hireDate,
-                $employee->work_location_name,
+                $employee->nik ?: '—',
+                $employee->position_name ?: '—',
+                $employee->work_location_name ?: '—',
+                $employee->machine_user_pin ?: '—',
+                $employee->machine_user_cloud_id ?: '—',
+                $registered ? 'Sudah (' . (int) $employee->finger_count . ' jari)' : 'Belum',
+                $employee->include_in_reports ? 'Ya' : 'Tidak',
+                $employee->employment_status === 'active' ? 'Aktif' : 'Tidak Aktif',
             ];
-            $xmlRows[] = '<Row>' . implode('', array_map(fn ($value) => $cell($value), $values)) . '</Row>';
-        }
+        });
 
-        $widths = [40, 80, 160, 120, 120, 110, 180, 110, 140, 65, 110, 130, 100, 120];
-        $xmlColumns = implode('', array_map(
-            fn ($width) => '<Column ss:Width="' . $width . '"/>',
-            $widths,
-        ));
-
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<?mso-application progid="Excel.Sheet"?>'
-            . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-            . '<Styles>'
-            . '<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="10"/></Style>'
-            . '<Style ss:ID="Company"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Arial" ss:Size="14" ss:Bold="1"/></Style>'
-            . '<Style ss:ID="CompanyAddress"><Alignment ss:Horizontal="Center" ss:WrapText="1"/><Font ss:FontName="Arial" ss:Size="10"/></Style>'
-            . '<Style ss:ID="Title"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Arial" ss:Size="12" ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/></Style>'
-            . '<Style ss:ID="Filter"><Font ss:FontName="Arial" ss:Size="10"/></Style>'
-            . '<Style ss:ID="Header"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Arial" ss:Size="10" ss:Bold="1"/><Interior ss:Color="#D9E1F2" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'
-            . '<Style ss:ID="Cell"><Alignment ss:Vertical="Top" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D9D9D9"/></Borders></Style>'
-            . '</Styles><Worksheet ss:Name="Data Karyawan"><Table>' . $xmlColumns . implode('', $xmlRows)
-            . '</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>8</SplitHorizontal><TopRowBottomPane>8</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions></Worksheet></Workbook>';
-
-        return response()->streamDownload(
-            static function () use ($xml): void {
-                echo $xml;
-            },
+        return \App\Support\ExcelExport::download(
             'data-karyawan-' . now()->format('Ymd_His') . '.xls',
-            ['Content-Type' => 'application/vnd.ms-excel; charset=UTF-8'],
+            'Data Karyawan',
+            'DATA KARYAWAN',
+            DB::table('companies')->orderBy('id')->first(),
+            '—',
+            $department,
+            $location,
+            ['No', 'Nama Karyawan', 'NIK', 'Jabatan', 'Lokasi', 'PIN', 'ID Mesin', 'Reg. Mesin', 'Ikut Rekap', 'Status'],
+            $rows,
+            [40, 160, 100, 120, 130, 70, 120, 110, 80, 90],
         );
     }
-
     public function toggleReportInclusion(int $employeeId): void
     {
         $includeInReports = DB::transaction(function () use ($employeeId) {

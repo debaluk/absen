@@ -30,97 +30,34 @@ class AttendanceReport extends Page
     public function exportExcel(): StreamedResponse
     {
         $data = $this->getViewData();
-        $company = $data['company'];
-        $headers = [
-            'No.',
-            'Karyawan Aktif',
-            'Lokasi Kerja',
-            'Jml. Hari',
-            'Hadir',
-            'Izin',
-            'Sakit',
-            'Cuti',
-            'Dinas',
-            'Alpa',
-            'Terlambat (Menit)',
-            'Pulang Cepat (Menit)',
-            'Kehadiran',
-        ];
-
-        $escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
-        $mergedRow = static fn (string $value, string $style = 'meta'): string =>
-            '<Row><Cell ss:StyleID="' . $style . '" ss:MergeAcross="12"><Data ss:Type="String">' . $escape($value) . '</Data></Cell></Row>';
-
-        $companyDetails = array_filter([
-            $company->address ?? null,
-            $company->phone ?? null,
-            $company->email ?? null,
-            $company->website ?? null,
-        ], fn ($value) => filled($value));
-
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<?mso-application progid="Excel.Sheet"?>'
-            . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-            . '<Styles>'
-            . '<Style ss:ID="company"><Font ss:Bold="1" ss:Size="13"/></Style>'
-            . '<Style ss:ID="title"><Font ss:Bold="1" ss:Size="12"/></Style>'
-            . '<Style ss:ID="meta"><Font ss:Size="10"/></Style>'
-            . '<Style ss:ID="header"><Font ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/></Style>'
-            . '<Style ss:ID="number"><NumberFormat ss:Format="0"/></Style>'
-            . '</Styles><Worksheet ss:Name="Rekap Kehadiran"><Table>'
-            . $mergedRow($company->name ?? config('app.name'), 'company');
-
-        if ($companyDetails !== []) {
-            $xml .= $mergedRow(implode(' | ', $companyDetails));
-        }
-
-        $xml .= $mergedRow('Rekap Kehadiran Karyawan', 'title')
-            . $mergedRow('Bulan : ' . $data['monthLabel'])
-            . $mergedRow('Departemen : ' . ($data['selectedDepartmentName'] ?: 'Semua Departemen'))
-            . $mergedRow('Lokasi Kerja : ' . ($data['selectedWorkLocationName'] ?: 'Semua Lokasi'))
-            . '<Row/>';
-
-        $xml .= '<Row>' . implode('', array_map(
-            fn (string $header): string => '<Cell ss:StyleID="header"><Data ss:Type="String">' . $escape($header) . '</Data></Cell>',
-            $headers,
-        )) . '</Row>';
-
+        $rows = [];
         foreach ($data['rows'] as $index => $row) {
             $employee = $row['employee'];
             $counts = $row['counts'];
-            $values = [
+            $rows[] = [
                 $index + 1,
                 $employee->name . ' (' . $employee->employee_no . ')',
                 $employee->work_location_name ?? 'Belum diatur',
                 $row['effective_days'],
-                $counts['hadir'],
-                $counts['izin'],
-                $counts['sakit'],
-                $counts['cuti'],
-                $counts['dinas'],
-                $counts['alpa'],
-                $counts['late_minutes'],
-                $counts['early_leave_minutes'],
-                $counts['hadir'] . '/' . $row['effective_days'],
+                $counts['hadir'], $counts['izin'], $counts['sakit'], $counts['cuti'],
+                $counts['dinas'], $counts['alpa'], $counts['late_minutes'],
+                $counts['early_leave_minutes'], $counts['hadir'] . '/' . $row['effective_days'],
             ];
-
-            $xml .= '<Row>' . implode('', array_map(
-                fn ($value): string => '<Cell' . (is_int($value) ? ' ss:StyleID="number"' : '') . '><Data ss:Type="' . (is_int($value) ? 'Number' : 'String') . '">' . $escape($value) . '</Data></Cell>',
-                $values,
-            )) . '</Row>';
         }
 
-        $xml .= '</Table></Worksheet></Workbook>';
-
-        return response()->streamDownload(
-            static function () use ($xml): void {
-                echo $xml;
-            },
+        return \App\Support\ExcelExport::download(
             'rekap-kehadiran-' . str_replace('-', '', $data['month']) . '.xls',
-            ['Content-Type' => 'application/vnd.ms-excel; charset=UTF-8'],
+            'Rekap Kehadiran',
+            'REKAP KEHADIRAN KARYAWAN',
+            $data['company'],
+            $data['monthLabel'],
+            $data['selectedDepartmentName'] ?: 'Semua Departemen',
+            $data['selectedWorkLocationName'] ?: 'Semua Lokasi',
+            ['No.', 'Karyawan Aktif', 'Lokasi Kerja', 'Jml. Hari', 'Hadir', 'Izin', 'Sakit', 'Cuti', 'Dinas', 'Alpa', 'Terlambat (Menit)', 'Pulang Cepat (Menit)', 'Kehadiran'],
+            $rows,
+            [40, 180, 120, 70, 55, 55, 55, 55, 55, 55, 100, 110, 80],
         );
     }
-
     protected function getViewData(): array
     {
         $month = preg_match('/^\d{4}-\d{2}$/', $this->filterMonth)

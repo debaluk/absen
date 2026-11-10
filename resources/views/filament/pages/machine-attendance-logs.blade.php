@@ -53,8 +53,8 @@
                 <x-filament::button color="gray" outlined icon="heroicon-o-arrow-path" wire:click="resetFilters">
                     Reset filter
                 </x-filament::button>
-                <x-filament::button color="success" icon="heroicon-o-document-arrow-down" wire:click="exportCsv">
-                    Export CSV
+                <x-filament::button color="success" icon="heroicon-o-document-arrow-down" wire:click="exportExcel">
+                    Export Excel
                 </x-filament::button>
             </div>
         </x-filament::section>

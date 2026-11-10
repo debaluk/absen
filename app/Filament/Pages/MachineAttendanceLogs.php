@@ -120,41 +120,42 @@ class MachineAttendanceLogs extends Page
         $this->resetPage();
     }
 
-    public function exportCsv(): StreamedResponse
+    public function exportExcel(): StreamedResponse
     {
-        $fileName = 'log-absensi-mesin-' . now()->format('Ymd-His') . '.csv';
+        $logs = $this->logsQuery()
+            ->orderByDesc('logs.scan_date')
+            ->orderByDesc('logs.id')
+            ->get();
 
-        return response()->streamDownload(function () {
-            $output = fopen('php://output', 'w');
-            fwrite($output, "\xEF\xBB\xBF");
+        $rows = $logs->map(fn ($log) => [
+            \Illuminate\Support\Carbon::parse($log->scan_date)->format('d-m-Y H:i:s'),
+            ($log->user_name ?: 'Pengguna belum dikenal') . "\nPIN: " . $log->pin,
+            ($log->device_name ?: 'Mesin tidak dikenal') . "\n" . $log->cloud_id,
+            $log->status_scan === null ? '—' : 'Kode ' . $log->status_scan,
+            $log->verify === null ? '—' : 'Kode ' . $log->verify,
+            $log->received_at ? \Illuminate\Support\Carbon::parse($log->received_at)->format('d-m-Y H:i:s') : '—',
+        ]);
 
-            fputcsv($output, [
-                'Waktu Scan', 'Nama Pengguna', 'PIN', 'Nama Mesin',
-                'Cloud ID', 'Status Scan (Kode)', 'Verifikasi (Kode)', 'Diterima Server',
-            ], ';');
+        $period = ($this->dateFrom || $this->dateTo)
+            ? ($this->dateFrom ?: 'Awal') . ' s.d. ' . ($this->dateTo ?: 'Sekarang')
+            : 'Semua Periode';
+        $deviceName = $this->device !== ''
+            ? (DB::table('devices')->where('cloud_id', $this->device)->value('name') ?: $this->device)
+            : 'Semua Mesin';
 
-            $this->logsQuery()
-                ->orderByDesc('logs.scan_date')
-                ->orderByDesc('logs.id')
-                ->chunk(1000, function ($logs) use ($output) {
-                    foreach ($logs as $log) {
-                        fputcsv($output, [
-                            $log->scan_date,
-                            $log->user_name ?: 'Pengguna belum dikenal',
-                            $log->pin,
-                            $log->device_name ?: 'Mesin tidak dikenal',
-                            $log->cloud_id,
-                            $log->status_scan,
-                            $log->verify,
-                            $log->received_at,
-                        ], ';');
-                    }
-                });
-
-            fclose($output);
-        }, $fileName, ['Content-Type' => 'text/csv; charset=UTF-8']);
+        return \App\Support\ExcelExport::download(
+            'log-absensi-mesin-' . now()->format('Ymd-His') . '.xls',
+            'Log Mesin',
+            'LOG ABSENSI MESIN',
+            DB::table('companies')->orderBy('id')->first(),
+            $period,
+            '—',
+            $deviceName,
+            ['Waktu scan', 'Pengguna / PIN', 'Mesin', 'Status scan', 'Verifikasi', 'Diterima server'],
+            $rows,
+            [130, 180, 180, 90, 90, 140],
+        );
     }
-
     protected function logsQuery(): Builder
     {
         $query = DB::table('logs')

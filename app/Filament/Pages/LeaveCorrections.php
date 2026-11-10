@@ -324,78 +324,37 @@ class LeaveCorrections extends Page
     public function exportExcel()
     {
         $leaves = $this->leaveQuery()->orderBy('leaves.from')->orderBy('employees.name')->get();
-        $company = DB::table('companies')->orderBy('id')->first();
-        $xmlEscape = fn ($value) => htmlspecialchars((string) ($value ?? ''), ENT_XML1 | ENT_QUOTES, 'UTF-8');
-
         $period = ($this->filterFrom || $this->filterTo)
             ? ($this->filterFrom ? Carbon::parse($this->filterFrom)->format('d/m/Y') : 'Awal')
-                .' s.d. '.($this->filterTo ? Carbon::parse($this->filterTo)->format('d/m/Y') : 'Sekarang')
+                . ' s.d. ' . ($this->filterTo ? Carbon::parse($this->filterTo)->format('d/m/Y') : 'Sekarang')
             : 'Semua Periode';
-
-        $rows = [];
-        $rows[] = '<Row><Cell ss:MergeAcross="5" ss:StyleID="Company"><Data ss:Type="String">'.$xmlEscape($company->name ?? config('app.name')).'</Data></Cell></Row>';
-        $companyInfo = collect([$company->address ?? null, $company->phone ?? null, $company->email ?? null, $company->website ?? null])->filter()->implode(' | ');
-        if ($companyInfo !== '') {
-            $rows[] = '<Row><Cell ss:MergeAcross="5" ss:StyleID="CompanyInfo"><Data ss:Type="String">'.$xmlEscape($companyInfo).'</Data></Cell></Row>';
-        }
-        $rows[] = '<Row ss:Height="26"><Cell ss:MergeAcross="5" ss:StyleID="ReportTitle"><Data ss:Type="String">DATA LAPORAN IZIN KARYAWAN</Data></Cell></Row>';
-        $rows[] = '<Row><Cell ss:StyleID="MetaLabel"><Data ss:Type="String">Periode :</Data></Cell><Cell ss:MergeAcross="4" ss:StyleID="MetaValue"><Data ss:Type="String">'.$xmlEscape($period).'</Data></Cell></Row>';
-        $rows[] = '<Row ss:Height="8"></Row>';
-        $headers = ['No.', 'Nama Karyawan', 'Jabatan', 'Jenis', 'Tanggal', 'Alasan'];
-        $headerCells = '';
-        foreach ($headers as $header) {
-            $headerCells .= '<Cell ss:StyleID="Header"><Data ss:Type="String">'.$xmlEscape($header).'</Data></Cell>';
-        }
-        $rows[] = '<Row ss:Height="24">'.$headerCells.'</Row>';
-
         $labels = ['izin' => 'Izin', 'sakit' => 'Sakit', 'cuti' => 'Cuti', 'dinas' => 'Dinas Luar'];
-        foreach ($leaves as $index => $leave) {
+        $rows = $leaves->values()->map(function ($leave, $index) use ($labels) {
             $date = Carbon::parse($leave->from)->format('d/m/Y');
             if ($leave->to !== $leave->from) {
-                $date .= ' - '.Carbon::parse($leave->to)->format('d/m/Y');
+                $date .= ' - ' . Carbon::parse($leave->to)->format('d/m/Y');
             }
-            $values = [
-                ['Number', (string) ($index + 1)],
-                ['String', $leave->employee_name ?? 'Karyawan belum ditautkan'],
-                ['String', ''],
-                ['String', $labels[$leave->kind] ?? ucfirst($leave->kind)],
-                ['String', $date],
-                ['String', $leave->note ?? ''],
+            return [
+                $leave->employee_name ?: 'Karyawan belum ditautkan',
+                $labels[$leave->kind] ?? ucfirst($leave->kind),
+                $date,
+                $leave->note ?: '—',
             ];
-            $cells = '';
-            foreach ($values as [$type, $value]) {
-                $cells .= '<Cell ss:StyleID="'.($type === 'Number' ? 'Center' : 'Body').'"><Data ss:Type="'.$type.'">'.$xmlEscape($value).'</Data></Cell>';
-            }
-            $rows[] = '<Row>'.$cells.'</Row>';
-        }
+        });
 
-        if ($leaves->isEmpty()) {
-            $rows[] = '<Row><Cell ss:MergeAcross="5" ss:StyleID="Empty"><Data ss:Type="String">Tidak ada data izin pada filter yang dipilih.</Data></Cell></Row>';
-        }
-
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>'
-            .'<?mso-application progid="Excel.Sheet"?>'
-            .'<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-            .'<Styles>'
-            .'<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="10"/></Style>'
-            .'<Style ss:ID="Company"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="14" ss:Bold="1"/></Style>'
-            .'<Style ss:ID="CompanyInfo"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="9"/></Style>'
-            .'<Style ss:ID="ReportTitle"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="12" ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/></Style>'
-            .'<Style ss:ID="MetaLabel"><Font ss:Bold="1"/></Style><Style ss:ID="MetaValue"><Alignment ss:Vertical="Center"/></Style>'
-            .'<Style ss:ID="Header"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:Bold="1"/><Interior ss:Color="#D9E1F2" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'
-            .'<Style ss:ID="Center"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'
-            .'<Style ss:ID="Body"><Alignment ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>'
-            .'<Style ss:ID="Empty"><Alignment ss:Horizontal="Center"/><Font ss:Italic="1" ss:Color="#666666"/></Style>'
-            .'</Styles><Worksheet ss:Name="Data Izin"><Table>'
-            .'<Column ss:Width="40"/><Column ss:Width="180"/><Column ss:Width="130"/><Column ss:Width="100"/><Column ss:Width="140"/><Column ss:Width="240"/>'
-            .implode('', $rows)
-            .'</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><PageSetup><Layout x:Orientation="Landscape"/><PageMargins x:Bottom="0.5" x:Left="0.3" x:Right="0.3" x:Top="0.5"/></PageSetup><Print><FitWidth>1</FitWidth><FitHeight>0</FitHeight></Print></WorksheetOptions></Worksheet></Workbook>';
-
-        return response()->streamDownload(fn () => print($xml), 'Data-Laporan-Izin-Karyawan.xls', [
-            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
-        ]);
+        return \App\Support\ExcelExport::download(
+            'data-laporan-izin-karyawan.xls',
+            'Data Izin',
+            'DATA LAPORAN IZIN KARYAWAN',
+            DB::table('companies')->orderBy('id')->first(),
+            $period,
+            '—',
+            '—',
+            ['Karyawan', 'Jenis', 'Tanggal', 'Keterangan / Alasan'],
+            $rows,
+            [190, 110, 150, 260],
+        );
     }
-
     protected function leaveQuery()
     {
         return DB::table('leaves')
