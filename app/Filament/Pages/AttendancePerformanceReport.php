@@ -326,7 +326,7 @@ class AttendancePerformanceReport extends Page
 
         $tempFile = tempnam(sys_get_temp_dir(), 'attendance-performance-');
         $zip = new ZipArchive();
-        if ($zip->open($tempFile, ZipArchive::OVERWRITE) !== true) {
+        if ($zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             @unlink($tempFile);
             throw new \RuntimeException('File Excel tidak dapat dibuat.');
         }
