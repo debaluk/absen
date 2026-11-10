@@ -125,7 +125,7 @@ class MachineAttendanceLogs extends Page
         $logs = $this->logsQuery()
             ->orderByDesc('logs.scan_date')
             ->orderByDesc('logs.id')
-            ->get();
+            ->cursor();
 
         $rows = $logs->map(fn ($log) => [
             \Illuminate\Support\Carbon::parse($log->scan_date)->format('d-m-Y H:i:s'),
