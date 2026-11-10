@@ -69,7 +69,8 @@ class ExcelExport
         foreach ($rows as $row) {
             $xml .= '<Row>';
             foreach ($row as $value) {
-                $xml .= '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $escape($value) . '</Data></Cell>';
+                $numeric = is_int($value) || is_float($value);
+                $xml .= '<Cell ss:StyleID="Cell"><Data ss:Type="' . ($numeric ? 'Number' : 'String') . '">' . $escape($value) . '</Data></Cell>';
             }
             $xml .= '</Row>';
         }
