@@ -66,7 +66,14 @@
     </style>
     <div class="attendance-performance space-y-5">
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <div class="mb-3 flex justify-end">
+                <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" class="inline-flex min-h-[2.5rem] items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 disabled:cursor-wait disabled:opacity-60">
+                    <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-4 w-4" />
+                    <span wire:loading.remove wire:target="exportExcel">Export Excel</span>
+                    <span wire:loading wire:target="exportExcel">Menyiapkan...</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <div>
                     <label for="filter-month" class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">Periode</label>
                     <input id="filter-month" type="month" wire:model.live="filterMonth" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
@@ -97,13 +104,6 @@
                             <option value="{{ $position->id }}">{{ $position->name }}</option>
                         @endforeach
                     </select>
-                </div>
-                <div class="flex items-end">
-                    <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" class="inline-flex min-h-[2.5rem] w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 disabled:cursor-wait disabled:opacity-60">
-                        <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-4 w-4" />
-                        <span wire:loading.remove wire:target="exportExcel">Export Excel</span>
-                        <span wire:loading wire:target="exportExcel">Menyiapkan...</span>
-                    </button>
                 </div>
             </div>
             <div class="mt-3">
