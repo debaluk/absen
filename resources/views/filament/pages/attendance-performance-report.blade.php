@@ -66,7 +66,7 @@
     </style>
     <div class="attendance-performance space-y-5">
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div class="grid gap-x-3 gap-y-2 sm:grid-cols-5">
+            <div class="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-5">
                 <div class="text-xs font-medium text-gray-600 dark:text-gray-300">Periode</div>
                 <div class="text-xs font-medium text-gray-600 dark:text-gray-300">Lokasi</div>
                 <div class="text-xs font-medium text-gray-600 dark:text-gray-300">Departemen</div>
@@ -78,6 +78,8 @@
                         <span wire:loading wire:target="exportExcel">Menyiapkan...</span>
                     </button>
                 </div>
+            </div>
+            <div class="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-5">
                 <div>
                     <input type="month" wire:model.live="filterMonth" aria-label="Periode" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                 </div>
@@ -106,12 +108,13 @@
                     </select>
                 </div>
             </div>
-            <div class="mt-3 flex flex-col gap-3">
+            <div class="mt-3">
                 <label class="block w-full text-xs font-medium text-gray-600 dark:text-gray-300">
                     Cari Karyawan
                     <input type="search" wire:model.live.debounce.300ms="filterName" placeholder="Nama karyawan..." class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
                 </label>
-            </div>ction>
+            </div>
+        </section>
 
         @if ($formula)
             <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
